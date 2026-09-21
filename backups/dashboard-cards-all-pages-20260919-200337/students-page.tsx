@@ -1,0 +1,62 @@
+'use client';
+
+import Shell from '@/components/Shell';
+import CrudPage from '@/components/CrudPage';
+
+export default function Students() {
+  return (
+    <Shell
+      title="الطلاب"
+      subtitle="ملفات الطلاب والتسجيلات والمتابعة"
+    >
+      <CrudPage
+        title="طالب"
+        subtitle="إدارة بيانات الطلاب وحالتهم"
+        endpoint="/api/students"
+        columns={[
+          { key: 'student_no', label: 'الرقم' },
+          { key: 'name', label: 'الاسم' },
+          { key: 'phone', label: 'الهاتف' },
+          { key: 'email', label: 'البريد' },
+          { key: 'status', label: 'الحالة' },
+        ]}
+        fields={[
+          {
+            key: 'student_no',
+            label: 'رقم الطالب',
+            required: true,
+          },
+          {
+            key: 'name',
+            label: 'اسم الطالب',
+            required: true,
+          },
+          {
+            key: 'phone',
+            label: 'الهاتف',
+          },
+          {
+            key: 'email',
+            label: 'البريد الإلكتروني',
+            type: 'email',
+          },
+          {
+            key: 'identity_no',
+            label: 'رقم الهوية',
+          },
+          {
+            key: 'status',
+            label: 'الحالة',
+            type: 'select',
+            options: [
+              { value: 'active', label: 'نشط' },
+              { value: 'inactive', label: 'غير نشط' },
+              { value: 'graduated', label: 'متخرج' },
+              { value: 'suspended', label: 'موقوف' },
+            ],
+          },
+        ]}
+      />
+    </Shell>
+  );
+}
