@@ -10,5 +10,8 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './'),
     },
+    env: {
+      AUTH_SECRET: 'test-only-auth-secret-32-chars-minimum-xxxxxxxx',
+    },
   },
 });

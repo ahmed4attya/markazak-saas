@@ -1,3 +1,175 @@
-import {NextResponse} from 'next/server';import Stripe from 'stripe';import {query} from '@/lib/db';
-export const runtime='nodejs'
-export async function POST(req:Request){const secret=process.env.STRIPE_WEBHOOK_SECRET;const key=process.env.STRIPE_SECRET_KEY;if(!secret||!key)return NextResponse.json({error:'Stripe is not configured'},{status:503});const stripe=new Stripe(key);const signature=req.headers.get('stripe-signature');if(!signature)return NextResponse.json({error:'missing signature'},{status:400});const body=await req.text();let event:Stripe.Event;try{event=stripe.webhooks.constructEvent(body,signature,secret)}catch{return NextResponse.json({error:'invalid signature'},{status:400})}const obj=event.data.object as any;const subId=obj.id||obj.subscription;const customerId=obj.customer;if(event.type.startsWith('customer.subscription.')&&subId){const planCode=obj.metadata?.plan_code||null;const r=await query(`update subscriptions set status=$1,stripe_customer_id=$2,stripe_subscription_id=$3,current_period_end=to_timestamp($4),plan=coalesce($5,plan) where stripe_subscription_id=$3 or stripe_customer_id=$2 returning tenant_id`,[obj.status||'active',customerId,subId,obj.current_period_end||Math.floor(Date.now()/1000),planCode]);const tenantId=r.rows[0]?.tenant_id;if(tenantId&&planCode&&(obj.status==='active'||obj.status==='trialing')){await query(`update tenants set plan=$2,updated_at=now() where id=$1`,[tenantId,planCode])}}return NextResponse.json({received:true})}
+import { NextResponse } from 'next/server';
+import { query, safeError } from '@/lib/db';
+import { getSession, isAdmin } from '@/lib/auth';
+import { studentSchema } from '@/lib/validation';
+import { logAudit } from '@/lib/audit';
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const s = await getSession();
+
+  if (!s) {
+    return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  if (!UUID_RE.test(id)) {
+    return NextResponse.json(
+      { error: 'معرف الطالب غير صالح' },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const result = await query(
+      'select id, student_no, name, phone, email, identity_no, status, created_at from students where id = $1 and tenant_id = $2',
+      [id, s.tenantId]
+    );
+
+    if (!result.rows[0]) {
+      return NextResponse.json(
+        { error: 'الطالب غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(result.rows[0]);
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e, 'تعذر جلب بيانات الطالب') },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const s = await getSession();
+
+  if (!s) {
+    return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  if (!UUID_RE.test(id)) {
+    return NextResponse.json(
+      { error: 'معرف الطالب غير صالح' },
+      { status: 400 }
+    );
+  }
+
+  let x;
+
+  try {
+    x = studentSchema.partial().parse(await req.json());
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e, 'بيانات الطالب غير صالحة') },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const result = await query(
+      `update students set
+        student_no = coalesce($3, student_no),
+        name = coalesce($4, name),
+        phone = coalesce($5, phone),
+        email = coalesce($6, email),
+        identity_no = coalesce($7, identity_no),
+        status = coalesce($8, status),
+        updated_at = now()
+      where id = $1 and tenant_id = $2
+      returning *`,
+      [
+        id,
+        s.tenantId,
+        x.student_no ?? null,
+        x.name ?? null,
+        x.phone ?? null,
+        x.email ?? null,
+        x.identity_no ?? null,
+        x.status ?? null,
+      ]
+    );
+
+    if (!result.rows[0]) {
+      return NextResponse.json(
+        { error: 'الطالب غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(result.rows[0]);
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e, 'تعذر تحديث بيانات الطالب') },
+      { status: 400 }
+    );
+  }
+}
+
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const s = await getSession();
+
+  if (!s) {
+    return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+  }
+
+  if (!isAdmin(s.role)) {
+    return NextResponse.json(
+      { error: 'الصلاحية دي للإدارة بس' },
+      { status: 403 }
+    );
+  }
+
+  const { id } = await params;
+
+  if (!UUID_RE.test(id)) {
+    return NextResponse.json(
+      { error: 'معرف الطالب غير صالح' },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const result = await query(
+      'delete from students where id = $1 and tenant_id = $2 returning id',
+      [id, s.tenantId]
+    );
+
+    if (!result.rows[0]) {
+      return NextResponse.json(
+        { error: 'الطالب غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    await logAudit({
+      tenantId: s.tenantId,
+      userId: s.userId,
+      action: 'student.delete',
+      entity: 'student',
+      entityId: id,
+    });
+
+    return NextResponse.json({ ok: true });
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e, 'تعذر حذف الطالب') },
+      { status: 400 }
+    );
+  }
+}

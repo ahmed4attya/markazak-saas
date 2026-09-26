@@ -1,37 +1,173 @@
-import {NextResponse} from 'next/server';
-import {query,safeError} from '@/lib/db';
-import {getSession} from '@/lib/auth';
-import {studentSchema} from '@/lib/validation';
+import { NextResponse } from 'next/server';
+import { query, safeError } from '@/lib/db';
+import { getSession, isAdmin } from '@/lib/auth';
+import { teacherSchema } from '@/lib/validation';
+import { logAudit } from '@/lib/audit';
 
-export async function GET(req:Request){
-  const s=await getSession();
-  if(!s)return NextResponse.json({error:'unauthorized'},{status:401});
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-  const u=new URL(req.url);
-  const q=u.searchParams.get('q')||'';
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const s = await getSession();
 
-  const r=await query(
-    'select id,student_no,name,phone,email,identity_no,status,created_at from students where tenant_id=$1 and (name ilike $2 or student_no ilike $2 or phone ilike $2) order by created_at desc limit 500',
-    [s.tenantId,`%${q}%`]
-  );
+  if (!s) {
+    return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+  }
 
-  return NextResponse.json(r.rows);
-}
+  const { id } = await params;
 
-export async function POST(req:Request){
-  const s=await getSession();
-  if(!s)return NextResponse.json({error:'unauthorized'},{status:401});
+  if (!UUID_RE.test(id)) {
+    return NextResponse.json(
+      { error: 'معرف المدرب غير صالح' },
+      { status: 400 }
+    );
+  }
 
-  try{
-    const x=studentSchema.parse(await req.json());
-
-    const r=await query(
-      'insert into students(tenant_id,student_no,name,phone,email,identity_no,status) values($1,$2,$3,$4,$5,$6,$7) returning *',
-      [s.tenantId,x.student_no,x.name,x.phone,x.email,x.identity_no,x.status]
+  try {
+    const result = await query(
+      'select * from teachers where id = $1 and tenant_id = $2',
+      [id, s.tenantId]
     );
 
-    return NextResponse.json(r.rows[0],{status:201});
-  }catch(e:any){
-    return NextResponse.json({ error: safeError(e) },{status:400});
+    if (!result.rows[0]) {
+      return NextResponse.json(
+        { error: 'المدرب غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(result.rows[0]);
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e, 'تعذر جلب بيانات المدرب') },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const s = await getSession();
+
+  if (!s) {
+    return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  if (!UUID_RE.test(id)) {
+    return NextResponse.json(
+      { error: 'معرف المدرب غير صالح' },
+      { status: 400 }
+    );
+  }
+
+  let x;
+
+  try {
+    x = teacherSchema.partial().parse(await req.json());
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e, 'بيانات المدرب غير صالحة') },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const result = await query(
+      `update teachers set
+        name = coalesce($3, name),
+        phone = coalesce($4, phone),
+        email = coalesce($5, email),
+        specialty = coalesce($6, specialty),
+        status = coalesce($7, status),
+        updated_at = now()
+      where id = $1 and tenant_id = $2
+      returning *`,
+      [
+        id,
+        s.tenantId,
+        x.name ?? null,
+        x.phone ?? null,
+        x.email ?? null,
+        x.specialty ?? null,
+        x.status ?? null,
+      ]
+    );
+
+    if (!result.rows[0]) {
+      return NextResponse.json(
+        { error: 'المدرب غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(result.rows[0]);
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e, 'تعذر تحديث بيانات المدرب') },
+      { status: 400 }
+    );
+  }
+}
+
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const s = await getSession();
+
+  if (!s) {
+    return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+  }
+
+  if (!isAdmin(s.role)) {
+    return NextResponse.json(
+      { error: 'الصلاحية دي للإدارة بس' },
+      { status: 403 }
+    );
+  }
+
+  const { id } = await params;
+
+  if (!UUID_RE.test(id)) {
+    return NextResponse.json(
+      { error: 'معرف المدرب غير صالح' },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const result = await query(
+      'delete from teachers where id = $1 and tenant_id = $2 returning id',
+      [id, s.tenantId]
+    );
+
+    if (!result.rows[0]) {
+      return NextResponse.json(
+        { error: 'المدرب غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    await logAudit({
+      tenantId: s.tenantId,
+      userId: s.userId,
+      action: 'teacher.delete',
+      entity: 'teacher',
+      entityId: id,
+    });
+
+    return NextResponse.json({ ok: true });
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e, 'تعذر حذف المدرب') },
+      { status: 400 }
+    );
   }
 }
