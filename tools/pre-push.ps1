@@ -1,8 +1,10 @@
 ﻿# ============================================================
-# pre-push.ps1 - MANDATORY GATE before every git push (v3)
+# pre-push.ps1 - MANDATORY GATE before every git push (v4)
 # Protocol : PROJECT-PROTOCOL.md Chapter 2
 # Order    : tsc -> build -> git hygiene -> schema reminder
 # Modes    : STAGED (pre-commit flow) / HEAD (post-commit flow)
+# v4       : name-status aware - deletions (D) exempt from
+#            forbidden-path checks (removing junk is desired).
 # Verdict  : GREEN = you may push. RED = NO PUSH.
 # Rules    : ASCII only, English messages, PS 5.1 safe
 # ============================================================
@@ -11,7 +13,7 @@
  $Root = $PWD.Path
 
 Write-Host "=============================================="
-Write-Host " PRE-PUSH GATE v3 - markazak-saas"
+Write-Host " PRE-PUSH GATE v4 - markazak-saas"
 Write-Host "=============================================="
 
 if (-not (Test-Path (Join-Path $Root "package.json"))) {
@@ -40,24 +42,40 @@ if ($staged.Count -gt 0) {
 }
 Write-Host ("Mode: " + $mode)
 
- $filesUnderReview = @()
+ $nameArr = @()
+ $statusArr = @()
 if ($mode -eq "STAGED") {
-    $filesUnderReview = $staged
+    $ns = @(git diff --cached --name-status 2>$null)
 } else {
     $hasOrigin = $false
     $null = git rev-parse --verify -q origin/main 2>$null
     if ($LASTEXITCODE -eq 0) { $hasOrigin = $true }
     if ($hasOrigin) {
-        $filesUnderReview = @(git diff --name-only origin/main...HEAD 2>$null)
         Write-Host "Commits to be pushed:"
         $lg = @(git log --oneline origin/main..HEAD 2>$null)
         foreach ($c in $lg) { Write-Host ("   " + $c) -ForegroundColor Gray }
+        $ns = @(git diff --name-status origin/main...HEAD 2>$null)
     } else {
-        $filesUnderReview = @(git show --name-only --format="" HEAD 2>$null)
+        $ns = @(git show --name-status --format="" HEAD 2>$null)
     }
 }
- $filesUnderReview = @($filesUnderReview | Where-Object { $_ -and $_.Trim() -ne "" })
+ $tab = [char]9
+foreach ($l in $ns) {
+    if (-not $l) { continue }
+    if ($l.Trim() -eq "") { continue }
+    $parts = $l.Split($tab)
+    if ($parts.Count -lt 2) { continue }
+    $nameArr += ($parts[$parts.Count - 1])
+    $statusArr += ($parts[0])
+}
+ $filesUnderReview = @($nameArr | Where-Object { $_ -and $_.Trim() -ne "" })
 Write-Host ("Push set: " + $filesUnderReview.Count + " file(s) under review.")
+ $delCount = 0
+foreach ($s in $statusArr) { if ($s -like "D*") { $delCount++ } }
+Write-Host ("Deletions in push set (allowed cleanup): " + $delCount)
+if ($mode -eq "HEAD" -and $filesUnderReview.Count -eq 0) {
+    Write-Host "NOTE: no diff vs origin/main - branch appears already pushed."
+}
 
 # ---- [1/4] Type check ----
 Write-Host "[1/4] Type check (npx tsc --noEmit)..." -ForegroundColor Cyan
@@ -85,17 +103,20 @@ Write-Host "      build: GREEN" -ForegroundColor Green
 Write-Host "[3/4] Git hygiene..." -ForegroundColor Cyan
  $red = $false
 
-foreach ($f in $filesUnderReview) {
+for ($i = 0; $i -lt $nameArr.Count; $i++) {
+    $f = $nameArr[$i]
+    $st = $statusArr[$i]
+    if ($st -like "D*") { continue }
     $bad = $false
     $why = ""
-    if ($f -like ".env" -or $f -like ".env.local" -or $f -like ".env.production" -or $f -like ".env.development" -or $f -like ".env*.local") {
+    if ($f -eq ".env" -or $f -eq ".env.local" -or $f -eq ".env.production" -or $f -eq ".env.development" -or $f -like ".env*.local") {
         $bad = $true; $why = "env secret file"
     } elseif ($f -like ".env.*" -and -not ($f -like ".env.example")) {
         $bad = $true; $why = "env secret file"
     } elseif ($f -like "*.pem" -or $f -like "*.key" -or $f -like "*.p12" -or $f -like "*.bak" -or $f -like "*.tmp" -or $f -like "*.dump" -or $f -like "*.log") {
         $bad = $true; $why = "secret/temp artifact"
     } elseif ($f -like "node_modules/*" -or $f -like "audit-out/*" -or $f -like "backups/*" -or $f -like "backup*" -or $f -like "dump*.sql" -or $f -eq "structure.txt") {
-        $bad = $true; $why = "junk/backup path"
+        $bad = $true; $why = "junk/backup path (as addition/modification)"
     }
     if ($bad) {
         Write-Host ("GATE RED: forbidden file in push set: " + $f + "  (" + $why + ")") -ForegroundColor Red
@@ -131,8 +152,10 @@ if ($mode -eq "STAGED") {
     Write-Host "  Staged files (whitelist - verify with your own eyes):"
     foreach ($f in $staged) { Write-Host ("    + " + $f) -ForegroundColor Gray }
 } else {
-    Write-Host "  Files changed in unpushed commits:"
-    foreach ($f in $filesUnderReview) { Write-Host ("    * " + $f) -ForegroundColor Gray }
+    Write-Host "  Files changed in unpushed commits (status + path):"
+    for ($i = 0; $i -lt $nameArr.Count; $i++) {
+        Write-Host ("    " + $statusArr[$i] + " " + $nameArr[$i]) -ForegroundColor Gray
+    }
 }
 
 # ---- [4/4] Schema sync reminder ----
