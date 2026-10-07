@@ -67,3 +67,4 @@ Scope 5: assignments + gradebook. Scope 6: online activation codes + subscriptio
 
 ## 8. Session Log
 - 2026-10-08 Session 0 COMPLETE: protocol+memory read; tools v4 installed via hardened blocks; audit GREEN; solid point committed/tagged/pushed; parallel-work merge resolved (DEC-028) and pushed; MEMORY.md created then finalized. Owner confirmations pending: GitHub visual check, lessons 1-12 paste, memory source, live-deploy question, DEC-026, tool/ origin, 7629365 author origin.- Lesson 23 (2026-10-08): verification thresholds are derived from the drafted reference content (measured), never guessed. A guessed line gate (80) failed a valid file (69 lines) - false VERIFY FAILED. Same root as Lessons 15/16: the needle must be measured, not remembered. (Incident: BLOCK MEM2.)
+- Owner visual confirmation 4/4 YES on GitHub (commit order, two tags, backups/ gone, MEMORY.md final) 2026-10-08. SESSION 0 OFFICIALLY CLOSED with live proof.
