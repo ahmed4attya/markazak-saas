@@ -1,14 +1,8 @@
-'use client';
+"use client";
 
-import Shell from '@/components/Shell';
-import { useEffect, useMemo, useState } from 'react';
-import {
-  Plus,
-  Wallet,
-  Receipt,
-  CreditCard,
-  RefreshCw,
-} from 'lucide-react';
+import Shell from "@/components/Shell";
+import { useEffect, useMemo, useState } from "react";
+import { Plus, Wallet, Receipt, CreditCard, RefreshCw } from "lucide-react";
 
 type Student = {
   id: string;
@@ -29,17 +23,17 @@ type Invoice = {
 };
 
 const emptyInvoice = {
-  amount: '',
-  student_id: '',
-  due_date: '',
-  notes: '',
+  amount: "",
+  student_id: "",
+  due_date: "",
+  notes: "",
 };
 
 const emptyPayment = {
-  invoice_id: '',
-  amount: '',
-  method: 'cash',
-  reference: '',
+  invoice_id: "",
+  amount: "",
+  method: "cash",
+  reference: "",
 };
 
 export default function Finance() {
@@ -59,25 +53,25 @@ export default function Finance() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   async function load() {
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const [invoiceRes, studentRes] = await Promise.all([
-        fetch('/api/invoices', { cache: 'no-store' }),
-        fetch('/api/students', { cache: 'no-store' }),
+        fetch("/api/invoices", { cache: "no-store" }),
+        fetch("/api/students", { cache: "no-store" }),
       ]);
 
       if (!invoiceRes.ok) {
-        throw new Error('تعذر تحميل الفواتير');
+        throw new Error("تعذر تحميل الفواتير");
       }
 
       if (!studentRes.ok) {
-        throw new Error('تعذر تحميل الطلاب');
+        throw new Error("تعذر تحميل الطلاب");
       }
 
       const invoiceData = await invoiceRes.json();
@@ -86,7 +80,7 @@ export default function Finance() {
       setRows(Array.isArray(invoiceData) ? invoiceData : []);
       setStudents(Array.isArray(studentData) ? studentData : []);
     } catch (e: any) {
-      setError(e.message || 'حدث خطأ أثناء تحميل البيانات');
+      setError(e.message || "حدث خطأ أثناء تحميل البيانات");
     } finally {
       setLoading(false);
     }
@@ -97,29 +91,17 @@ export default function Finance() {
   }, []);
 
   const totals = useMemo(() => {
-    const invoiced = rows.reduce(
-      (sum, x) => sum + Number(x.amount || 0),
-      0
-    );
+    const invoiced = rows.reduce((sum, x) => sum + Number(x.amount || 0), 0);
 
-    const paid = rows.reduce(
-      (sum, x) => sum + Number(x.paid || 0),
-      0
-    );
+    const paid = rows.reduce((sum, x) => sum + Number(x.paid || 0), 0);
 
     const remaining = Math.max(invoiced - paid, 0);
 
-    const unpaid = rows.filter(
-      (x) => x.status === 'unpaid'
-    ).length;
+    const unpaid = rows.filter((x) => x.status === "unpaid").length;
 
-    const partial = rows.filter(
-      (x) => x.status === 'partial'
-    ).length;
+    const partial = rows.filter((x) => x.status === "partial").length;
 
-    const paidInvoices = rows.filter(
-      (x) => x.status === 'paid'
-    ).length;
+    const paidInvoices = rows.filter((x) => x.status === "paid").length;
 
     return {
       invoiced,
@@ -132,45 +114,44 @@ export default function Finance() {
   }, [rows]);
 
   const selectedPaymentInvoice = rows.find(
-    (x) => x.id === paymentForm.invoice_id
+    (x) => x.id === paymentForm.invoice_id,
   );
 
   const paymentRemaining = selectedPaymentInvoice
     ? Math.max(
         Number(selectedPaymentInvoice.amount || 0) -
           Number(selectedPaymentInvoice.paid || 0),
-        0
+        0,
       )
     : 0;
 
   function money(value: number | string) {
-    return Number(value || 0).toLocaleString('ar-SA', {
+    return Number(value || 0).toLocaleString("ar-SA", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
   }
 
   function openInvoice() {
-    setError('');
-    setMessage('');
+    setError("");
+    setMessage("");
     setInvoiceForm({ ...emptyInvoice });
     setInvoiceModal(true);
   }
 
   function openPayment(invoice: Invoice) {
     const remaining = Math.max(
-      Number(invoice.amount || 0) -
-        Number(invoice.paid || 0),
-      0
+      Number(invoice.amount || 0) - Number(invoice.paid || 0),
+      0,
     );
 
     if (remaining <= 0) {
-      setError('هذه الفاتورة مدفوعة بالكامل');
+      setError("هذه الفاتورة مدفوعة بالكامل");
       return;
     }
 
-    setError('');
-    setMessage('');
+    setError("");
+    setMessage("");
 
     setPaymentForm({
       ...emptyPayment,
@@ -185,48 +166,46 @@ export default function Finance() {
     e.preventDefault();
 
     if (!invoiceForm.student_id) {
-      setError('اختر الطالب');
+      setError("اختر الطالب");
       return;
     }
 
     if (!invoiceForm.amount || Number(invoiceForm.amount) <= 0) {
-      setError('أدخل مبلغاً صحيحاً');
+      setError("أدخل مبلغاً صحيحاً");
       return;
     }
 
     setSaving(true);
-    setError('');
-    setMessage('');
+    setError("");
+    setMessage("");
 
     try {
-      const res = await fetch('/api/invoices', {
-        method: 'POST',
+      const res = await fetch("/api/invoices", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           student_id: invoiceForm.student_id,
           amount: Number(invoiceForm.amount),
           due_date: invoiceForm.due_date || null,
-          notes: invoiceForm.notes || '',
+          notes: invoiceForm.notes || "",
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(
-          data.error || 'تعذر إصدار الفاتورة'
-        );
+        throw new Error(data.error || "تعذر إصدار الفاتورة");
       }
 
       setInvoiceModal(false);
       setInvoiceForm({ ...emptyInvoice });
-      setMessage('تم إصدار الفاتورة بنجاح');
+      setMessage("تم إصدار الفاتورة بنجاح");
 
       await load();
     } catch (e: any) {
-      setError(e.message || 'تعذر إصدار الفاتورة');
+      setError(e.message || "تعذر إصدار الفاتورة");
     } finally {
       setSaving(false);
     }
@@ -238,67 +217,58 @@ export default function Finance() {
     const amount = Number(paymentForm.amount || 0);
 
     if (!paymentForm.invoice_id) {
-      setError('اختر الفاتورة');
+      setError("اختر الفاتورة");
       return;
     }
 
     if (amount <= 0) {
-      setError('أدخل مبلغ دفعة صحيح');
+      setError("أدخل مبلغ دفعة صحيح");
       return;
     }
 
     if (amount > paymentRemaining) {
-      setError(
-        `المبلغ يتجاوز المتبقي. المتبقي ${money(
-          paymentRemaining
-        )} ر.س`
-      );
+      setError(`المبلغ يتجاوز المتبقي. المتبقي ${money(paymentRemaining)} ر.س`);
       return;
     }
 
     setSaving(true);
-    setError('');
-    setMessage('');
+    setError("");
+    setMessage("");
 
     try {
-      const res = await fetch('/api/payments', {
-        method: 'POST',
+      const res = await fetch("/api/payments", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           invoice_id: paymentForm.invoice_id,
           amount,
-          method: paymentForm.method || 'cash',
-          reference: paymentForm.reference || '',
+          method: paymentForm.method || "cash",
+          reference: paymentForm.reference || "",
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(
-          data.error || 'تعذر تسجيل الدفعة'
-        );
+        throw new Error(data.error || "تعذر تسجيل الدفعة");
       }
 
       setPaymentModal(false);
       setPaymentForm({ ...emptyPayment });
-      setMessage('تم تسجيل الدفعة وتحديث الفاتورة بنجاح');
+      setMessage("تم تسجيل الدفعة وتحديث الفاتورة بنجاح");
 
       await load();
     } catch (e: any) {
-      setError(e.message || 'تعذر تسجيل الدفعة');
+      setError(e.message || "تعذر تسجيل الدفعة");
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <Shell
-      title="المالية"
-      subtitle="الفواتير والتحصيل والمدفوعات"
-    >
+    <Shell title="المالية" subtitle="الفواتير والتحصيل والمدفوعات">
       <div className="space-y-6">
         {error && (
           <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -319,19 +289,12 @@ export default function Finance() {
           </div>
 
           <div className="flex gap-2">
-            <button
-              className="ghost"
-              onClick={load}
-              disabled={loading}
-            >
+            <button className="ghost" onClick={load} disabled={loading}>
               <RefreshCw size={16} />
               تحديث
             </button>
 
-            <button
-              className="primary"
-              onClick={openInvoice}
-            >
+            <button className="primary" onClick={openInvoice}>
               <Plus size={17} />
               إصدار فاتورة
             </button>
@@ -340,42 +303,31 @@ export default function Finance() {
 
         <div className="financeCards">
           <div className="financeCard">
-            <div className="text-sm text-gray-500">
-              إجمالي الفواتير
-            </div>
+            <div className="text-sm text-gray-500">إجمالي الفواتير</div>
             <div className="mt-2 text-2xl font-bold">
               {money(totals.invoiced)} ر.س
             </div>
           </div>
 
           <div className="financeCard">
-            <div className="text-sm text-gray-500">
-              المحصل
-            </div>
+            <div className="text-sm text-gray-500">المحصل</div>
             <div className="mt-2 text-2xl font-bold text-green-600">
               {money(totals.paid)} ر.س
             </div>
           </div>
 
           <div className="financeCard">
-            <div className="text-sm text-gray-500">
-              المتبقي
-            </div>
+            <div className="text-sm text-gray-500">المتبقي</div>
             <div className="mt-2 text-2xl font-bold text-red-600">
               {money(totals.remaining)} ر.س
             </div>
           </div>
 
           <div className="financeCard">
-            <div className="text-sm text-gray-500">
-              الفواتير
-            </div>
-            <div className="mt-2 text-2xl font-bold">
-              {rows.length}
-            </div>
+            <div className="text-sm text-gray-500">الفواتير</div>
+            <div className="mt-2 text-2xl font-bold">{rows.length}</div>
             <div className="mt-1 text-xs text-gray-500">
-              {totals.paidInvoices} مدفوعة ·{' '}
-              {totals.partial} جزئية ·{' '}
+              {totals.paidInvoices} مدفوعة · {totals.partial} جزئية ·{" "}
               {totals.unpaid} غير مدفوعة
             </div>
           </div>
@@ -400,10 +352,7 @@ export default function Finance() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td
-                      colSpan={8}
-                      className="tableEmpty"
-                    >
+                    <td colSpan={8} className="tableEmpty">
                       جاري تحميل البيانات...
                     </td>
                   </tr>
@@ -411,10 +360,7 @@ export default function Finance() {
                   rows.map((x) => {
                     const amount = Number(x.amount || 0);
                     const paid = Number(x.paid || 0);
-                    const remaining = Math.max(
-                      amount - paid,
-                      0
-                    );
+                    const remaining = Math.max(amount - paid, 0);
 
                     return (
                       <tr key={x.id}>
@@ -422,24 +368,16 @@ export default function Finance() {
                           <b>{x.number}</b>
                         </td>
 
-                        <td>
-                          {x.student_name || '—'}
-                        </td>
+                        <td>{x.student_name || "—"}</td>
 
-                        <td>
-                          {money(amount)} ر.س
-                        </td>
+                        <td>{money(amount)} ر.س</td>
 
-                        <td>
-                          {money(paid)} ر.س
-                        </td>
+                        <td>{money(paid)} ر.س</td>
 
                         <td>
                           <b
                             className={
-                              remaining > 0
-                                ? 'text-red-600'
-                                : 'text-green-600'
+                              remaining > 0 ? "text-red-600" : "text-green-600"
                             }
                           >
                             {money(remaining)} ر.س
@@ -447,28 +385,22 @@ export default function Finance() {
                         </td>
 
                         <td>
-                          <span
-                            className={`badge ${x.status}`}
-                          >
-                            {x.status === 'paid'
-                              ? 'مدفوعة'
-                              : x.status === 'partial'
-                                ? 'جزئياً'
-                                : 'غير مدفوعة'}
+                          <span className={`badge ${x.status}`}>
+                            {x.status === "paid"
+                              ? "مدفوعة"
+                              : x.status === "partial"
+                                ? "جزئياً"
+                                : "غير مدفوعة"}
                           </span>
                         </td>
 
-                        <td>
-                          {x.due_date || '—'}
-                        </td>
+                        <td>{x.due_date || "—"}</td>
 
                         <td>
                           {remaining > 0 ? (
                             <button
                               className="ghost"
-                              onClick={() =>
-                                openPayment(x)
-                              }
+                              onClick={() => openPayment(x)}
                             >
                               <CreditCard size={15} />
                               تسجيل دفعة
@@ -484,10 +416,7 @@ export default function Finance() {
                   })
                 ) : (
                   <tr>
-                    <td
-                      colSpan={8}
-                      className="tableEmpty"
-                    >
+                    <td colSpan={8} className="tableEmpty">
                       لا توجد فواتير
                     </td>
                   </tr>
@@ -499,19 +428,11 @@ export default function Finance() {
 
         {invoiceModal && (
           <div className="modalBack">
-            <form
-              className="modal"
-              onSubmit={saveInvoice}
-            >
+            <form className="modal" onSubmit={saveInvoice}>
               <div className="modalHead">
                 <h2>إصدار فاتورة</h2>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    setInvoiceModal(false)
-                  }
-                >
+                <button type="button" onClick={() => setInvoiceModal(false)}>
                   ×
                 </button>
               </div>
@@ -529,19 +450,12 @@ export default function Finance() {
                       })
                     }
                   >
-                    <option value="">
-                      اختر الطالب
-                    </option>
+                    <option value="">اختر الطالب</option>
 
                     {students.map((student) => (
-                      <option
-                        key={student.id}
-                        value={student.id}
-                      >
+                      <option key={student.id} value={student.id}>
                         {student.name}
-                        {student.student_no
-                          ? ` — ${student.student_no}`
-                          : ''}
+                        {student.student_no ? ` — ${student.student_no}` : ""}
                       </option>
                     ))}
                   </select>
@@ -595,21 +509,14 @@ export default function Finance() {
                   <button
                     type="button"
                     className="ghost"
-                    onClick={() =>
-                      setInvoiceModal(false)
-                    }
+                    onClick={() => setInvoiceModal(false)}
                   >
                     إلغاء
                   </button>
 
-                  <button
-                    className="primary"
-                    disabled={saving}
-                  >
+                  <button className="primary" disabled={saving}>
                     <Receipt size={16} />
-                    {saving
-                      ? 'جاري الحفظ...'
-                      : 'إصدار الفاتورة'}
+                    {saving ? "جاري الحفظ..." : "إصدار الفاتورة"}
                   </button>
                 </div>
               </div>
@@ -619,19 +526,11 @@ export default function Finance() {
 
         {paymentModal && (
           <div className="modalBack">
-            <form
-              className="modal"
-              onSubmit={savePayment}
-            >
+            <form className="modal" onSubmit={savePayment}>
               <div className="modalHead">
                 <h2>تسجيل دفعة</h2>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    setPaymentModal(false)
-                  }
-                >
+                <button type="button" onClick={() => setPaymentModal(false)}>
                   ×
                 </button>
               </div>
@@ -643,48 +542,33 @@ export default function Finance() {
                     required
                     value={paymentForm.invoice_id}
                     onChange={(e) => {
-                      const invoice = rows.find(
-                        (x) =>
-                          x.id === e.target.value
-                      );
+                      const invoice = rows.find((x) => x.id === e.target.value);
 
                       const remaining = invoice
                         ? Math.max(
                             Number(invoice.amount || 0) -
                               Number(invoice.paid || 0),
-                            0
+                            0,
                           )
                         : 0;
 
                       setPaymentForm({
                         ...paymentForm,
-                        invoice_id:
-                          e.target.value,
-                        amount:
-                          remaining > 0
-                            ? remaining.toString()
-                            : '',
+                        invoice_id: e.target.value,
+                        amount: remaining > 0 ? remaining.toString() : "",
                       });
                     }}
                   >
-                    <option value="">
-                      اختر الفاتورة
-                    </option>
+                    <option value="">اختر الفاتورة</option>
 
                     {rows
                       .filter(
-                        (x) =>
-                          Number(x.amount || 0) >
-                          Number(x.paid || 0)
+                        (x) => Number(x.amount || 0) > Number(x.paid || 0),
                       )
                       .map((invoice) => (
-                        <option
-                          key={invoice.id}
-                          value={invoice.id}
-                        >
-                          {invoice.number} —{' '}
-                          {invoice.student_name ||
-                            'بدون طالب'}
+                        <option key={invoice.id} value={invoice.id}>
+                          {invoice.number} —{" "}
+                          {invoice.student_name || "بدون طالب"}
                         </option>
                       ))}
                   </select>
@@ -694,22 +578,12 @@ export default function Finance() {
                   <div className="rounded-xl border bg-gray-50 p-4">
                     <div className="flex justify-between text-sm">
                       <span>قيمة الفاتورة</span>
-                      <b>
-                        {money(
-                          selectedPaymentInvoice.amount
-                        )}{' '}
-                        ر.س
-                      </b>
+                      <b>{money(selectedPaymentInvoice.amount)} ر.س</b>
                     </div>
 
                     <div className="mt-2 flex justify-between text-sm">
                       <span>المدفوع</span>
-                      <b>
-                        {money(
-                          selectedPaymentInvoice.paid
-                        )}{' '}
-                        ر.س
-                      </b>
+                      <b>{money(selectedPaymentInvoice.paid)} ر.س</b>
                     </div>
 
                     <div className="mt-2 flex justify-between text-sm">
@@ -750,18 +624,10 @@ export default function Finance() {
                       })
                     }
                   >
-                    <option value="cash">
-                      نقدي
-                    </option>
-                    <option value="bank">
-                      تحويل بنكي
-                    </option>
-                    <option value="card">
-                      بطاقة
-                    </option>
-                    <option value="online">
-                      دفع إلكتروني
-                    </option>
+                    <option value="cash">نقدي</option>
+                    <option value="bank">تحويل بنكي</option>
+                    <option value="card">بطاقة</option>
+                    <option value="online">دفع إلكتروني</option>
                   </select>
                 </label>
 
@@ -783,9 +649,7 @@ export default function Finance() {
                   <button
                     type="button"
                     className="ghost"
-                    onClick={() =>
-                      setPaymentModal(false)
-                    }
+                    onClick={() => setPaymentModal(false)}
                   >
                     إلغاء
                   </button>
@@ -793,15 +657,11 @@ export default function Finance() {
                   <button
                     className="primary"
                     disabled={
-                      saving ||
-                      !selectedPaymentInvoice ||
-                      paymentRemaining <= 0
+                      saving || !selectedPaymentInvoice || paymentRemaining <= 0
                     }
                   >
                     <CreditCard size={16} />
-                    {saving
-                      ? 'جاري الحفظ...'
-                      : 'تسجيل الدفعة'}
+                    {saving ? "جاري الحفظ..." : "تسجيل الدفعة"}
                   </button>
                 </div>
               </div>

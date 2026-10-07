@@ -1,16 +1,27 @@
-node_modules
-.next
+﻿node_modules/
+.next/
 .env
 .env.local
 *.log
 .DS_Store
 
-.env
-.env*.local
+# TypeScript build cache
+*.tsbuildinfo
 
+# Local backups
+backups/
 
-tsconfig.tsbuildinfo
-project-analysis.zip
-test-db.js
-*.mjs
+# Encoding repair backups
+app/attendance/encoding-backups/
 
+# Temporary repair / patch files
+repair_attendance_encoding_test.py
+patch-page-stats.ps1
+markazak-ui-patch-source.zip
+
+# Temporary local backup files
+*.bak
+*.before-*.tsx
+*.before-*.css
+audit-out/
+MASTER-PROMPT.txt

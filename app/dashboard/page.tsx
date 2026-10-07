@@ -7,7 +7,7 @@ import {
   GraduationCap,
   BookOpen,
   Wallet,
-  ArrowUpLeft,
+  ArrowUpRight,
   CalendarDays,
   Plus,
   TrendingUp,
@@ -18,6 +18,8 @@ import {
   XCircle,
   RefreshCw,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 type Invoice = {
   id: string;
@@ -49,31 +51,18 @@ export default function Dashboard() {
 
   async function loadDashboard() {
     setLoading(true);
-
     try {
       const [dashboardRes, invoicesRes, attendanceRes] = await Promise.all([
         fetch('/api/dashboard'),
         fetch('/api/invoices'),
         fetch('/api/attendance'),
       ]);
-
-      const dashboardData = dashboardRes.ok
-        ? await dashboardRes.json()
-        : {};
-
-      const invoiceData = invoicesRes.ok
-        ? await invoicesRes.json()
-        : [];
-
-      const attendanceData = attendanceRes.ok
-        ? await attendanceRes.json()
-        : [];
-
+      const dashboardData = dashboardRes.ok ? await dashboardRes.json() : {};
+      const invoiceData = invoicesRes.ok ? await invoicesRes.json() : [];
+      const attendanceData = attendanceRes.ok ? await attendanceRes.json() : [];
       setD(dashboardData || {});
       setInvoices(Array.isArray(invoiceData) ? invoiceData : []);
-      setAttendanceRows(
-        Array.isArray(attendanceData) ? attendanceData : []
-      );
+      setAttendanceRows(Array.isArray(attendanceData) ? attendanceData : []);
     } catch (error) {
       console.error('Dashboard load error:', error);
     } finally {
@@ -85,71 +74,29 @@ export default function Dashboard() {
     loadDashboard();
   }, []);
 
-  const totalInvoices = invoices.reduce(
-    (sum, x) => sum + Number(x.amount || 0),
-    0
-  );
-
-  const totalCollected = invoices.reduce(
-    (sum, x) => sum + Number(x.paid || 0),
-    0
-  );
-
-  const totalRemaining = Math.max(
-    0,
-    totalInvoices - totalCollected
-  );
-
-  const paidInvoices = invoices.filter(
-    x => x.status === 'paid'
-  ).length;
-
-  const partialInvoices = invoices.filter(
-    x => x.status === 'partial'
-  ).length;
-
-  const unpaidInvoices = invoices.filter(
-    x => x.status === 'unpaid'
-  ).length;
-
-  const present = attendanceRows.filter(
-    x => x.status === 'present'
-  ).length;
-
-  const absent = attendanceRows.filter(
-    x => x.status === 'absent'
-  ).length;
-
-  const late = attendanceRows.filter(
-    x => x.status === 'late'
-  ).length;
-
-  const excused = attendanceRows.filter(
-    x => x.status === 'excused'
-  ).length;
-
+  const totalInvoices = invoices.reduce((sum, x) => sum + Number(x.amount || 0), 0);
+  const totalCollected = invoices.reduce((sum, x) => sum + Number(x.paid || 0), 0);
+  const totalRemaining = Math.max(0, totalInvoices - totalCollected);
+  const paidInvoices = invoices.filter(x => x.status === 'paid').length;
+  const partialInvoices = invoices.filter(x => x.status === 'partial').length;
+  const unpaidInvoices = invoices.filter(x => x.status === 'unpaid').length;
+  const present = attendanceRows.filter(x => x.status === 'present').length;
+  const absent = attendanceRows.filter(x => x.status === 'absent').length;
+  const late = attendanceRows.filter(x => x.status === 'late').length;
+  const excused = attendanceRows.filter(x => x.status === 'excused').length;
   const totalAttendance = attendanceRows.length;
-
-  const attendanceRate =
-    totalAttendance > 0
-      ? Math.round(((present + late) / totalAttendance) * 100)
-      : Number(d.attendance || 0);
-
-  const collectionRate =
-    totalInvoices > 0
-      ? Math.min(100, Math.round((totalCollected / totalInvoices) * 100))
-      : 0;
-
+  const attendanceRate = totalAttendance > 0 ? Math.round(((present + late) / totalAttendance) * 100) : Number(d.attendance || 0);
+  const collectionRate = totalInvoices > 0 ? Math.min(100, Math.round((totalCollected / totalInvoices) * 100)) : 0;
   const students = Number(d.students || 0);
   const teachers = Number(d.teachers || 0);
   const courses = Number(d.courses || 0);
   const groups = Number(d.groups || 0);
 
   const cards = [
-    ['الطلاب', students, Users, '/students'],
-    ['المدربون', teachers, GraduationCap, '/teachers'],
-    ['الدورات النشطة', courses, BookOpen, '/courses'],
-    ['المجموعات', groups, CalendarDays, '/groups'],
+    { name: 'الطلاب', value: students, Icon: Users, href: '/students', color: 'bg-blue-500' },
+    { name: 'المدربون', value: teachers, Icon: GraduationCap, href: '/teachers', color: 'bg-emerald-500' },
+    { name: 'الدورات النشطة', value: courses, Icon: BookOpen, href: '/courses', color: 'bg-amber-500' },
+    { name: 'المجموعات', value: groups, Icon: CalendarDays, href: '/groups', color: 'bg-indigo-500' },
   ];
 
   return (
@@ -157,328 +104,233 @@ export default function Dashboard() {
       title="لوحة التحكم"
       subtitle="نظرة سريعة على أداء مركزك اليوم"
     >
-      <div className="hero">
-        <div>
-          <span className="eyebrow">
-            صباح الخير، مدير النظام
-          </span>
-
-          <h2>إليك ما يحدث في مركزك اليوم</h2>
-
-          <p>
-            تابع التشغيل والحضور والتحصيل من لوحة واحدة.
-          </p>
+      <div className="flex flex-col gap-8">
+        {/* Hero Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-soft">
+          <div>
+            <span className="text-blue-600 text-xs font-bold uppercase tracking-wider">صباح الخير، مدير النظام 👋</span>
+            <h2 className="text-2xl font-bold text-slate-800 mt-1">إليك ما يحدث في مركزك اليوم</h2>
+            <p className="text-slate-500 text-sm mt-1">تابع التشغيل والحضور والتحصيل من لوحة واحدة وبكل سهولة.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={loadDashboard}
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all disabled:opacity-50"
+            >
+              <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+              تحديث
+            </button>
+            <Link href="/students" className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-lg shadow-blue-200">
+              <Plus size={16} />
+              تسجيل طالب
+            </Link>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
-          <button
-            className="ghost"
-            onClick={loadDashboard}
-            disabled={loading}
-            title="تحديث البيانات"
-          >
-            <RefreshCw
-              size={17}
-              className={loading ? 'spin' : ''}
-            />
-            تحديث
-          </button>
+        {/* Stats Grid (Bento Style) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {cards.map(({ name, value, Icon, href, color }, i) => (
+            <Link 
+              key={i} 
+              href={href} 
+              className="bento-card group flex items-center justify-between"
+            >
+              <div className="flex items-center gap-4">
+                <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-md transition-transform group-hover:scale-110", color)}>
+                  <Icon size={24} />
+                </div>
+                <div>
+                  <p className="text-slate-500 text-xs font-medium">{name}</p>
+                  <h3 className="text-2xl font-bold text-slate-800">{Number(value).toLocaleString('ar-SA')}</h3>
+                </div>
+              </div>
+              <ArrowUpRight size={18} className="text-slate-300 group-hover:text-blue-500 transition-colors" />
+            </Link>
+          ))}
+        </div>
 
-          <a href="/students" className="primary">
-            <Plus size={18} />
-            تسجيل طالب
-          </a>
+        {/* Main Dashboard Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* Finance Panel - Large Bento */}
+          <div className="lg:col-span-2 bento-card">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">ملخص مالي</h3>
+                <p className="text-slate-500 text-xs">التحصيل والفواتير الفعلية</p>
+              </div>
+              <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                <Wallet size={20} />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                <span className="text-slate-500 text-xs font-medium">إجمالي الفواتير</span>
+                <div className="text-xl font-bold text-slate-800 mt-1">{totalInvoices.toLocaleString('ar-SA')} <span className="text-xs font-normal text-slate-400">ر.س</span></div>
+              </div>
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
+                <span className="text-emerald-600 text-xs font-medium">المحصل</span>
+                <div className="text-xl font-bold text-emerald-700 mt-1">{totalCollected.toLocaleString('ar-SA')} <span className="text-xs font-normal text-emerald-400">ر.س</span></div>
+              </div>
+              <div className="p-4 rounded-2xl bg-red-50 border border-red-100">
+                <span className="text-red-600 text-xs font-medium">المتبقي</span>
+                <div className="text-xl font-bold text-red-700 mt-1">{totalRemaining.toLocaleString('ar-SA')} <span className="text-xs font-normal text-red-400">ر.س</span></div>
+              </div>
+            </div>
+
+            <div className="space-y-2 mb-6">
+              <div className="flex justify-between text-xs font-medium">
+                <span className="text-slate-500">نسبة التحصيل</span>
+                <span className="text-blue-600">{collectionRate}%</span>
+              </div>
+              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }} 
+                  animate={{ width: `${collectionRate}%` }} 
+                  className="h-full bg-blue-600 rounded-full" 
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full">
+                <CheckCircle2 size={14} className="text-emerald-500" />
+                {paidInvoices} مدفوعة
+              </div>
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full">
+                <Clock3 size={14} className="text-amber-500" />
+                {partialInvoices} جزئية
+              </div>
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full">
+                <XCircle size={14} className="text-red-500" />
+                {unpaidInvoices} غير مدفوعة
+              </div>
+            </div>
+          </div>
+
+          {/* Attendance Panel - Bento */}
+          <div className="bento-card flex flex-col">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">الحضور</h3>
+                <p className="text-slate-500 text-xs">إحصاءات سجلات الحضور</p>
+              </div>
+              <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+                <CalendarDays size={20} />
+              </div>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center py-6 text-center">
+              <div className="relative w-32 h-32 flex items-center justify-center mb-4">
+                <svg className="w-full h-full transform -rotate-90">
+                  <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-100" />
+                  <motion.circle 
+                    cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="8" fill="transparent" 
+                    strokeDasharray={364.4} 
+                    initial={{ strokeDashoffset: 364.4 }}
+                    animate={{ strokeDashoffset: 364.4 - (364.4 * attendanceRate) / 100 }} 
+                    className="text-emerald-500 transition-all duration-1000" 
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-3xl font-bold text-slate-800">{attendanceRate}%</span>
+                  <span className="text-[10px] text-slate-400 font-medium">معدل الحضور</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 w-full mt-4">
+                <div className="flex items-center gap-2 p-2 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-medium">
+                  <CheckCircle2 size={14} /> حاضر {present}
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-xl bg-amber-50 text-amber-700 text-xs font-medium">
+                  <Clock3 size={14} /> متأخر {late}
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-xl bg-red-50 text-red-700 text-xs font-medium">
+                  <XCircle size={14} /> غائب {absent}
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-xl bg-blue-50 text-blue-700 text-xs font-medium">
+                  <AlertCircle size={14} /> معذور {excused}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions - Wide Bento */}
+          <div className="lg:col-span-2 bento-card">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">إجراءات سريعة</h3>
+                <p className="text-slate-500 text-xs">ابدأ العمل من هنا</p>
+              </div>
+              <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                <TrendingUp size={20} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <Link href="/courses" className="flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-md transition-all group">
+                <div className="w-10 h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                  <BookOpen size={20} />
+                </div>
+                <span className="text-xs font-bold text-slate-700">إنشاء دورة</span>
+              </Link>
+              <Link href="/groups" className="flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-md transition-all group">
+                <div className="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                  <CalendarDays size={20} />
+                </div>
+                <span className="text-xs font-bold text-slate-700">فتح مجموعة</span>
+              </Link>
+              <Link href="/attendance" className="flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-md transition-all group">
+                <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                  <Users size={20} />
+                </div>
+                <span className="text-xs font-bold text-slate-700">تسجيل حضور</span>
+              </Link>
+              <Link href="/finance" className="flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-md transition-all group">
+                <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                  <Wallet size={20} />
+                </div>
+                <span className="text-xs font-bold text-slate-700">إصدار فاتورة</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Operational Summary - Bento */}
+          <div className="bento-card">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">حالة التشغيل</h3>
+                <p className="text-slate-500 text-xs">ملخص سريع للنظام</p>
+              </div>
+              <div className="p-2 bg-rose-50 text-rose-600 rounded-lg">
+                <AlertCircle size={20} />
+              </div>
+            </div>
+            <div className="space-y-3">
+              {[
+                { name: 'الطلاب', value: students, icon: Users, color: 'text-blue-600' },
+                { name: 'المدربون', value: teachers, icon: GraduationCap, color: 'text-emerald-600' },
+                { name: 'الدورات', value: courses, icon: BookOpen, color: 'text-amber-600' },
+                { name: 'الفواتير', value: invoices.length, icon: Receipt, color: 'text-rose-600' },
+              ].map((item, i) => {
+                return (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 transition-all hover:bg-slate-100">
+                    <div className="flex items-center gap-3">
+                      <item.icon size={16} className={item.color} />
+                      <span className="text-xs font-medium text-slate-600">{item.name}</span>
+                    </div>
+                    <b className="text-sm font-bold text-slate-800">{item.value.toLocaleString('ar-SA')}</b>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
         </div>
       </div>
-
-      <div className="statGrid">
-        {cards.map(([name, value, Icon, href]: any) => (
-          <a
-            className="stat"
-            href={href}
-            key={name}
-          >
-            <div className="statIcon">
-              <Icon size={20} />
-            </div>
-
-            <div>
-              <span>{name}</span>
-              <strong>
-                {Number(value).toLocaleString('ar-SA')}
-              </strong>
-            </div>
-
-            <ArrowUpLeft
-              className="statArrow"
-              size={17}
-            />
-          </a>
-        ))}
-      </div>
-
-      <div className="dashboardGrid">
-
-        {/* Finance */}
-        <div className="panel">
-          <div className="panelHead">
-            <div>
-              <h3>ملخص مالي</h3>
-              <p>التحصيل والفواتير الفعلية</p>
-            </div>
-
-            <Wallet size={20} />
-          </div>
-
-          <div className="moneyRow">
-            <div>
-              <span>إجمالي الفواتير</span>
-              <b>
-                {totalInvoices.toLocaleString('ar-SA')} ر.س
-              </b>
-            </div>
-
-            <div>
-              <span>المحصل</span>
-              <b>
-                {totalCollected.toLocaleString('ar-SA')} ر.س
-              </b>
-            </div>
-
-            <div>
-              <span>المتبقي</span>
-              <b>
-                {totalRemaining.toLocaleString('ar-SA')} ر.س
-              </b>
-            </div>
-          </div>
-
-          <div className="progress">
-            <i
-              style={{
-                width: `${collectionRate}%`,
-              }}
-            />
-          </div>
-
-          <div className="financeMiniStats">
-            <span>
-              <CheckCircle2 size={15} />
-              {paidInvoices} مدفوعة
-            </span>
-
-            <span>
-              <Clock3 size={15} />
-              {partialInvoices} جزئية
-            </span>
-
-            <span>
-              <XCircle size={15} />
-              {unpaidInvoices} غير مدفوعة
-            </span>
-          </div>
-        </div>
-
-        {/* Attendance */}
-        <div className="panel">
-          <div className="panelHead">
-            <div>
-              <h3>الحضور</h3>
-              <p>إحصاءات سجلات الحضور</p>
-            </div>
-
-            <CalendarDays size={20} />
-          </div>
-
-          <div className="attendanceBig">
-            <strong>{attendanceRate}%</strong>
-            <span>معدل الحضور</span>
-          </div>
-
-          <div className="progress">
-            <i
-              style={{
-                width: `${Math.min(
-                  100,
-                  Math.max(0, attendanceRate)
-                )}%`,
-              }}
-            />
-          </div>
-
-          <div className="attendanceMiniStats">
-            <span>
-              <CheckCircle2 size={15} />
-              حاضر {present}
-            </span>
-
-            <span>
-              <Clock3 size={15} />
-              متأخر {late}
-            </span>
-
-            <span>
-              <XCircle size={15} />
-              غائب {absent}
-            </span>
-
-            <span>
-              <AlertCircle size={15} />
-              معذور {excused}
-            </span>
-          </div>
-        </div>
-
-        {/* Quick actions */}
-        <div className="panel wide">
-          <div className="panelHead">
-            <div>
-              <h3>إجراءات سريعة</h3>
-              <p>ابدأ العمل من هنا</p>
-            </div>
-
-            <TrendingUp size={20} />
-          </div>
-
-          <div className="quickGrid">
-            <a href="/courses">
-              <BookOpen />
-              إنشاء دورة
-            </a>
-
-            <a href="/groups">
-              <CalendarDays />
-              فتح مجموعة
-            </a>
-
-            <a href="/attendance">
-              <Users />
-              تسجيل حضور
-            </a>
-
-            <a href="/finance">
-              <Wallet />
-              إصدار فاتورة
-            </a>
-          </div>
-        </div>
-
-        {/* Operational summary */}
-        <div className="panel">
-          <div className="panelHead">
-            <div>
-              <h3>حالة التشغيل</h3>
-              <p>ملخص سريع للنظام</p>
-            </div>
-
-            <AlertCircle size={20} />
-          </div>
-
-          <div className="operationList">
-            <div>
-              <span>
-                <Users size={16} />
-                الطلاب
-              </span>
-
-              <b>
-                {students.toLocaleString('ar-SA')}
-              </b>
-            </div>
-
-            <div>
-              <span>
-                <GraduationCap size={16} />
-                المدربون
-              </span>
-
-              <b>
-                {teachers.toLocaleString('ar-SA')}
-              </b>
-            </div>
-
-            <div>
-              <span>
-                <BookOpen size={16} />
-                الدورات
-              </span>
-
-              <b>
-                {courses.toLocaleString('ar-SA')}
-              </b>
-            </div>
-
-            <div>
-              <span>
-                <Receipt size={16} />
-                الفواتير
-              </span>
-
-              <b>
-                {invoices.length.toLocaleString('ar-SA')}
-              </b>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <style jsx>{`
-        .financeMiniStats,
-        .attendanceMiniStats {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 14px;
-          margin-top: 16px;
-          font-size: 13px;
-        }
-
-        .financeMiniStats span,
-        .attendanceMiniStats span {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-        }
-
-        .operationList {
-          display: grid;
-          gap: 10px;
-          margin-top: 8px;
-        }
-
-        .operationList > div {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 10px 12px;
-          border-radius: 10px;
-          background: rgba(127, 127, 127, 0.06);
-        }
-
-        .operationList span {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .operationList b {
-          font-size: 15px;
-        }
-
-        .spin {
-          animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
     </Shell>
   );
+}
+
+function cn(...classes: any[]) {
+  return classes.filter(Boolean).join(' ');
 }

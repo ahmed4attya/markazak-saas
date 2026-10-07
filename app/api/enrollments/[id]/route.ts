@@ -1,2 +1,146 @@
-import {NextResponse} from 'next/server';import {query} from '@/lib/db';import {getSession} from '@/lib/auth';
-export async function GET(){const s=await getSession();if(!s)return NextResponse.json({error:'unauthorized'},{status:401});const [students,teachers,courses,groups,revenue,attendance,dues]=await Promise.all([query('select count(*)::int count from students where tenant_id=$1 and status=\'active\'',[s.tenantId]),query('select count(*)::int count from teachers where tenant_id=$1 and status=\'active\'',[s.tenantId]),query('select count(*)::int count from courses where tenant_id=$1 and status=\'active\'',[s.tenantId]),query('select count(*)::int count from groups where tenant_id=$1 and status in (\'scheduled\',\'active\')',[s.tenantId]),query('select coalesce(sum(amount),0)::numeric revenue from payments where tenant_id=$1',[s.tenantId]),query("select count(*) filter (where status='present')::int present,count(*)::int total from attendance where tenant_id=$1 and attendance_date=current_date",[s.tenantId]),query("select coalesce(sum(amount),0)::numeric due from invoices where tenant_id=$1 and status in ('unpaid','partial')",[s.tenantId])]);return NextResponse.json({students:students.rows[0].count,teachers:teachers.rows[0].count,courses:courses.rows[0].count,groups:groups.rows[0].count,revenue:Number(revenue.rows[0].revenue),due:Number(dues.rows[0].due),attendance:attendance.rows[0].total?Math.round(attendance.rows[0].present/attendance.rows[0].total*100):0})}
+import { NextResponse } from 'next/server';
+import { query, safeError } from '@/lib/db';
+import { getSession } from '@/lib/auth';
+
+type Context = {
+  params: Promise<{ id: string }>;
+};
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export async function PATCH(
+  req: Request,
+  context: Context
+) {
+  const s = await getSession();
+
+  if (!s) {
+    return NextResponse.json(
+      { error: 'غير مصرح' },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const { id } = await context.params;
+
+    if (!UUID_RE.test(id)) {
+      return NextResponse.json(
+        { error: 'معرف التسجيل غير صالح' },
+        { status: 400 }
+      );
+    }
+
+    const body = await req.json();
+
+    const allowed = [
+      'status',
+      'price',
+      'discount'
+    ];
+
+    const fields: string[] = [];
+    const values: any[] = [];
+    let index = 1;
+
+    for (const field of allowed) {
+      if (body[field] !== undefined) {
+        fields.push(field + '=$' + index);
+
+        if (field === 'price' || field === 'discount') {
+          values.push(Number(body[field]) || 0);
+        } else {
+          values.push(body[field]);
+        }
+
+        index++;
+      }
+    }
+
+    if (fields.length === 0) {
+      return NextResponse.json(
+        { error: 'لا توجد بيانات للتحديث' },
+        { status: 400 }
+      );
+    }
+
+    values.push(id);
+    const idIndex = index;
+
+    values.push(s.tenantId);
+    const tenantIndex = index + 1;
+
+    const sql =
+      'update enrollments set ' +
+      fields.join(',') +
+      ' where id=$' +
+      idIndex +
+      ' and tenant_id=$' +
+      tenantIndex +
+      ' returning *';
+
+    const result = await query(sql, values);
+
+    if (result.rows.length === 0) {
+      return NextResponse.json(
+        { error: 'التسجيل غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(result.rows[0]);
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e, 'تعذر تحديث التسجيل') },
+      { status: 400 }
+    );
+  }
+}
+
+export async function DELETE(
+  req: Request,
+  context: Context
+) {
+  const s = await getSession();
+
+  if (!s) {
+    return NextResponse.json(
+      { error: 'غير مصرح' },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const { id } = await context.params;
+
+    if (!UUID_RE.test(id)) {
+      return NextResponse.json(
+        { error: 'معرف التسجيل غير صالح' },
+        { status: 400 }
+      );
+    }
+
+    const result = await query(
+      'delete from enrollments where id=$1 and tenant_id=$2 returning id',
+      [id, s.tenantId]
+    );
+
+    if (result.rows.length === 0) {
+      return NextResponse.json(
+        { error: 'التسجيل غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+      id: result.rows[0].id
+    });
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e, 'تعذر حذف التسجيل') },
+      { status: 400 }
+    );
+  }
+}

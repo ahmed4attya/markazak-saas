@@ -1,244 +1,164 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
-import { getSession } from '@/lib/auth';
+import { query, safeError } from '@/lib/db';
+import { getSession, isAdmin } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
-async function getContext(tenantId: string) {
-  const [
-    students,
-    teachers,
-    courses,
-    groups,
-    enrollments,
-    attendance,
-    finance,
-    recentInvoices,
-  ] = await Promise.all([
-    query(
-      `select count(*)::int count from students where tenant_id=$1`,
-      [tenantId]
-    ),
-    query(
-      `select count(*)::int count from teachers where tenant_id=$1 and status='active'`,
-      [tenantId]
-    ),
-    query(
-      `select count(*)::int count from courses where tenant_id=$1`,
-      [tenantId]
-    ),
-    query(
-      `select count(*)::int count from groups where tenant_id=$1`,
-      [tenantId]
-    ),
-    query(
-      `select count(*)::int count from enrollments where tenant_id=$1 and status='active'`,
-      [tenantId]
-    ),
-    query(
-      `
-        select
-          count(*)::int total,
-          count(*) filter(where status='present')::int present,
-          count(*) filter(where status='absent')::int absent,
-          count(*) filter(where status='late')::int late,
-          count(*) filter(where status='excused')::int excused
-        from attendance
-        where tenant_id=$1
-      `,
-      [tenantId]
-    ),
-    query(
-      `
-        select
-          coalesce((select sum(amount) from payments where tenant_id=$1),0)::numeric paid,
-          coalesce((select sum(amount) from invoices where tenant_id=$1),0)::numeric invoiced,
-          coalesce((
-            select sum(i.amount - coalesce(p.paid,0))
-            from invoices i
-            left join (
-              select invoice_id,sum(amount) paid
-              from payments
-              where tenant_id=$1
-              group by invoice_id
-            ) p on p.invoice_id=i.id
-            where i.tenant_id=$1
-          ),0)::numeric outstanding
-      `,
-      [tenantId]
-    ),
-    query(
-      `
-        select number, amount, status, created_at
-        from invoices
-        where tenant_id=$1
-        order by created_at desc
-        limit 10
-      `,
-      [tenantId]
-    ),
-  ]);
+type Context = {
+  params: Promise<{ id: string }>;
+};
 
-  const a = attendance.rows[0];
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-  return {
-    students: students.rows[0].count,
-    teachers: teachers.rows[0].count,
-    courses: courses.rows[0].count,
-    groups: groups.rows[0].count,
-    enrollments: enrollments.rows[0].count,
-    attendance: {
-      total: a.total,
-      present: a.present,
-      absent: a.absent,
-      late: a.late,
-      excused: a.excused,
-      rate: a.total
-        ? Math.round((a.present / a.total) * 100)
-        : 0,
-    },
-    finance: {
-      paid: Number(finance.rows[0].paid),
-      invoiced: Number(finance.rows[0].invoiced),
-      outstanding: Number(finance.rows[0].outstanding),
-    },
-    recentInvoices: recentInvoices.rows,
-  };
-}
+const STATUSES = ['present', 'absent', 'late', 'excused'];
 
-function internalAnswer(prompt: string, ctx: any) {
-  const p = prompt.toLowerCase();
-
-  if (
-    p.includes('حضور') ||
-    p.includes('attendance')
-  ) {
-    return [
-      'تحليل الحضور',
-      '',
-      `إجمالي سجلات الحضور: ${ctx.attendance.total}`,
-      `الحضور: ${ctx.attendance.present}`,
-      `الغياب: ${ctx.attendance.absent}`,
-      `التأخر: ${ctx.attendance.late}`,
-      `المعذور: ${ctx.attendance.excused}`,
-      `نسبة الحضور: ${ctx.attendance.rate}%`,
-    ].join('\n');
-  }
-
-  if (
-    p.includes('مال') ||
-    p.includes('إيراد') ||
-    p.includes('تحصيل') ||
-    p.includes('فاتور')
-  ) {
-    return [
-      'التحليل المالي',
-      '',
-      `إجمالي الفواتير: ${ctx.finance.invoiced.toLocaleString('ar-SA')} ر.س`,
-      `المحصل: ${ctx.finance.paid.toLocaleString('ar-SA')} ر.س`,
-      `المستحق: ${ctx.finance.outstanding.toLocaleString('ar-SA')} ر.س`,
-    ].join('\n');
-  }
-
-  return [
-    'ملخص المركز',
-    '',
-    `الطلاب: ${ctx.students}`,
-    `المدربون النشطون: ${ctx.teachers}`,
-    `الدورات: ${ctx.courses}`,
-    `المجموعات: ${ctx.groups}`,
-    `المتدربون المسجلون: ${ctx.enrollments}`,
-    `نسبة الحضور: ${ctx.attendance.rate}%`,
-    `المحصل: ${ctx.finance.paid.toLocaleString('ar-SA')} ر.س`,
-    `المستحق: ${ctx.finance.outstanding.toLocaleString('ar-SA')} ر.س`,
-    '',
-    'يمكنك سؤالي عن الحضور أو الطلاب أو الدورات أو الإيرادات أو الفواتير.',
-  ].join('\n');
-}
-
-export async function POST(req: Request) {
+export async function PATCH(
+  req: Request,
+  context: Context
+) {
   const s = await getSession();
 
   if (!s) {
-    return NextResponse.json(
-      { error: 'غير مصرح' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
   }
 
   try {
-    const body = await req.json();
-    const prompt = String(body.prompt || '').trim();
+    const { id } = await context.params;
 
-    if (!prompt) {
+    if (!UUID_RE.test(id)) {
       return NextResponse.json(
-        { error: 'اكتب سؤالك أولاً' },
+        { error: 'معرف الحضور غير صالح' },
         { status: 400 }
       );
     }
 
-    const context = await getContext(s.tenantId);
+    const body = await req.json();
 
-    if (
-      process.env.AI_API_URL &&
-      process.env.AI_API_KEY
-    ) {
-      const response = await fetch(process.env.AI_API_URL, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          authorization: `Bearer ${process.env.AI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: process.env.AI_MODEL || 'gpt-4o-mini',
-          temperature: 0.2,
-          messages: [
-            {
-              role: 'system',
-              content:
-                'أنت مساعد إداري لمركز تدريبي. استخدم البيانات المقدمة فقط. قدم تحليلاً عملياً واضحاً باللغة العربية.',
-            },
-            {
-              role: 'user',
-              content: `
-بيانات المركز:
-${JSON.stringify(context, null, 2)}
+    if (body.status !== undefined && !STATUSES.includes(body.status)) {
+      return NextResponse.json(
+        { error: 'حالة الحضور غير صالحة' },
+        { status: 400 }
+      );
+    }
 
-سؤال المستخدم:
-${prompt}
-              `,
-            },
-          ],
-        }),
-      });
+    const allowed = [
+      'attendance_date',
+      'status',
+      'check_in',
+      'notes'
+    ];
 
-      if (response.ok) {
-        const data = await response.json();
+    const fields: string[] = [];
+    const values: any[] = [];
+    let index = 1;
 
-        const answer =
-          data?.choices?.[0]?.message?.content ||
-          data?.answer ||
-          data?.output_text;
-
-        if (answer) {
-          return NextResponse.json({
-            answer,
-            source: 'external-ai',
-            context,
-          });
-        }
+    for (const field of allowed) {
+      if (body[field] !== undefined) {
+        fields.push(field + '=$' + index);
+        values.push(body[field]);
+        index++;
       }
     }
 
-    return NextResponse.json({
-      answer: internalAnswer(prompt, context),
-      source: 'internal',
-      context,
-    });
-  } catch (error) {
-    console.error('AI error:', error);
+    if (fields.length === 0) {
+      return NextResponse.json(
+        { error: 'لا توجد بيانات للتحديث' },
+        { status: 400 }
+      );
+    }
+
+    values.push(id);
+    const idIndex = index;
+
+    values.push(s.tenantId);
+    const tenantIndex = index + 1;
+
+    const sql =
+      'update attendance set ' +
+      fields.join(',') +
+      ' where id=$' +
+      idIndex +
+      ' and tenant_id=$' +
+      tenantIndex +
+      ' returning *';
+
+    const result = await query(sql, values);
+
+    if (result.rows.length === 0) {
+      return NextResponse.json(
+        { error: 'سجل الحضور غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(result.rows[0]);
+  } catch (e: any) {
+    if (e.code === '23505') {
+      return NextResponse.json(
+        { error: 'يوجد تسجيل حضور لنفس الطالب والتاريخ' },
+        { status: 409 }
+      );
+    }
 
     return NextResponse.json(
-      { error: 'تعذر تنفيذ تحليل الذكاء الاصطناعي' },
-      { status: 500 }
+      { error: safeError(e, 'تعذر تحديث الحضور') },
+      { status: 400 }
+    );
+  }
+}
+
+export async function DELETE(
+  req: Request,
+  context: Context
+) {
+  const s = await getSession();
+
+  if (!s) {
+    return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+  }
+
+  if (!isAdmin(s.role)) {
+    return NextResponse.json({ error: 'الصلاحية دي للإدارة بس' }, { status: 403 });
+  }
+
+  try {
+    const { id } = await context.params;
+
+    if (!UUID_RE.test(id)) {
+      return NextResponse.json(
+        { error: 'معرف الحضور غير صالح' },
+        { status: 400 }
+      );
+    }
+
+    const result = await query(
+      'delete from attendance where id=$1 and tenant_id=$2 returning id',
+      [id, s.tenantId]
+    );
+
+    if (result.rows.length === 0) {
+      return NextResponse.json(
+        { error: 'سجل الحضور غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    await logAudit({
+      tenantId: s.tenantId,
+      userId: s.userId,
+      action: 'attendance.delete',
+      entity: 'attendance',
+      entityId: result.rows[0].id,
+    });
+
+    return NextResponse.json({
+      ok: true,
+      id: result.rows[0].id
+    });
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e, 'تعذر حذف الحضور') },
+      { status: 400 }
     );
   }
 }

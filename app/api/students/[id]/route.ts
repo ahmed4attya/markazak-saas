@@ -1,3 +1,144 @@
-import {NextResponse} from 'next/server';import Stripe from 'stripe';import {query} from '@/lib/db';
-export const runtime='nodejs'
-export async function POST(req:Request){const secret=process.env.STRIPE_WEBHOOK_SECRET;const key=process.env.STRIPE_SECRET_KEY;if(!secret||!key)return NextResponse.json({error:'Stripe is not configured'},{status:503});const stripe=new Stripe(key);const signature=req.headers.get('stripe-signature');if(!signature)return NextResponse.json({error:'missing signature'},{status:400});const body=await req.text();let event:Stripe.Event;try{event=stripe.webhooks.constructEvent(body,signature,secret)}catch{return NextResponse.json({error:'invalid signature'},{status:400})}const obj=event.data.object as any;const subId=obj.id||obj.subscription;const customerId=obj.customer;if(event.type.startsWith('customer.subscription.')&&subId){const planCode=obj.metadata?.plan_code||null;const r=await query(`update subscriptions set status=$1,stripe_customer_id=$2,stripe_subscription_id=$3,current_period_end=to_timestamp($4),plan=coalesce($5,plan) where stripe_subscription_id=$3 or stripe_customer_id=$2 returning tenant_id`,[obj.status||'active',customerId,subId,obj.current_period_end||Math.floor(Date.now()/1000),planCode]);const tenantId=r.rows[0]?.tenant_id;if(tenantId&&planCode&&(obj.status==='active'||obj.status==='trialing')){await query(`update tenants set plan=$2,updated_at=now() where id=$1`,[tenantId,planCode])}}return NextResponse.json({received:true})}
+import { NextResponse } from 'next/server';
+import { query, safeError } from '@/lib/db';
+import { getSession, isAdmin } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
+
+type Context = {
+  params: Promise<{ id: string }>;
+};
+
+export async function PATCH(
+  req: Request,
+  context: Context
+) {
+  const s = await getSession();
+
+  if (!s) {
+    return NextResponse.json(
+      { error: 'unauthorized' },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const { id } = await context.params;
+    const body = await req.json();
+
+    const allowed = [
+      'student_no',
+      'name',
+      'phone',
+      'email',
+      'identity_no',
+      'status'
+    ];
+
+    const fields: string[] = [];
+    const values: any[] = [];
+    let index = 1;
+
+    for (const field of allowed) {
+      if (body[field] !== undefined) {
+        fields.push(`${field}=$${index}`);
+        values.push(body[field]);
+        index++;
+      }
+    }
+
+    if (fields.length === 0) {
+      return NextResponse.json(
+        { error: 'لا توجد بيانات للتحديث' },
+        { status: 400 }
+      );
+    }
+
+    fields.push('updated_at=now()');
+
+    values.push(id);
+    const idIndex = index;
+
+    values.push(s.tenantId);
+    const tenantIndex = index + 1;
+
+    const r = await query(
+      `update students
+       set ${fields.join(',')}
+       where id=$${idIndex}
+       and tenant_id=$${tenantIndex}
+       returning *`,
+      values
+    );
+
+    if (r.rows.length === 0) {
+      return NextResponse.json(
+        { error: 'الطالب غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(r.rows[0]);
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e) },
+      { status: 400 }
+    );
+  }
+}
+
+export async function DELETE(
+  req: Request,
+  context: Context
+) {
+  const s = await getSession();
+
+  if (!s) {
+    return NextResponse.json(
+      { error: 'unauthorized' },
+      { status: 401 }
+    );
+  }
+
+  if (!isAdmin(s.role)) {
+    return NextResponse.json(
+      { error: 'الصلاحية دي للإدارة بس' },
+      { status: 403 }
+    );
+  }
+
+  try {
+    const { id } = await context.params;
+
+    const r = await query(
+      `delete from students
+       where id=$1
+       and tenant_id=$2
+       returning id`,
+      [id, s.tenantId]
+    );
+
+    if (r.rows.length === 0) {
+      return NextResponse.json(
+        { error: 'الطالب غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    await logAudit({
+      tenantId: s.tenantId,
+      userId: s.userId,
+      action: 'student.delete',
+      entity: 'student',
+      entityId: r.rows[0].id,
+    });
+
+    return NextResponse.json({
+      ok: true,
+      id: r.rows[0].id
+    });
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e) },
+      { status: 400 }
+    );
+  }
+}

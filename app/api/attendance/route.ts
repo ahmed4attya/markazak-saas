@@ -1,14 +1,11 @@
 import { NextResponse } from 'next/server';
 import { query, safeError } from '@/lib/db';
 import { getSession } from '@/lib/auth';
-import { rateLimit } from '@/lib/rate-limit';
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const STATUSES = ['present', 'absent', 'late', 'excused'];
-
-const limiter = rateLimit({ interval: 60 * 1000, uniqueTokenPerInterval: 500 });
 
 export async function GET() {
   const s = await getSession();
@@ -37,16 +34,6 @@ export async function POST(req: Request) {
 
   if (!s) {
     return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
-  }
-
-  try {
-    const ip = req.headers.get("x-forwarded-for") || "anonymous";
-    await limiter.check(30, ip);
-  } catch {
-    return NextResponse.json(
-      { error: "Too many requests. Please try again later." },
-      { status: 429 }
-    );
   }
 
   try {

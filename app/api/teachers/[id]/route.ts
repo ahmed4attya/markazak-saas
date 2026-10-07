@@ -1,37 +1,143 @@
-import {NextResponse} from 'next/server';
-import {query,safeError} from '@/lib/db';
-import {getSession} from '@/lib/auth';
-import {studentSchema} from '@/lib/validation';
+import { NextResponse } from 'next/server';
+import { query, safeError } from '@/lib/db';
+import { getSession, isAdmin } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
-export async function GET(req:Request){
-  const s=await getSession();
-  if(!s)return NextResponse.json({error:'unauthorized'},{status:401});
+type Context = {
+  params: Promise<{ id: string }>;
+};
 
-  const u=new URL(req.url);
-  const q=u.searchParams.get('q')||'';
+export async function PATCH(
+  req: Request,
+  context: Context
+) {
+  const s = await getSession();
 
-  const r=await query(
-    'select id,student_no,name,phone,email,identity_no,status,created_at from students where tenant_id=$1 and (name ilike $2 or student_no ilike $2 or phone ilike $2) order by created_at desc limit 500',
-    [s.tenantId,`%${q}%`]
-  );
+  if (!s) {
+    return NextResponse.json(
+      { error: 'unauthorized' },
+      { status: 401 }
+    );
+  }
 
-  return NextResponse.json(r.rows);
-}
+  try {
+    const { id } = await context.params;
+    const body = await req.json();
 
-export async function POST(req:Request){
-  const s=await getSession();
-  if(!s)return NextResponse.json({error:'unauthorized'},{status:401});
+    const allowed = [
+      'name',
+      'phone',
+      'email',
+      'specialty',
+      'status'
+    ];
 
-  try{
-    const x=studentSchema.parse(await req.json());
+    const fields: string[] = [];
+    const values: any[] = [];
+    let index = 1;
 
-    const r=await query(
-      'insert into students(tenant_id,student_no,name,phone,email,identity_no,status) values($1,$2,$3,$4,$5,$6,$7) returning *',
-      [s.tenantId,x.student_no,x.name,x.phone,x.email,x.identity_no,x.status]
+    for (const field of allowed) {
+      if (body[field] !== undefined) {
+        fields.push(`${field}=$${index}`);
+        values.push(body[field]);
+        index++;
+      }
+    }
+
+    if (fields.length === 0) {
+      return NextResponse.json(
+        { error: 'لا توجد بيانات للتحديث' },
+        { status: 400 }
+      );
+    }
+
+    fields.push('updated_at=now()');
+
+    values.push(id);
+    const idIndex = index;
+
+    values.push(s.tenantId);
+    const tenantIndex = index + 1;
+
+    const r = await query(
+      `update teachers
+       set ${fields.join(',')}
+       where id=$${idIndex}
+       and tenant_id=$${tenantIndex}
+       returning *`,
+      values
     );
 
-    return NextResponse.json(r.rows[0],{status:201});
-  }catch(e:any){
-    return NextResponse.json({ error: safeError(e) },{status:400});
+    if (r.rows.length === 0) {
+      return NextResponse.json(
+        { error: 'المدرب غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(r.rows[0]);
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e) },
+      { status: 400 }
+    );
+  }
+}
+
+export async function DELETE(
+  req: Request,
+  context: Context
+) {
+  const s = await getSession();
+
+  if (!s) {
+    return NextResponse.json(
+      { error: 'unauthorized' },
+      { status: 401 }
+    );
+  }
+
+  if (!isAdmin(s.role)) {
+    return NextResponse.json(
+      { error: 'الصلاحية دي للإدارة بس' },
+      { status: 403 }
+    );
+  }
+
+  try {
+    const { id } = await context.params;
+
+    const r = await query(
+      `delete from teachers
+       where id=$1
+       and tenant_id=$2
+       returning id`,
+      [id, s.tenantId]
+    );
+
+    if (r.rows.length === 0) {
+      return NextResponse.json(
+        { error: 'المدرب غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    await logAudit({
+      tenantId: s.tenantId,
+      userId: s.userId,
+      action: 'teacher.delete',
+      entity: 'teacher',
+      entityId: r.rows[0].id,
+    });
+
+    return NextResponse.json({
+      ok: true,
+      id: r.rows[0].id
+    });
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e) },
+      { status: 400 }
+    );
   }
 }
