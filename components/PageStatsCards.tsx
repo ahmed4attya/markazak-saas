@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import {
   Users,
+  Building2,
+  Globe2,
   UserCheck,
   UserX,
   GraduationCap,
@@ -26,6 +28,8 @@ type Stats = {
     active: number;
     graduated: number;
     suspended: number;
+    center: number;
+    online: number;
   };
   teachers: {
     total: number;
@@ -65,6 +69,8 @@ const emptyStats: Stats = {
     active: 0,
     graduated: 0,
     suspended: 0,
+    center: 0,
+    online: 0,
   },
   teachers: {
     total: 0,
@@ -185,6 +191,22 @@ export default function PageStatsCards({ mode, title }: PageStatsCardsProps) {
           icon: UserX,
           className: "border-red-100 bg-red-50/70 text-red-700",
           iconClass: "bg-red-100 text-red-600",
+        },
+        {
+          label: "طلاب السنتر",
+          value: stats.students.center,
+          description: "طلاب الحضور المباشر",
+          icon: Building2,
+          className: "border-cyan-100 bg-cyan-50/70 text-cyan-700",
+          iconClass: "bg-cyan-100 text-cyan-600",
+        },
+        {
+          label: "الطلاب الأونلاين",
+          value: stats.students.online,
+          description: "طلاب التعلم عن بعد",
+          icon: Globe2,
+          className: "border-indigo-100 bg-indigo-50/70 text-indigo-700",
+          iconClass: "bg-indigo-100 text-indigo-600",
         },
       ],
     },

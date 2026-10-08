@@ -18,7 +18,9 @@ export async function GET() {
             count(*)::int as total,
             count(*) filter (where status = 'active')::int as active,
             count(*) filter (where status = 'graduated')::int as graduated,
-            count(*) filter (where status = 'suspended')::int as suspended
+            count(*) filter (where status = 'suspended')::int as suspended,
+            count(*) filter (where type = 'center')::int as center,
+            count(*) filter (where type = 'online')::int as online
           from students
           where tenant_id = $1
         `,

@@ -19,6 +19,7 @@ export default function Students() {
             columns={[
               { key: "student_no", label: "الرقم" },
               { key: "name", label: "الاسم" },
+              { key: "type", label: "النوع" },
               { key: "phone", label: "الهاتف" },
               { key: "email", label: "البريد الإلكتروني" },
               { key: "status", label: "الحالة" },
@@ -46,6 +47,15 @@ export default function Students() {
               {
                 key: "identity_no",
                 label: "رقم الهوية",
+              },
+              {
+                key: "type",
+                label: "النوع",
+                type: "select",
+                options: [
+                  { value: "center", label: "سنتر" },
+                  { value: "online", label: "أونلاين" },
+                ],
               },
               {
                 key: "status",
