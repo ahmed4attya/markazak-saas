@@ -5,6 +5,9 @@ import { getSession } from '@/lib/auth';
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+const AR_S1_MIX_WARNING = 'تنبيه: نوع الطالب لا يطابق نمط المجموعة';
+const AR_S1_PERIOD_INVALID = 'فترة الاشتراك غير صالحة';
+
 export async function GET() {
   const s = await getSession();
 
@@ -58,7 +61,7 @@ export async function POST(req: Request) {
     }
 
     const group = await query(
-      'select id from groups where id=$1 and tenant_id=$2',
+      'select id, mode from groups where id=$1 and tenant_id=$2',
       [body.group_id, s.tenantId]
     );
 
@@ -70,7 +73,7 @@ export async function POST(req: Request) {
     }
 
     const student = await query(
-      'select id from students where id=$1 and tenant_id=$2',
+      'select id, type from students where id=$1 and tenant_id=$2',
       [body.student_id, s.tenantId]
     );
 
@@ -78,6 +81,25 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: 'الطالب غير موجود' },
         { status: 404 }
+      );
+    }
+
+    const gMode = group.rows[0].mode || 'onsite';
+    const sType = student.rows[0].type || 'center';
+    const expectedType = gMode === 'online' ? 'online' : 'center';
+    let mixWarning: string | null = null;
+
+    if (sType !== expectedType) {
+      mixWarning = AR_S1_MIX_WARNING;
+    }
+
+    const subStart = (typeof body.sub_start === 'string' && body.sub_start.trim() !== '' && !isNaN(Date.parse(body.sub_start))) ? body.sub_start.trim() : null;
+    const subEnd = (typeof body.sub_end === 'string' && body.sub_end.trim() !== '' && !isNaN(Date.parse(body.sub_end))) ? body.sub_end.trim() : null;
+
+    if (subStart && subEnd && Date.parse(subEnd) < Date.parse(subStart)) {
+      return NextResponse.json(
+        { error: AR_S1_PERIOD_INVALID },
+        { status: 400 }
       );
     }
 
@@ -94,16 +116,25 @@ export async function POST(req: Request) {
     }
 
     const result = await query(
-      'insert into enrollments (tenant_id, group_id, student_id, status, price, discount) values ($1,$2,$3,$4,$5,$6) returning *',
+      'insert into enrollments (tenant_id, group_id, student_id, status, price, discount, sub_start, sub_end) values ($1,$2,$3,$4,$5,$6,$7,$8) returning *',
       [
         s.tenantId,
         body.group_id,
         body.student_id,
         body.status || 'active',
         Number(body.price) || 0,
-        Number(body.discount) || 0
+        Number(body.discount) || 0,
+        subStart,
+        subEnd
       ]
     );
+
+    if (mixWarning) {
+      return NextResponse.json(
+        { ...result.rows[0], warning: mixWarning },
+        { status: 201 }
+      );
+    }
 
     return NextResponse.json(
       result.rows[0],

@@ -3,6 +3,8 @@ import { query, safeError } from '@/lib/db';
 import { getSession, isAdmin } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
 
+const AR_S1_TYPE_INVALID = 'نوع الطالب غير صالح';
+
 type Context = {
   params: Promise<{ id: string }>;
 };
@@ -24,13 +26,29 @@ export async function PATCH(
     const { id } = await context.params;
     const body = await req.json();
 
+    const rawType = (typeof body.type === 'string') ? body.type.trim().toLowerCase() : undefined;
+
+    if (rawType !== undefined && rawType !== '' && rawType !== 'center' && rawType !== 'online') {
+      return NextResponse.json(
+        { error: AR_S1_TYPE_INVALID },
+        { status: 400 }
+      );
+    }
+
+    if (rawType === '') {
+      delete body.type;
+    } else if (rawType !== undefined) {
+      body.type = rawType;
+    }
+
     const allowed = [
       'student_no',
       'name',
       'phone',
       'email',
       'identity_no',
-      'status'
+      'status',
+      'type'
     ];
 
     const fields: string[] = [];

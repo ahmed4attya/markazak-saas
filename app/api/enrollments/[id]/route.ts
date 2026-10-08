@@ -9,6 +9,8 @@ type Context = {
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+const AR_S1_PERIOD_INVALID = 'فترة الاشتراك غير صالحة';
+
 export async function PATCH(
   req: Request,
   context: Context
@@ -34,10 +36,30 @@ export async function PATCH(
 
     const body = await req.json();
 
+    if (body.sub_start === '' || body.sub_start === null) {
+      delete body.sub_start;
+    }
+
+    if (body.sub_end === '' || body.sub_end === null) {
+      delete body.sub_end;
+    }
+
+    if (
+      (body.sub_start !== undefined && isNaN(Date.parse(body.sub_start))) ||
+      (body.sub_end !== undefined && isNaN(Date.parse(body.sub_end)))
+    ) {
+      return NextResponse.json(
+        { error: AR_S1_PERIOD_INVALID },
+        { status: 400 }
+      );
+    }
+
     const allowed = [
       'status',
       'price',
-      'discount'
+      'discount',
+      'sub_start',
+      'sub_end'
     ];
 
     const fields: string[] = [];

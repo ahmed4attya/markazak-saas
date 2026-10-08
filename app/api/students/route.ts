@@ -9,10 +9,11 @@ export async function GET(req:Request){
 
   const u=new URL(req.url);
   const q=u.searchParams.get('q')||'';
+  const type=(u.searchParams.get('type')||'').toLowerCase();
 
   const r=await query(
-    'select id,student_no,name,phone,email,identity_no,status,created_at from students where tenant_id=$1 and (name ilike $2 or student_no ilike $2 or phone ilike $2) order by created_at desc limit 500',
-    [s.tenantId,`%${q}%`]
+    'select id,student_no,name,phone,email,identity_no,status,type,created_at from students where tenant_id=$1 and (name ilike $2 or student_no ilike $2 or phone ilike $2)'+(type==='center'||type==='online'?' and type=$3':'')+' order by created_at desc limit 500',
+    (type==='center'||type==='online')?[s.tenantId,`%${q}%`,type]:[s.tenantId,`%${q}%`]
   );
 
   return NextResponse.json(r.rows);
@@ -23,11 +24,14 @@ export async function POST(req:Request){
   if(!s)return NextResponse.json({error:'unauthorized'},{status:401});
 
   try{
-    const x=studentSchema.parse(await req.json());
+    const body=await req.json();
+    const x=studentSchema.parse(body);
+    const rawType=(typeof body.type==='string')?body.type.trim().toLowerCase():'center';
+    const stype=(rawType==='center'||rawType==='online')?rawType:'center';
 
     const r=await query(
-      'insert into students(tenant_id,student_no,name,phone,email,identity_no,status) values($1,$2,$3,$4,$5,$6,$7) returning *',
-      [s.tenantId,x.student_no,x.name,x.phone,x.email,x.identity_no,x.status]
+      'insert into students(tenant_id,student_no,name,phone,email,identity_no,status,type) values($1,$2,$3,$4,$5,$6,$7,$8) returning *',
+      [s.tenantId,x.student_no,x.name,x.phone,x.email,x.identity_no,x.status,stype]
     );
 
     return NextResponse.json(r.rows[0],{status:201});
