@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import Shell from '@/components/Shell';
@@ -93,10 +93,10 @@ export default function Dashboard() {
   const groups = Number(d.groups || 0);
 
   const cards = [
-    { name: 'الطلاب', value: students, Icon: Users, href: '/students', color: 'bg-blue-500' },
-    { name: 'المدربون', value: teachers, Icon: GraduationCap, href: '/teachers', color: 'bg-emerald-500' },
-    { name: 'الدورات النشطة', value: courses, Icon: BookOpen, href: '/courses', color: 'bg-amber-500' },
-    { name: 'المجموعات', value: groups, Icon: CalendarDays, href: '/groups', color: 'bg-indigo-500' },
+    { name: 'الطلاب', value: students, Icon: Users, href: '/students', color: 'bg-blue-500', accent: 'border-[color:var(--blue-border)] bg-[color:var(--blue-soft)]' },
+    { name: 'المدربون', value: teachers, Icon: GraduationCap, href: '/teachers', color: 'bg-emerald-500', accent: 'border-[color:var(--success-border)] bg-[color:var(--success-soft)]' },
+    { name: 'الدورات النشطة', value: courses, Icon: BookOpen, href: '/courses', color: 'bg-amber-500', accent: 'border-[color:var(--warning-border)] bg-[color:var(--warning-soft)]' },
+    { name: 'المجموعات', value: groups, Icon: CalendarDays, href: '/groups', color: 'bg-indigo-500', accent: 'border-[color:var(--indigo-border)] bg-[color:var(--indigo-soft)]' },
   ];
 
   return (
@@ -121,7 +121,7 @@ export default function Dashboard() {
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
               تحديث
             </button>
-            <Link href="/students" className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-lg shadow-blue-200">
+            <Link href="/students" className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#0b0f17] bg-[image:var(--gold-cta)] hover:opacity-90 rounded-xl transition-all shadow-[0_8px_20px_rgba(245,158,11,0.3)]">
               <Plus size={16} />
               تسجيل طالب
             </Link>
@@ -130,11 +130,11 @@ export default function Dashboard() {
 
         {/* Stats Grid (Bento Style) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {cards.map(({ name, value, Icon, href, color }, i) => (
+          {cards.map(({ name, value, Icon, href, color, accent }, i) => (
             <Link 
               key={i} 
               href={href} 
-              className="bento-card group flex items-center justify-between"
+              className={cn("bento-card group flex items-center justify-between", accent)}
             >
               <div className="flex items-center gap-4">
                 <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-md transition-transform group-hover:scale-110", color)}>

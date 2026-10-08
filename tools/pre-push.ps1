@@ -1,183 +1,155 @@
 ﻿# ============================================================
-# pre-push.ps1 - MANDATORY GATE before every git push (v4)
-# Protocol : PROJECT-PROTOCOL.md Chapter 2
-# Order    : tsc -> build -> git hygiene -> schema reminder
-# Modes    : STAGED (pre-commit flow) / HEAD (post-commit flow)
-# v4       : name-status aware - deletions (D) exempt from
-#            forbidden-path checks (removing junk is desired).
-# Verdict  : GREEN = you may push. RED = NO PUSH.
-# Rules    : ASCII only, English messages, PS 5.1 safe
+# pre-push.ps1 v5 - MANDATORY GATE (final)
+# Order: byte-audit -> tsc -> build -> git hygiene -> schema reminder
+# v5: + mojibake byte scan (from QUDURATI pattern, adapted)
+#     + stderr-safe tsc/build (lesson 45) + self-location guard
+# Modes: STAGED / HEAD (unchanged) | RED = NO PUSH
 # ============================================================
 
- $ErrorActionPreference = "Continue"
- $Root = $PWD.Path
+ $ErrorActionPreference = "Stop"
+[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
 
-Write-Host "=============================================="
-Write-Host " PRE-PUSH GATE v4 - markazak-saas"
-Write-Host "=============================================="
-
-if (-not (Test-Path (Join-Path $Root "package.json"))) {
-    Write-Host "GATE RED: not in project root (package.json missing)." -ForegroundColor Red
+ $expected = "E:\projects\training-center-saas-fixed2\training-center-saas-final\markazak-saas"
+if ($PWD.Path -ne $expected) {
+    Write-Host ("GATE RED: wrong location - " + $PWD.Path) -ForegroundColor Red
     exit 1
 }
-if (-not (Test-Path (Join-Path $Root ".git"))) {
-    Write-Host "GATE RED: not a git repository." -ForegroundColor Red
-    exit 1
-}
+if (-not (Test-Path "package.json")) { Write-Host "GATE RED: package.json missing." -ForegroundColor Red; exit 1 }
+if (-not (Test-Path ".git")) { Write-Host "GATE RED: not a git repository." -ForegroundColor Red; exit 1 }
 
  $staged = @(git diff --cached --name-only 2>$null)
  $porcelain = @(git status --porcelain 2>$null)
-
  $mode = ""
-if ($staged.Count -gt 0) {
-    $mode = "STAGED"
-} else {
+if ($staged.Count -gt 0) { $mode = "STAGED" }
+else {
     if ($porcelain.Count -gt 0) {
-        Write-Host "GATE RED: nothing staged but working tree is dirty." -ForegroundColor Red
-        Write-Host "Incomplete commit. Whitelist files and commit first:" -ForegroundColor Red
-        foreach ($l in $porcelain) { Write-Host ("   " + $l) -ForegroundColor Yellow }
+        Write-Host "GATE RED: nothing staged but working tree dirty." -ForegroundColor Red
+        $porcelain | ForEach-Object { Write-Host ("   " + $_) -ForegroundColor Yellow }
         exit 1
     }
     $mode = "HEAD"
 }
-Write-Host ("Mode: " + $mode)
+Write-Host "=============================================="
+Write-Host (" PRE-PUSH GATE v5  |  Mode: " + $mode)
+Write-Host "=============================================="
 
- $nameArr = @()
- $statusArr = @()
-if ($mode -eq "STAGED") {
-    $ns = @(git diff --cached --name-status 2>$null)
-} else {
-    $hasOrigin = $false
+if ($mode -eq "STAGED") { $ns = @(git diff --cached --name-status 2>$null) }
+else {
     $null = git rev-parse --verify -q origin/main 2>$null
-    if ($LASTEXITCODE -eq 0) { $hasOrigin = $true }
-    if ($hasOrigin) {
+    if ($LASTEXITCODE -eq 0) {
         Write-Host "Commits to be pushed:"
-        $lg = @(git log --oneline origin/main..HEAD 2>$null)
-        foreach ($c in $lg) { Write-Host ("   " + $c) -ForegroundColor Gray }
+        @(git log --oneline origin/main..HEAD 2>$null) | ForEach-Object { Write-Host ("   " + $_) -ForegroundColor Gray }
         $ns = @(git diff --name-status origin/main...HEAD 2>$null)
-    } else {
-        $ns = @(git show --name-status --format="" HEAD 2>$null)
-    }
+    } else { $ns = @(git show --name-status --format="" HEAD 2>$null) }
 }
  $tab = [char]9
+ $names = @(); $stats = @()
 foreach ($l in $ns) {
-    if (-not $l) { continue }
-    if ($l.Trim() -eq "") { continue }
+    if (-not $l -or $l.Trim() -eq "") { continue }
     $parts = $l.Split($tab)
     if ($parts.Count -lt 2) { continue }
-    $nameArr += ($parts[$parts.Count - 1])
-    $statusArr += ($parts[0])
+    $names += $parts[$parts.Count - 1]; $stats += $parts[0]
 }
- $filesUnderReview = @($nameArr | Where-Object { $_ -and $_.Trim() -ne "" })
-Write-Host ("Push set: " + $filesUnderReview.Count + " file(s) under review.")
- $delCount = 0
-foreach ($s in $statusArr) { if ($s -like "D*") { $delCount++ } }
-Write-Host ("Deletions in push set (allowed cleanup): " + $delCount)
-if ($mode -eq "HEAD" -and $filesUnderReview.Count -eq 0) {
-    Write-Host "NOTE: no diff vs origin/main - branch appears already pushed."
-}
+Write-Host ("Push set: " + $names.Count + " file(s)")
 
-# ---- [1/4] Type check ----
-Write-Host "[1/4] Type check (npx tsc --noEmit)..." -ForegroundColor Cyan
-& npx tsc --noEmit 2>&1 | ForEach-Object { Write-Host ("  " + $_) }
+# ---------- [1/5] BYTE AUDIT (mojibake) ----------
+Write-Host "[1/5] Byte audit (mojibake across live sources)..." -ForegroundColor Cyan
+ $dirs = @("app", "components", "lib", "tools", "scripts")
+ $bad = @(); $scanned = 0
+ $needleOk = [int[]]@(0x062F, 0x0648, 0x0645)          # legit Arabic sanity probe
+foreach ($d in $dirs) {
+    if (-not (Test-Path $d)) { continue }
+    $fs = @(Get-ChildItem -Path $d -Recurse -Include *.ts,*.tsx,*.css,*.ps1 -File | Where-Object { $_.FullName -notmatch '\\(node_modules|\.next|backups|encoding-backups)\\' })
+    foreach ($f in $fs) {
+        $scanned++
+        $b = [System.IO.File]::ReadAllBytes($f.FullName)
+        $hasArabic = $false; $susp = $false
+        for ($i = 0; $i -lt $b.Length; $i++) {
+            $x = $b[$i]
+            if ($x -eq 0xD8 -or $x -eq 0xD9) { $hasArabic = $true }                       # UTF-8 Arabic lead
+            if ($x -eq 0xC2 -or $x -eq 0xC3) {                                             # latin-SS lead
+                if (($i + 1) -lt $b.Length) {
+                    $n = $b[$i + 1]
+                    if ($n -eq 0xA7 -or $n -eq 0xB8 -or $n -eq 0xBB -or $n -eq 0xA9) { $susp = $true }  # آ§/آ¸/آ»/آ© tells
+                }
+            }
+        }
+        if ($hasArabic -and $susp) { $bad += $f.FullName.Substring($PWD.Path.Length + 1) }
+    }
+}
+ $okProbe = $false
+ $layoutBytes = [System.IO.File]::ReadAllBytes("app\layout.tsx")
+for ($i = 0; $i -le $layoutBytes.Length - 3; $i++) { if ($layoutBytes[$i] -eq 0xD9 -and $layoutBytes[$i+1] -eq 0x85) { $okProbe = $true; break } }  # ة lead sanity
+if ($scanned -eq 0) { Write-Host "  WARN: no source files found to scan" -ForegroundColor Yellow }
+elseif ($bad.Count -gt 0) { $bad | ForEach-Object { Write-Host ("  CORRUPT: " + $_) -ForegroundColor Red }; Write-Host "FAIL 1/5: mojibake found" -ForegroundColor Red; exit 1 }
+else { Write-Host ("  OK 1/5: byte audit clean (" + $scanned + " files)") -ForegroundColor Green }
+
+# ---------- [2/5] TSC (stderr-safe) ----------
+Write-Host "[2/5] Type check..." -ForegroundColor Cyan
+ $prevEap = $ErrorActionPreference
+ $ErrorActionPreference = "Continue"
+& npx tsc --noEmit 2>&1 | Select-Object -First 20
  $tscCode = $LASTEXITCODE
-if ($tscCode -ne 0) {
-    Write-Host "GATE RED: type check failed." -ForegroundColor Red
-    exit 1
-}
-Write-Host "      tsc: GREEN" -ForegroundColor Green
+ $ErrorActionPreference = $prevEap
+if ($tscCode -ne 0) { Write-Host "FAIL 2/5: tsc errors above" -ForegroundColor Red; exit 1 }
+Write-Host "  OK 2/5: types clean" -ForegroundColor Green
 
-# ---- [2/4] Production build ----
-Write-Host "[2/4] Production build (npm run build)..." -ForegroundColor Cyan
- $buildLog = Join-Path $env:TEMP "markazak-build.log"
-& npm run build 2>&1 | Out-File -FilePath $buildLog -Encoding utf8
+# ---------- [3/5] BUILD (stderr-safe) ----------
+Write-Host "[3/5] Production build..." -ForegroundColor Cyan
+ $bl = Join-Path $env:TEMP "markazak-gate5-build.log"
+ $prevEap = $ErrorActionPreference
+ $ErrorActionPreference = "Continue"
+& npm run build 2>&1 | Out-File -FilePath $bl -Encoding utf8
  $buildCode = $LASTEXITCODE
-if ($buildCode -ne 0) {
-    Write-Host "GATE RED: build failed. Last 40 lines:" -ForegroundColor Red
-    Get-Content $buildLog | Select-Object -Last 40 | ForEach-Object { Write-Host ("  " + $_) }
-    exit 1
-}
-Write-Host "      build: GREEN" -ForegroundColor Green
+ $ErrorActionPreference = $prevEap
+if ($buildCode -ne 0) { Get-Content $bl | Select-Object -Last 30 | ForEach-Object { Write-Host ("  " + $_) }; Write-Host "FAIL 3/5: build failed" -ForegroundColor Red; exit 1 }
+Write-Host "  OK 3/5: build green" -ForegroundColor Green
 
-# ---- [3/4] Git hygiene ----
-Write-Host "[3/4] Git hygiene..." -ForegroundColor Cyan
+# ---------- [4/5] GIT HYGIENE ----------
+Write-Host "[4/5] Git hygiene..." -ForegroundColor Cyan
  $red = $false
-
-for ($i = 0; $i -lt $nameArr.Count; $i++) {
-    $f = $nameArr[$i]
-    $st = $statusArr[$i]
+for ($i = 0; $i -lt $names.Count; $i++) {
+    $f = $names[$i]; $st = $stats[$i]
     if ($st -like "D*") { continue }
-    $bad = $false
     $why = ""
-    if ($f -eq ".env" -or $f -eq ".env.local" -or $f -eq ".env.production" -or $f -eq ".env.development" -or $f -like ".env*.local") {
-        $bad = $true; $why = "env secret file"
-    } elseif ($f -like ".env.*" -and -not ($f -like ".env.example")) {
-        $bad = $true; $why = "env secret file"
-    } elseif ($f -like "*.pem" -or $f -like "*.key" -or $f -like "*.p12" -or $f -like "*.bak" -or $f -like "*.tmp" -or $f -like "*.dump" -or $f -like "*.log") {
-        $bad = $true; $why = "secret/temp artifact"
-    } elseif ($f -like "node_modules/*" -or $f -like "audit-out/*" -or $f -like "backups/*" -or $f -like "backup*" -or $f -like "dump*.sql" -or $f -eq "structure.txt") {
-        $bad = $true; $why = "junk/backup path (as addition/modification)"
-    }
-    if ($bad) {
-        Write-Host ("GATE RED: forbidden file in push set: " + $f + "  (" + $why + ")") -ForegroundColor Red
-        $red = $true
-    }
+    if ($f -eq ".env" -or $f -eq ".env.local" -or $f -eq ".env.production" -or $f -eq ".env.development" -or $f -like ".env*.local") { $why = "env secret" }
+    elseif ($f -like ".env.*" -and -not ($f -like ".env.example")) { $why = "env secret" }
+    elseif ($f -like "*.pem" -or $f -like "*.key" -or $f -like "*.p12" -or $f -like "*.bak" -or $f -like "*.tmp" -or $f -like "*.dump" -or $f -like "*.log") { $why = "secret/temp" }
+    elseif ($f -like "node_modules/*" -or $f -like "audit-out/*" -or $f -like "backups/*" -or $f -like "backup*" -or $f -like "dump*.sql" -or $f -eq "structure.txt") { $why = "junk path" }
+    if ($why -ne "") { Write-Host ("GATE RED: forbidden: " + $f + " (" + $why + ")") -ForegroundColor Red; $red = $true }
 }
-
  $srcPrefixes = @("src/", "app/", "lib/", "components/", "scripts/", "hooks/", "types/", "utils/", "server/", "middleware")
-
 if ($mode -eq "STAGED") {
     foreach ($line in $porcelain) {
         if ($line.Length -lt 2) { continue }
-        $x = $line.Substring(0, 1)
-        $y = $line.Substring(1, 1)
-        if ($y -ne " " -and $y -ne "?") {
-            Write-Host ("GATE RED: unstaged change - restage or stash: " + $line) -ForegroundColor Red
-            $red = $true
-        }
+        $x = $line.Substring(0,1); $y = $line.Substring(1,1)
+        if ($y -ne " " -and $y -ne "?") { Write-Host ("GATE RED: unstaged change: " + $line) -ForegroundColor Red; $red = $true }
         if ($x -eq "?" -and $y -eq "?") {
-            $path = $line.Substring(3)
-            $isSrc = $false
-            foreach ($p in $srcPrefixes) {
-                if ($path.StartsWith($p)) { $isSrc = $true }
-            }
-            if ($isSrc) {
-                Write-Host ("GATE RED: new source file not committed: " + $path) -ForegroundColor Red
-                $red = $true
-            } else {
-                Write-Host ("  WARN: untracked outside src (add to .gitignore or remove): " + $path) -ForegroundColor Yellow
-            }
+            $path = $line.Substring(3); $isSrc = $false
+            foreach ($p in $srcPrefixes) { if ($path.StartsWith($p)) { $isSrc = $true } }
+            if ($isSrc) { Write-Host ("GATE RED: new source uncommitted: " + $path) -ForegroundColor Red; $red = $true }
+            else { Write-Host ("  WARN: untracked outside src: " + $path) -ForegroundColor Yellow }
         }
     }
-    Write-Host "  Staged files (whitelist - verify with your own eyes):"
-    foreach ($f in $staged) { Write-Host ("    + " + $f) -ForegroundColor Gray }
+    Write-Host "  Staged (verify with your eyes):"
+    $staged | ForEach-Object { Write-Host ("    + " + $_) -ForegroundColor Gray }
 } else {
-    Write-Host "  Files changed in unpushed commits (status + path):"
-    for ($i = 0; $i -lt $nameArr.Count; $i++) {
-        Write-Host ("    " + $statusArr[$i] + " " + $nameArr[$i]) -ForegroundColor Gray
-    }
+    Write-Host "  Changed in unpushed commits:"
+    for ($i = 0; $i -lt $names.Count; $i++) { Write-Host ("    " + $stats[$i] + " " + $names[$i]) -ForegroundColor Gray }
 }
+if ($red) { Write-Host "FAIL 4/5: hygiene" -ForegroundColor Red; exit 1 }
+Write-Host "  OK 4/5: hygiene clean" -ForegroundColor Green
 
-# ---- [4/4] Schema sync reminder ----
-Write-Host "[4/4] Schema sync reminder..." -ForegroundColor Cyan
+# ---------- [5/5] SCHEMA REMINDER ----------
+Write-Host "[5/5] Schema reminder..." -ForegroundColor Cyan
  $schemaTouched = $false
-foreach ($f in $filesUnderReview) {
-    if ($f -match "(?i)(migration|migrate|schema)") { $schemaTouched = $true }
-    if ($f -match "(?i)\.sql$") { $schemaTouched = $true }
-}
+foreach ($f in $names) { if ($f -match "(?i)(migration|migrate|schema)" -or $f -match "(?i)\.sql$") { $schemaTouched = $true } }
 if ($schemaTouched) {
     Write-Host "  REMINDER: push set touches schema/migrations." -ForegroundColor Yellow
-    Write-Host "  Before push: BACKUP target DB, then run migration on target only." -ForegroundColor Yellow
-} else {
-    Write-Host "  No schema-related files in push set. OK."
-}
+    Write-Host "  After push: BACKUP target DB then run migration on target only." -ForegroundColor Yellow
+} else { Write-Host "  OK 5/5: no schema files in push set" -ForegroundColor Green }
 
-# ---- Verdict ----
-if ($red) {
-    Write-Host "GATE: RED - PUSH FORBIDDEN." -ForegroundColor Red
-    exit 1
-}
-Write-Host "GATE: GREEN - you may push." -ForegroundColor Green
-Write-Host "  git push -u origin main"
-Write-Host "  git push origin <tag>   (tags need explicit push)"
+Write-Host "=============================================="
+Write-Host " GATE: GREEN - safe to commit & push" -ForegroundColor Green
+Write-Host "=============================================="
 exit 0

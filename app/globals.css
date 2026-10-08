@@ -2,32 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Cairo:wght@400;700&display=swap");
 
 /* Night Luxe (DESIGN.md, DEC-036/037) - dark premium theme.
    Utility remap layer at the end re-maps legacy light classes
    so pages keep their classNames; theme flips in one file. */
 
 :root {
-  --bg: #0b1222;
-  --surface: #121b31;
-  --surface-2: #182341;
-  --surface-3: #1e2c52;
-  --border: #233052;
-  --border-strong: #2e3d66;
-  --text: #eaf0fa;
-  --text-soft: #c7d3ea;
-  --muted: #93a5c8;
-  --muted-dim: #6b7da3;
+  --bg: #0b0f17;
+  --surface: #131b2a;
+  --surface-2: #1e293b;
+  --surface-3: #243047;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --text: #f8fafc;
+  --text-soft: #e2e8f0;
+  --muted: #94a3b8;
+  --muted-dim: #64748b;
   --blue: #5b9bff;
   --blue-strong: #7aaeff;
   --blue-soft: rgba(91, 155, 255, 0.14);
   --blue-border: rgba(91, 155, 255, 0.32);
-  --gold: #e7c168;
-  --gold-strong: #f2d38b;
-  --gold-soft: rgba(231, 193, 104, 0.14);
-  --gold-border: rgba(231, 193, 104, 0.38);
-  --gold-cta: linear-gradient(135deg, #f2d38b, #e7c168);
+  --gold: #fbbf24;
+  --gold-strong: #fcd34d;
+  --gold-soft: rgba(245, 158, 11, 0.12);
+  --gold-border: rgba(245, 158, 11, 0.3);
+  --gold-cta: linear-gradient(135deg, #fbbf24, #f59e0b);
   --success: #3ddc97;
   --success-soft: rgba(61, 220, 151, 0.12);
   --success-border: rgba(61, 220, 151, 0.3);
@@ -68,11 +68,11 @@ html {
 body {
   margin: 0;
   background:
-    radial-gradient(1400px 700px at 80% -10%, rgba(91, 155, 255, 0.07), transparent 60%),
-    radial-gradient(1000px 500px at 5% 110%, rgba(231, 193, 104, 0.05), transparent 55%),
+    radial-gradient(1400px 700px at 80% -10%, rgba(245, 158, 11, 0.06), transparent 60%),
+    radial-gradient(1000px 500px at 5% 110%, rgba(91, 155, 255, 0.05), transparent 55%),
     var(--bg);
   color: var(--text);
-  font-family: "Cairo", sans-serif;
+  font-family: "IBM Plex Sans Arabic", "Cairo", sans-serif;
 }
 
 button,
@@ -96,7 +96,7 @@ button:focus-visible {
 }
 
 ::selection {
-  background: rgba(231, 193, 104, 0.3);
+  background: rgba(245, 158, 11, 0.3);
 }
 
 ::-webkit-scrollbar {
@@ -189,14 +189,14 @@ button:focus-visible {
 }
 
 .primary {
-  color: #1a2440;
+  color: #0b0f17;
   background: var(--gold-cta);
-  border: 1px solid rgba(231, 193, 104, 0.5);
-  box-shadow: 0 8px 22px rgba(231, 193, 104, 0.22);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  box-shadow: 0 8px 22px rgba(245, 158, 11, 0.22);
 }
 
 .primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #f7dc9c, #edc976);
+  background: linear-gradient(135deg, #fbbf24, #d97706);
   transform: translateY(-1px);
 }
 
@@ -598,7 +598,7 @@ textarea:focus {
 
 .planCard.featured {
   border-color: var(--gold-border);
-  box-shadow: 0 10px 30px rgba(231, 193, 104, 0.12);
+  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.12);
 }
 
 .planCard ul {
@@ -620,7 +620,7 @@ textarea:focus {
   padding: 0;
   background:
     radial-gradient(1200px 600px at 85% -10%, rgba(91, 155, 255, 0.12), transparent 60%),
-    radial-gradient(900px 500px at 10% 110%, rgba(231, 193, 104, 0.1), transparent 55%),
+    radial-gradient(900px 500px at 10% 110%, rgba(245, 158, 11, 0.1), transparent 55%),
     var(--bg);
 }
 
@@ -645,7 +645,7 @@ textarea:focus {
   height: 520px;
   border-radius: 50%;
   filter: blur(90px);
-  background: radial-gradient(circle, rgba(231, 193, 104, 0.28), transparent 60%);
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.3), transparent 60%);
   bottom: -140px;
   right: -120px;
 }
@@ -695,9 +695,9 @@ textarea:focus {
   border-radius: 1rem;
   font-weight: 800;
   font-size: 1.4rem;
-  color: #1a2440;
+  color: #0b0f17;
   background: var(--gold-cta);
-  box-shadow: 0 10px 30px rgba(231, 193, 104, 0.25);
+  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.25);
 }
 
 .brand.big {
@@ -708,7 +708,7 @@ textarea:focus {
 }
 
 .brand span {
-  color: #1a2440;
+  color: #0b0f17;
 }
 
 .visualCards {
@@ -766,7 +766,7 @@ textarea:focus {
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  color: #1a2440;
+  color: #0b0f17;
   background: var(--gold-cta);
 }
 
@@ -1117,11 +1117,11 @@ textarea:focus {
 }
 
 .from-blue-600 {
-  --tw-gradient-from: #e7c168 var(--tw-gradient-from-position);
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(231, 193, 104, 0));
+  --tw-gradient-from: #fbbf24 var(--tw-gradient-from-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(245, 158, 11, 0));
 }
 .to-emerald-500 {
-  --tw-gradient-to: #b99a45 var(--tw-gradient-to-position);
+  --tw-gradient-to: #d97706 var(--tw-gradient-to-position);
 }
 
 .shadow-blue-100 {
@@ -1175,4 +1175,19 @@ textarea:focus {
 }
 .group:hover .group-hover\:text-blue-500 {
   color: var(--gold);
+}
+/* Sidebar nav: visible thin scrollbar (all links discoverable) */
+.nav-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.nav-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 6px;
+}
+.nav-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.nav-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
 }
