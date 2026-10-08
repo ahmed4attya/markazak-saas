@@ -17,3 +17,9 @@ create table if not exists subscriptions(id uuid primary key default gen_random_
 create table if not exists plans(id uuid primary key default gen_random_uuid(),code varchar(40) unique not null,name varchar(100) not null,monthly_price numeric(12,2) default 0,yearly_price numeric(12,2) default 0,limits jsonb default '{}',features jsonb default '[]',active boolean default true);
 create table if not exists settings(id uuid primary key default gen_random_uuid(),tenant_id uuid unique references tenants(id) on delete cascade,data jsonb default '{}',updated_at timestamptz default now());
 create index if not exists students_tenant_name on students(tenant_id,name); create index if not exists attendance_tenant_date on attendance(tenant_id,attendance_date); create index if not exists invoices_tenant_status on invoices(tenant_id,status); create index if not exists groups_tenant_date on groups(tenant_id,start_date);
+
+-- S1: student types (center/online) + enrollment subscription period (DEC-029/030)
+alter table students add column if not exists type varchar(20) not null default 'center';
+alter table enrollments add column if not exists sub_start date;
+alter table enrollments add column if not exists sub_end date;
+create index if not exists students_tenant_type on students(tenant_id,type);
