@@ -114,11 +114,11 @@ export default function Shell({
                       className={cn(
                         "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group",
                         isActive 
-                          ? "bg-blue-50 text-blue-600 shadow-sm" 
+                          ? "bg-[color:var(--gold-soft)] text-[color:var(--gold)] shadow-sm"
                           : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
                       )}
                     >
-                      <Icon size={18} className={cn(isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600")} />
+                      <Icon size={18} className={cn(isActive ? "text-[color:var(--gold)]" : "text-[color:var(--muted)] group-hover:text-[color:var(--text)]")} />
                       <span>{label}</span>
                     </Link>
                   );
@@ -139,11 +139,11 @@ export default function Shell({
                       className={cn(
                         "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group",
                         isActive 
-                          ? "bg-blue-50 text-blue-600 shadow-sm" 
+                          ? "bg-[color:var(--gold-soft)] text-[color:var(--gold)] shadow-sm"
                           : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
                       )}
                     >
-                      <Icon size={18} className={cn(isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600")} />
+                      <Icon size={18} className={cn(isActive ? "text-[color:var(--gold)]" : "text-[color:var(--muted)] group-hover:text-[color:var(--text)]")} />
                       <span>{label}</span>
                     </Link>
                   );
@@ -165,7 +165,7 @@ export default function Shell({
             </div>
             <button 
               onClick={logout}
-              className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+              className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-[color:var(--muted)] hover:text-[color:var(--danger)] hover:bg-[color:var(--danger-soft)] rounded-lg transition-all duration-200"
             >
               <LogOut size={18} />
               <span>تسجيل الخروج</span>

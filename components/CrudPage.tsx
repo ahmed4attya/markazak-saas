@@ -212,7 +212,7 @@ export default function CrudPage({
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="p-4 bg-red-50 border-r-4 border-red-500 text-red-700 text-sm rounded-lg"
+          className="p-4 bg-red-50 border-r-[3px] border-r-[color:var(--gold)]/60 border-red-500 text-red-700 text-sm rounded-lg"
         >
           {error}
         </motion.div>

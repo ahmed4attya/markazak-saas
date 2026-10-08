@@ -1,4 +1,39 @@
-﻿@tailwind base;
+﻿# ============================================================
+# u-theme2.ps1 - FINAL theme ship: self-derived needle counts
+# Lesson 37: needle counts are MEASURED from the written file
+# (exists>=1 or exact-by-construction), never guessed.
+# Run: powershell -ExecutionPolicy Bypass -File tools\u-theme2.ps1
+# ============================================================
+
+ $ErrorActionPreference = "Stop"
+[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
+Write-Host "=== U-THEME2 (self-measured needles) ===" -ForegroundColor Cyan
+
+if ($PWD.Path -ne "E:\projects\training-center-saas-fixed2\training-center-saas-final\markazak-saas") { throw ("WRONG LOCATION: " + $PWD.Path) }
+
+ $st0 = @(git status --porcelain)
+ $expectedM = @('app/globals.css', 'components/Shell.tsx')
+ $bad = @()
+foreach ($line in $st0) {
+  $st = $line.Substring(0,2); $p = $line.Substring(3)
+  if (($st -eq 'M ') -or ($st -eq ' M')) { if ($expectedM -contains $p) { continue } ; $bad += $line; continue }
+  if ($st -eq '??') { if ($p -like 'tools/*' -or $p -like '.impeccable*' -or $p -like '.codex*' -or $p -like '.gemini*') { continue } }
+  $bad += $line
+}
+if ($bad.Count -gt 0) { throw ("unexpected tree state: " + ($bad -join " | ")) }
+
+ $strict = New-Object System.Text.UTF8Encoding($false, $true)
+
+# ============================================================
+# PART 1 - globals.css full rebuild (same Night Luxe content)
+# ============================================================
+ $f = 'app\globals.css'
+ $gb = [System.IO.File]::ReadAllBytes($f)
+ $hasBom = ($gb.Length -ge 3 -and $gb[0] -eq 239 -and $gb[1] -eq 187 -and $gb[2] -eq 191)
+Write-Host ("globals current: bytes=" + $gb.Length + " bom=" + $hasBom)
+
+ $css = @'
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -1176,3 +1211,129 @@ textarea:focus {
 .group:hover .group-hover\:text-blue-500 {
   color: var(--gold);
 }
+'@
+
+[System.IO.File]::WriteAllText($f, $css, (New-Object System.Text.UTF8Encoding($hasBom)))
+ $nb = [System.IO.File]::ReadAllBytes($f)
+ $null = $strict.GetString($nb)
+ $nbom = ($nb.Length -ge 3 -and $nb[0] -eq 239 -and $nb[1] -eq 187 -and $nb[2] -eq 191)
+if ($nbom -ne $hasBom) { throw "globals BOM state changed" }
+ $srcLines = ($css.TrimEnd([char]10, [char]13) -split "\r?\n").Count
+ $diskLines = ([System.IO.File]::ReadAllLines($f)).Count
+Write-Host ("globals written: bytes=" + $nb.Length + " lines=" + $diskLines + " (source=" + $srcLines + ")")
+if ($diskLines -ne $srcLines) { throw "globals line count mismatch" }
+
+# ---- structural self-derived checks (lesson 37) ----
+ $t = [System.IO.File]::ReadAllText($f)
+
+# 1. balanced braces (CSS structural soundness, measured)
+ $open = ([regex]::Matches($t, "\{")).Count
+ $close = ([regex]::Matches($t, "\}")).Count
+Write-Host ("braces: open=" + $open + " close=" + $close)
+if ($open -ne $close) { throw "unbalanced braces" }
+
+# 2. selector census MEASURED from the written file (no guessed counts)
+ $selKeys = @('loginPage','loginBox','loginVisual','bento-card','badge.paid','modalBack','primary:hover','bg-white','text-slate-800','border-slate-200','from-blue-600')
+ $selCensus = @{}
+foreach ($k in $selKeys) {
+  $c = ([regex]::Matches($t, [regex]::Escape("." + $k))).Count
+  $selCensus[$k] = $c
+  if ($c -lt 1) { throw ("selector missing: ." + $k) }
+}
+Write-Host ("selector census: " + (($selCensus.GetEnumerator() | ForEach-Object { $_.Key + "=" + $_.Value }) -join "  "))
+
+# 3. exact-count needles: only those whose count is fixed BY CONSTRUCTION of this template
+ $one = @(':root {', '--gold-cta:', '--shadow-3:', 'UTILITY REMAP LAYER')
+foreach ($n in $one) {
+  $c = ([regex]::Matches($t, [regex]::Escape($n))).Count
+  if ($c -ne 1) { throw ("exact needle [" + $n + "]: got=" + $c + " want=1") }
+}
+Write-Host "exact-count needles VERIFIED (construction-fixed)" -ForegroundColor Green
+
+# 4. tokens present (>=1 each, measured)
+foreach ($n in @('--bg:', '--surface:', '--gold:', '--blue:', '--success:', '--danger:', '--warning:', '--info:', '--violet:', '--rose:', '--indigo:', '--cyan:')) {
+  if (([regex]::Matches($t, [regex]::Escape($n))).Count -lt 1) { throw ("token missing: " + $n) }
+}
+Write-Host "ALL 12 TOKEN FAMILIES PRESENT" -ForegroundColor Green
+
+# ============================================================
+# PART 2 - Shell.tsx gold active-nav (2 anchors x2)
+# ============================================================
+ $sf = 'components\Shell.tsx'
+ $sb = [System.IO.File]::ReadAllBytes($sf)
+ $sbom = ($sb.Length -ge 3 -and $sb[0] -eq 239 -and $sb[1] -eq 187 -and $sb[2] -eq 191)
+ $sraw = [System.IO.File]::ReadAllText($sf)
+ $seol = [string][char]10
+if ($sraw.Contains([char]13)) { $seol = [string][char]13 + [string][char]10 }
+ $sendNl = $sraw.EndsWith($seol)
+ $slines = [System.IO.File]::ReadAllLines($sf)
+
+ $trimA = '? "bg-blue-50 text-blue-600 shadow-sm"'
+ $newA = '? "bg-[color:var(--gold-soft)] text-[color:var(--gold)] shadow-sm"'
+ $trimB = '<Icon size={18} className={cn(isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600")} />'
+ $newB = '<Icon size={18} className={cn(isActive ? "text-[color:var(--gold)]" : "text-[color:var(--muted)] group-hover:text-[color:var(--text)]")} />'
+
+ $hitsA = 0
+for ($k = 0; $k -lt $slines.Count; $k++) {
+  if ($slines[$k].Trim() -ceq $trimA) { $ind = [regex]::Match($slines[$k], '^\s*').Value; $slines[$k] = $ind + $newA; $hitsA++ }
+}
+if ($hitsA -ne 2) { throw ("anchor A hits=" + $hitsA) }
+ $hitsB = 0
+for ($k = 0; $k -lt $slines.Count; $k++) {
+  if ($slines[$k].Trim() -ceq $trimB) { $ind = [regex]::Match($slines[$k], '^\s*').Value; $slines[$k] = $ind + $newB; $hitsB++ }
+}
+if ($hitsB -ne 2) { throw ("anchor B hits=" + $hitsB) }
+
+ $sout = ($slines -join $seol)
+if ($sendNl) { $sout += $seol }
+[System.IO.File]::WriteAllText($sf, $sout, (New-Object System.Text.UTF8Encoding($sbom)))
+ $snb = [System.IO.File]::ReadAllBytes($sf)
+ $null = $strict.GetString($snb)
+ $snbom = ($snb.Length -ge 3 -and $snb[0] -eq 239 -and $snb[1] -eq 187 -and $snb[2] -eq 191)
+if ($snbom -ne $sbom) { throw "Shell BOM state changed" }
+ $st = [System.IO.File]::ReadAllText($sf)
+function V1b { param([string]$text, [string]$needle, [int]$want)
+  $g = ([regex]::Matches($text, [regex]::Escape($needle))).Count
+  if ($g -ne $want) { throw ("needle [" + $needle + "]: got=" + $g + " want=" + $want) }
+}
+V1b $st 'var(--gold-soft)' 2
+V1b $st 'bg-blue-50 text-blue-600' 0
+V1b $st 'isActive ? "text-blue-600"' 0
+V1b $st 'text-[color:var(--gold)]' 4
+Write-Host "Shell anchors VERIFIED (4 lines, gold active nav)" -ForegroundColor Green
+
+# ============================================================
+# PART 3 - tsc + build
+# ============================================================
+Write-Host "--- tsc ---"
+& npx tsc --noEmit 2>&1 | Select-Object -First 20
+if ($LASTEXITCODE -ne 0) { throw "tsc RED - paste output" }
+Write-Host "tsc: GREEN" -ForegroundColor Green
+Write-Host "--- build (postcss validates the CSS) ---"
+ $bl = Join-Path $env:TEMP "markazak-u2-build.log"
+& npm run build 2>&1 | Out-File -FilePath $bl -Encoding utf8
+if ($LASTEXITCODE -ne 0) { Get-Content $bl | Select-Object -Last 30; throw "build RED - paste output" }
+Write-Host "build: GREEN" -ForegroundColor Green
+
+# ============================================================
+# PART 4 - stage whitelist + GATE + commit + push
+# ============================================================
+ $allow = @('app/globals.css', 'components/Shell.tsx', 'tools/u-theme2.ps1', 'tools/u-theme.ps1', 'tools/u-read.ps1', 'tools/u-design.ps1', 'DESIGN.md')
+foreach ($p in $allow) { if (Test-Path $p) { git add -- $p } }
+ $staged = @(git diff --cached --name-only)
+Write-Host ("staged: " + $staged.Count + " files")
+ $staged | ForEach-Object { Write-Host ("  + " + $_) }
+foreach ($s in $staged) { if (-not ($allow -contains $s)) { throw ("unexpected staged: " + $s) } }
+if ($staged.Count -lt 2) { throw ("staged too few") }
+
+Write-Host "--- MANDATORY GATE ---" -ForegroundColor Cyan
+& powershell -ExecutionPolicy Bypass -File tools\pre-push.ps1
+if ($LASTEXITCODE -ne 0) { Write-Host "GATE RED - nothing committed." -ForegroundColor Red; exit 1 }
+
+git commit -m "feat(u): night luxe theme - self-measured verification (lesson 37), gold nav, restored login styles"
+if ($LASTEXITCODE -ne 0) { throw "commit failed" }
+git push -u origin main
+if ($LASTEXITCODE -ne 0) { throw "push failed" }
+Write-Host "THEME SHIPPED - Vercel deploys in 2-3 min." -ForegroundColor Green
+Write-Host "DESIGN GATE (DEC-035): filesystem mode - no browser needed:"
+Write-Host "  npx impeccable detect app components"
