@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { ShieldCheck, Brain, BarChart3, LockKeyhole } from "lucide-react";
 export default function Login() {
   const r = useRouter();
-  const [email, setEmail] = useState("admin@center.sa");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
   async function submit(e: any) {
@@ -82,11 +82,6 @@ export default function Login() {
         </form>
         <div className="secure">
           <LockKeyhole size={15} /> اتصال آمن ومشفر
-        </div>
-        <div className="demo">
-          <b>حساب التجربة</b>
-          <br />
-          admin@center.sa / admin123
         </div>
       </div>
     </main>
