@@ -6,17 +6,19 @@ This document is binding for every future UI change.
 ## 1. Identity
 Dark premium Arabic-first SaaS. Tinted navy surfaces (never pure black), light text with AA contrast,
 gold = brand signature (logo, CTA, active nav, featured plan, hero numbers), blue = interaction
-(links, focus, icons, avatars). Font: Cairo (400-800). RTL native.
+(links, focus, icons, avatars). Font: IBM Plex Sans Arabic (300-700) primary + Cairo secondary. RTL native.
 
-## 2. Tokens (globals.css :root)
-- bg #0b1222 | surface #121b31 | surface-2 #182341 | surface-3 #1e2c52
-- border #233052 | border-strong #2e3d66
-- text #eaf0fa | text-soft #c7d3ea | muted #93a5c8 | muted-dim #6b7da3
+## 2. Tokens (globals.css :root) - corrected 2026-10-09 to disk values (Lesson 18)
+- bg #0b0f17 | surface #131b2a | surface-2 #1e293b | surface-3 #243047
+- border rgba(255,255,255,.08) | border-strong rgba(255,255,255,.15)
+- text #f8fafc | text-soft #e2e8f0 | muted #94a3b8 | muted-dim #64748b
 - blue #5b9bff (+strong #7aaeff, soft rgba .14, border rgba .32)
-- gold #e7c168 (+strong #f2d38b, soft rgba .14, border rgba .38, cta gradient f2d38b->e7c168)
-- success #3ddc97 | danger #ff6b6b | warning #f5b84c | info #38cfe0
-- violet #a78bfa | cyan #38cfe0 | indigo #818cf8 | rose #fb7185 (each soft .12 / border .3)
+- gold #fbbf24 (+strong #fcd34d, soft rgba(245,158,11,.12), border rgba .3, cta gradient fbbf24->f59e0b, cta text #0b0f17)
+- success #3ddc97 | danger #ff6b6b | warning #f5b84c | info/cyan #38cfe0
+- violet #a78bfa | indigo #818cf8 | rose #fb7185 (each soft .12 / border .3)
 - shadows: 1 subtle, 2 card, 3 modal (black-based, dark-appropriate)
+- font: "IBM Plex Sans Arabic" primary (300-700) + Cairo (400,700)
+- scrims/glass: modal rgba(2,6,16,.6) | mobile sidebar rgba(2,6,16,.5) | header glass rgba(18,27,49,.85) shell / rgba(11,15,23,.85) landing
 
 ## 3. Component rules
 - Card (bento-card/panel/statCard/financeCard): single surface, 1px border, radius 1rem, shadow-2.
@@ -48,3 +50,10 @@ one file. New code should prefer :root vars or the mapped classes.
 
 ## 8. Revert
 git revert of the theme commit restores the previous visuals atomically; backups exist in git history.
+
+## 9. Dual theme (Scope T - DEC-042/043/044, added 2026-10-09)
+- Contract: data-theme on html, default dark, localStorage mkz-theme (dark|light), no-flash script first in body, suppressHydrationWarning on html.
+- Toggle: components/ThemeToggle.tsx - zero React state, CSS icon swap - in Shell + Landing headers.
+- Flip = tokenize: --tint triplet (255,255,255 dark / 26,36,64 light) + glass/overlay/state-text tokens; 37 same-value replacements; dark byte-identical by construction.
+- Light (DEC-043): bg #eef2f9 | surfaces #fdfeff/#f2f6fc/#e9eff8 | text #1a2440/#3b4a68 | muted #5c6b8a/#64748b | blue #2e6fe0/#1d54b8 | gold text #b45309, CTA gradient UNCHANGED both themes | success #0b7a45 | danger #d03b3b | warning #9a6b00 | info/cyan #0e7f96 | violet #6f4bd8 | indigo #4a56d6 | rose #d13a5e | shadows rgba(26,36,64,.08/.10/.16).
+- Kept literal on light (documented safe): dark scrims, blue focus rings, gold glows, body/login radial orbs. Layer lives at end of app/globals.css.
