@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, GraduationCap, BookOpen, Layers, FolderOpen, CalendarCheck,
-  Wallet, FileBadge, BarChart3, Brain, UserCog, Settings, LogOut, Search,
+  Wallet, FileBadge, BarChart3, Brain, UserCog, Settings, LogOut, Search, MonitorPlay,
   Bell, Building2, ChevronDown, Menu, TrendingUp, ClipboardList, CreditCard,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -22,6 +22,7 @@ const groups = [
       ['/groups', 'المجموعات', Layers],
       ['/attendance', 'الحضور والغياب', CalendarCheck],
            ['/library', 'مكتبة الملفات', FolderOpen],
+		   ['/videos', 'مكتبة الفيديو', MonitorPlay],
       ['/finance', 'الفواتير والمدفوعات', Wallet],
       ['/certificates', 'الشهادات', FileBadge],
     ],
