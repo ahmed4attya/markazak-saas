@@ -171,13 +171,6 @@ export default function Shell({
             >
               <LogOut size={18} />
             </button>
-            <button
-              onClick={logout}
-              title="تسجيل الخروج"
-              className="p-2 text-[color:var(--muted)] hover:text-[color:var(--danger)] hover:bg-[color:var(--danger-soft)] rounded-full transition-colors"
-            >
-              <LogOut size={18} />
-            </button>
             <div className="flex items-center gap-3 pl-2">
               <div className="hidden sm:flex flex-col items-end">
                 <span className="text-xs font-bold text-[color:var(--text-soft)]">مدير النظام</span>
