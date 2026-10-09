@@ -37,3 +37,8 @@ MASTER-PROMPT.txt
 .hermes/
 
 tools/session-T/
+.vercel
+.env*
+.neon
+.neon-target
+.env.vercel-prod
