@@ -147,7 +147,7 @@ export default function Videos() {
                     <td>
                       <div className="flex items-center gap-2">
                         <button onClick={() => setPlaying(r)} className="ghost !min-h-0 py-1.5 px-3"><Play size={14} /> تشغيل</button>
-                        <a href={r.storage_key} target="_blank" rel="noreferrer" className="ghost !min-h-0 py-1.5 px-3">تحميل</a>
+                        
                         <button onClick={() => onDelete(r)} disabled={busy} className="ghost !min-h-0 py-1.5 px-3"><Trash2 size={14} /> حذف</button>
                       </div>
                     </td>
