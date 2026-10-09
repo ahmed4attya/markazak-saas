@@ -57,3 +57,8 @@ git revert of the theme commit restores the previous visuals atomically; backups
 - Flip = tokenize: --tint triplet (255,255,255 dark / 26,36,64 light) + glass/overlay/state-text tokens; 37 same-value replacements; dark byte-identical by construction.
 - Light (DEC-043): bg #eef2f9 | surfaces #fdfeff/#f2f6fc/#e9eff8 | text #1a2440/#3b4a68 | muted #5c6b8a/#64748b | blue #2e6fe0/#1d54b8 | gold text #b45309, CTA gradient UNCHANGED both themes | success #0b7a45 | danger #d03b3b | warning #9a6b00 | info/cyan #0e7f96 | violet #6f4bd8 | indigo #4a56d6 | rose #d13a5e | shadows rgba(26,36,64,.08/.10/.16).
 - Kept literal on light (documented safe): dark scrims, blue focus rings, gold glows, body/login radial orbs. Layer lives at end of app/globals.css.
+### 6.1 Waivers (DEC-035 register - signed 2026-10-09, Scope T/2 close)
+- W1 dark-glow x4 (#f59e0b): gold glow is the Night Luxe brand signature (DEC-036/037), not an AI-default look. Waived.
+- W2 icon-tile-stack x8: landing module-card pattern shipped in Scope U (owner-approved). Waived; revisit at a dedicated landing redesign scope.
+- W3 nested-cards x4: stats grid inside the why-bento (Scope U pattern). Waived; noted for a future ch.3 compliance pass.
+- Note: detect scans the PUBLIC surface only; auth-gated 10px/9px texts (Shell subtitle, user line, soon badge) were proactively raised to 11px for rule consistency.

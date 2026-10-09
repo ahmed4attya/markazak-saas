@@ -87,7 +87,7 @@ export default function Shell({
             </div>
             <div className="flex flex-col">
               <span className="text-lg font-bold text-[color:var(--text)] leading-tight">سنتر الخوارزمي</span>
-              <span className="text-[10px] text-[color:var(--muted)] font-medium uppercase tracking-wider">Al-Khwarizmi Center</span>
+              <span className="text-[11px] text-[color:var(--muted)] font-medium uppercase tracking-wider">Al-Khwarizmi Center</span>
             </div>
           </div>
 
@@ -115,7 +115,7 @@ export default function Shell({
                         <div key={href} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[color:var(--muted-dim)] cursor-default">
                           <Icon size={18} />
                           <span>{label}</span>
-                          <span className="mr-auto text-[9px] px-1.5 py-0.5 rounded-md bg-[color:var(--surface-3)] text-[color:var(--muted)]">قريباً</span>
+                          <span className="mr-auto text-[11px] px-1.5 py-0.5 rounded-md bg-[color:var(--surface-3)] text-[color:var(--muted)]">قريباً</span>
                         </div>
                       );
                     }
@@ -177,7 +177,7 @@ export default function Shell({
             <div className="flex items-center gap-3 pl-2">
               <div className="hidden sm:flex flex-col items-end">
                 <span className="text-xs font-bold text-[color:var(--text-soft)]">مدير النظام</span>
-                <span className="text-[10px] text-[color:var(--muted)]">سنتر الخوارزمي</span>
+                <span className="text-[11px] text-[color:var(--muted)]">سنتر الخوارزمي</span>
               </div>
               <div className="w-9 h-9 rounded-full bg-[color:var(--gold)] text-[#0b0f17] flex items-center justify-center font-bold text-sm shadow-sm">خ</div>
             </div>

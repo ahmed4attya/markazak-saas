@@ -35,7 +35,7 @@ export default function Landing() {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center text-lg font-bold shadow-[0_8px_22px_rgba(245,158,11,0.3)]">خ</div>
             <div className="flex flex-col">
               <span className="font-bold text-[color:var(--text)] leading-tight">سنتر الخوارزمي</span>
-              <span className="text-[10px] text-[color:var(--muted)] uppercase tracking-wider">Al-Khwarizmi Center</span>
+              <span className="text-[11px] text-[color:var(--muted)] uppercase tracking-wider">Al-Khwarizmi Center</span>
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm text-[color:var(--muted)]">
