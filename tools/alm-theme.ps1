@@ -282,7 +282,7 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-[color:var(--muted)]">
           <div className="flex items-center gap-2">
             <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center font-bold">م</span>
-            <span>مركزك — Training Center OS © 2026</span>
+            <span>مركزك — Training Center OS &copy; 2026</span>
           </div>
           <div className="flex items-center gap-5">
             <Link href="/login" className="hover:text-[color:var(--text)] transition-colors">تسجيل الدخول</Link>

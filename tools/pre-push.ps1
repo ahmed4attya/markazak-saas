@@ -70,7 +70,7 @@ foreach ($d in $dirs) {
             if ($x -eq 0xC2 -or $x -eq 0xC3) {                                             # latin-SS lead
                 if (($i + 1) -lt $b.Length) {
                     $n = $b[$i + 1]
-                    if ($n -eq 0xA7 -or $n -eq 0xB8 -or $n -eq 0xBB -or $n -eq 0xA9) { $susp = $true }  # آ§/آ¸/آ»/آ© tells
+                    if ($n -eq 0xA7 -or $n -eq 0xB8 -or $n -eq 0xBB -or $n -eq 0xA9) { $susp = $true }  # A7/B8/BB/A9 tells
                 }
             }
         }
