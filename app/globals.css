@@ -13,8 +13,8 @@
   --surface: #131b2a;
   --surface-2: #1e293b;
   --surface-3: #243047;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.15);
+  --border: rgba(var(--tint), 0.08);
+  --border-strong: rgba(var(--tint), 0.15);
   --text: #f8fafc;
   --text-soft: #e2e8f0;
   --muted: #94a3b8;
@@ -294,13 +294,13 @@ textarea:focus {
 .error {
   border: 1px solid var(--danger-border);
   background: var(--danger-soft);
-  color: #f89898;
+  color: var(--state-danger-text);
 }
 
 .success {
   border: 1px solid var(--success-border);
   background: var(--success-soft);
-  color: #6ee7b7;
+  color: var(--state-success-text);
 }
 
 .dataTable {
@@ -309,7 +309,7 @@ textarea:focus {
 }
 
 .dataTable thead tr {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(var(--tint), 0.04);
 }
 
 .dataTable th {
@@ -324,7 +324,7 @@ textarea:focus {
 
 .dataTable td {
   padding: 0.9rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(var(--tint), 0.06);
   color: var(--text-soft);
   font-size: 0.875rem;
   white-space: nowrap;
@@ -335,7 +335,7 @@ textarea:focus {
 }
 
 .dataTable tbody tr:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(var(--tint), 0.05);
 }
 
 .tablePanel {
@@ -355,7 +355,7 @@ textarea:focus {
 
 .tableWrap th {
   padding: 0.95rem 1rem;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(var(--tint), 0.04);
   color: var(--muted);
   border-bottom: 1px solid var(--border);
   font-size: 0.75rem;
@@ -366,14 +366,14 @@ textarea:focus {
 
 .tableWrap td {
   padding: 0.95rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(var(--tint), 0.06);
   color: var(--text-soft);
   font-size: 0.875rem;
   white-space: nowrap;
 }
 
 .tableWrap tbody tr:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(var(--tint), 0.05);
 }
 
 .tableEmpty {
@@ -399,7 +399,7 @@ textarea:focus {
 .badge.completed,
 .badge.issued,
 .badge.present {
-  color: #6ee7b7;
+  color: var(--state-success-text);
   background: var(--success-soft);
   border-color: var(--success-border);
 }
@@ -407,7 +407,7 @@ textarea:focus {
 .badge.partial,
 .badge.pending,
 .badge.late {
-  color: #f8cd7a;
+  color: var(--state-warning-text);
   background: var(--warning-soft);
   border-color: var(--warning-border);
 }
@@ -416,13 +416,13 @@ textarea:focus {
 .badge.inactive,
 .badge.cancelled,
 .badge.absent {
-  color: #f89898;
+  color: var(--state-danger-text);
   background: var(--danger-soft);
   border-color: var(--danger-border);
 }
 
 .badge.excused {
-  color: #67d7e6;
+  color: var(--state-info-text);
   background: var(--info-soft);
   border-color: var(--info-border);
 }
@@ -456,7 +456,7 @@ textarea:focus {
   gap: 1rem;
   padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(var(--tint), 0.03);
 }
 
 .modalHead h2 {
@@ -555,7 +555,7 @@ textarea:focus {
   justify-content: space-between;
   gap: 1rem;
   padding: 0.8rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(var(--tint), 0.06);
 }
 
 .integration:last-child {
@@ -719,7 +719,7 @@ textarea:focus {
 }
 
 .visualCards > div {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(var(--tint), 0.04);
   border: 1px solid var(--border);
   border-radius: 1rem;
   padding: 1.1rem;
@@ -897,31 +897,31 @@ textarea:focus {
   background-color: var(--surface);
 }
 .bg-white\/80 {
-  background-color: rgba(18, 27, 49, 0.82);
+  background-color: rgba(var(--glass-rgb), 0.82);
 }
 .bg-slate-50 {
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: rgba(var(--tint), 0.04);
 }
 .bg-slate-50\/50 {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: rgba(var(--tint), 0.03);
 }
 .bg-slate-50\/60 {
-  background-color: rgba(255, 255, 255, 0.035);
+  background-color: rgba(var(--tint), 0.035);
 }
 .bg-slate-50\/70 {
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: rgba(var(--tint), 0.04);
 }
 .bg-slate-100 {
-  background-color: rgba(255, 255, 255, 0.07);
+  background-color: rgba(var(--tint), 0.07);
 }
 .bg-slate-100\/80 {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(var(--tint), 0.05);
 }
 .bg-slate-200 {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(var(--tint), 0.1);
 }
 .bg-gray-50 {
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: rgba(var(--tint), 0.04);
 }
 .bg-blue-600 {
   background-color: var(--blue);
@@ -1026,7 +1026,7 @@ textarea:focus {
   color: var(--blue-strong);
 }
 .text-blue-800 {
-  color: #9cc2ff;
+  color: var(--state-blue-text-2);
 }
 .text-emerald-600,
 .text-emerald-500,
@@ -1036,10 +1036,10 @@ textarea:focus {
 .text-emerald-700,
 .text-emerald-400,
 .text-green-700 {
-  color: #6ee7b7;
+  color: var(--state-success-text);
 }
 .text-emerald-800 {
-  color: #86efac;
+  color: var(--state-success-text-2);
 }
 .text-red-600,
 .text-red-500 {
@@ -1047,20 +1047,20 @@ textarea:focus {
 }
 .text-red-700,
 .text-red-400 {
-  color: #f89898;
+  color: var(--state-danger-text);
 }
 .text-red-800 {
-  color: #ffb3b3;
+  color: var(--state-danger-text-2);
 }
 .text-amber-600,
 .text-amber-500 {
   color: var(--warning);
 }
 .text-amber-700 {
-  color: #f8cd7a;
+  color: var(--state-warning-text);
 }
 .text-amber-800 {
-  color: #fadf9f;
+  color: var(--state-warning-text-2);
 }
 .text-rose-600 {
   color: var(--rose);
@@ -1082,7 +1082,7 @@ textarea:focus {
   border-color: var(--border);
 }
 .border-slate-100 {
-  border-color: rgba(255, 255, 255, 0.07);
+  border-color: rgba(var(--tint), 0.07);
 }
 .ring-slate-200 {
   --tw-ring-color: var(--border);
@@ -1135,13 +1135,13 @@ textarea:focus {
 }
 
 .hover\:bg-slate-50:hover {
-  background-color: rgba(255, 255, 255, 0.06);
+  background-color: rgba(var(--tint), 0.06);
 }
 .hover\:bg-slate-100:hover {
-  background-color: rgba(255, 255, 255, 0.09);
+  background-color: rgba(var(--tint), 0.09);
 }
 .hover\:bg-slate-200:hover {
-  background-color: rgba(255, 255, 255, 0.13);
+  background-color: rgba(var(--tint), 0.13);
 }
 .hover\:bg-blue-700:hover {
   background-color: var(--blue-strong);
@@ -1190,4 +1190,135 @@ textarea:focus {
 .nav-scroll {
   scrollbar-width: thin;
   scrollbar-color: var(--border-strong) transparent;
+}
+/* ============================================================
+   DUAL THEME LAYER (DEC-042/043/044) - appended by EXEC-T1.
+   Default = dark Night Luxe (untouched). Light = token flips.
+   Toggle key: mkz-theme (localStorage), values: dark | light.
+   Kept literal on light (safe + documented): dark scrims,
+   blue focus rings, gold glows, body/login radial orbs.
+   ============================================================ */
+
+:root {
+  --tint: 255, 255, 255;
+  --glass-rgb: 18, 27, 49;
+  --glass-2-rgb: 11, 15, 23;
+  --state-success-text: #6ee7b7;
+  --state-danger-text: #f89898;
+  --state-warning-text: #f8cd7a;
+  --state-success-text-2: #86efac;
+  --state-danger-text-2: #ffb3b3;
+  --state-warning-text-2: #fadf9f;
+  --state-info-text: #67d7e6;
+  --state-blue-text-2: #9cc2ff;
+}
+
+html {
+  background-color: var(--bg);
+}
+
+.theme-toggle {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--surface-3);
+  color: var(--gold);
+  border-color: var(--gold-border);
+}
+
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon {
+  position: absolute;
+  display: inline-flex;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+html[data-theme='light'] .theme-toggle .icon-sun {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.6);
+}
+
+html[data-theme='light'] .theme-toggle .icon-moon {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+html:not([data-theme='light']) .theme-toggle .icon-sun {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+html:not([data-theme='light']) .theme-toggle .icon-moon {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.6);
+}
+
+html[data-theme='light'] {
+  --tint: 26, 36, 64;
+  --glass-rgb: 255, 255, 255;
+  --glass-2-rgb: 255, 255, 255;
+  --bg: #eef2f9;
+  --surface: #fdfeff;
+  --surface-2: #f2f6fc;
+  --surface-3: #e9eff8;
+  --border: rgba(26, 36, 64, 0.1);
+  --border-strong: rgba(26, 36, 64, 0.18);
+  --text: #1a2440;
+  --text-soft: #3b4a68;
+  --muted: #5c6b8a;
+  --muted-dim: #64748b;
+  --blue: #2e6fe0;
+  --blue-strong: #1d54b8;
+  --blue-soft: rgba(46, 111, 224, 0.1);
+  --blue-border: rgba(46, 111, 224, 0.28);
+  --gold: #b45309;
+  --gold-strong: #92400e;
+  --gold-soft: rgba(180, 83, 9, 0.1);
+  --gold-border: rgba(180, 83, 9, 0.3);
+  --success: #0b7a45;
+  --success-soft: rgba(11, 122, 69, 0.1);
+  --success-border: rgba(11, 122, 69, 0.3);
+  --danger: #d03b3b;
+  --danger-soft: rgba(208, 59, 59, 0.1);
+  --danger-border: rgba(208, 59, 59, 0.3);
+  --warning: #9a6b00;
+  --warning-soft: rgba(154, 107, 0, 0.12);
+  --warning-border: rgba(154, 107, 0, 0.3);
+  --info: #0e7f96;
+  --info-soft: rgba(14, 127, 150, 0.1);
+  --info-border: rgba(14, 127, 150, 0.3);
+  --violet: #6f4bd8;
+  --violet-soft: rgba(111, 75, 216, 0.1);
+  --violet-border: rgba(111, 75, 216, 0.3);
+  --cyan: #0e7f96;
+  --cyan-soft: rgba(14, 127, 150, 0.1);
+  --cyan-border: rgba(14, 127, 150, 0.3);
+  --indigo: #4a56d6;
+  --indigo-soft: rgba(74, 86, 214, 0.1);
+  --indigo-border: rgba(74, 86, 214, 0.3);
+  --rose: #d13a5e;
+  --rose-soft: rgba(209, 58, 94, 0.1);
+  --rose-border: rgba(209, 58, 94, 0.3);
+  --shadow-1: 0 1px 2px rgba(26, 36, 64, 0.08);
+  --shadow-2: 0 8px 30px rgba(26, 36, 64, 0.1);
+  --shadow-3: 0 24px 80px rgba(26, 36, 64, 0.16);
+  --state-success-text: #0b7a45;
+  --state-danger-text: #c23434;
+  --state-warning-text: #8a5f00;
+  --state-success-text-2: #096439;
+  --state-danger-text-2: #a52c2c;
+  --state-warning-text-2: #74500a;
+  --state-info-text: #0e7f96;
+  --state-blue-text-2: #1d54b8;
 }

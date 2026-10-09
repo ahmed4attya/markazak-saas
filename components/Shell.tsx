@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ThemeToggle from './ThemeToggle';
 
 const groups = [
   { title: 'الرئيسية', items: [['/dashboard', 'لوحة التحكم', LayoutDashboard]] },
@@ -81,18 +82,18 @@ export default function Shell({
         <div className="flex flex-col h-full p-5">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center text-xl font-bold shadow-[0_10px_26px_rgba(245,158,11,0.3)]">
-              م
+              خ
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-bold text-[color:var(--text)] leading-tight">مركزك</span>
-              <span className="text-[10px] text-[color:var(--muted)] font-medium uppercase tracking-wider">Training Center OS</span>
+              <span className="text-lg font-bold text-[color:var(--text)] leading-tight">سنتر الخوارزمي</span>
+              <span className="text-[10px] text-[color:var(--muted)] font-medium uppercase tracking-wider">Al-Khwarizmi Center</span>
             </div>
           </div>
 
           <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-[color:var(--surface-2)] border border-[color:var(--border)] text-[color:var(--text-soft)] text-xs font-medium mb-2 cursor-pointer hover:bg-[color:var(--surface-3)] transition-colors">
             <div className="flex items-center gap-2">
               <Building2 size={16} className="text-[color:var(--muted-dim)]" />
-              <span>أكاديمية الريادة</span>
+              <span>سنتر الخوارزمي</span>
             </div>
             <ChevronDown size={14} />
           </div>
@@ -144,7 +145,7 @@ export default function Shell({
       </aside>
 
       <main className="flex-1 lg:mr-72 min-h-screen flex flex-col transition-all duration-300">
-        <header className="h-16 bg-[rgba(18,27,49,0.85)] backdrop-blur-md border-b border-[color:var(--border)] sticky top-0 z-40 px-4 lg:px-8 flex items-center justify-between">
+        <header className="h-16 bg-[rgba(var(--glass-rgb),0.85)] backdrop-blur-md border-b border-[color:var(--border)] sticky top-0 z-40 px-4 lg:px-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button onClick={() => setOpen(true)} className="lg:hidden p-2 text-[color:var(--muted)] hover:bg-[color:var(--surface-2)] rounded-lg transition-colors">
               <Menu size={20} />
@@ -159,6 +160,7 @@ export default function Shell({
             <span className="hidden md:block text-xs text-[color:var(--muted)] font-medium">{dateStr}</span>
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <button className="p-2 text-[color:var(--muted)] hover:bg-[color:var(--surface-2)] rounded-full relative transition-colors">
               <Bell size={20} />
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-[color:var(--surface)]"></span>
@@ -174,9 +176,9 @@ export default function Shell({
             <div className="flex items-center gap-3 pl-2">
               <div className="hidden sm:flex flex-col items-end">
                 <span className="text-xs font-bold text-[color:var(--text-soft)]">مدير النظام</span>
-                <span className="text-[10px] text-[color:var(--muted)]">أكاديمية الريادة</span>
+                <span className="text-[10px] text-[color:var(--muted)]">سنتر الخوارزمي</span>
               </div>
-              <div className="w-9 h-9 rounded-full bg-[color:var(--gold)] text-[#0b0f17] flex items-center justify-center font-bold text-sm shadow-sm">م</div>
+              <div className="w-9 h-9 rounded-full bg-[color:var(--gold)] text-[#0b0f17] flex items-center justify-center font-bold text-sm shadow-sm">خ</div>
             </div>
           </div>
         </header>

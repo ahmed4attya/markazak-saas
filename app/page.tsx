@@ -3,6 +3,7 @@ import {
   Users, BookOpen, CalendarCheck, Wallet, FileBadge, BarChart3,
   Brain, ShieldCheck, ArrowLeft, Sparkles, Building2, Layers,
 } from "lucide-react";
+import ThemeToggle from "../components/ThemeToggle";
 
 const modules = [
   { Icon: Users, title: "إدارة الطلاب", desc: "ملفات كاملة للطلاب بأنواعهم: سنتر وأونلاين، مع القيد في المجموعات وفترات الاشتراك.", accent: "blue" },
@@ -28,21 +29,22 @@ const accents: Record<string, string> = {
 export default function Landing() {
   return (
     <div className="min-h-screen bg-[color:var(--bg)] text-[color:var(--text)] font-['IBM_Plex_Sans_Arabic']" dir="rtl">
-      <header className="sticky top-0 z-40 bg-[rgba(11,15,23,0.85)] backdrop-blur-md border-b border-[color:var(--border)]">
+      <header className="sticky top-0 z-40 bg-[rgba(var(--glass-2-rgb),0.85)] backdrop-blur-md border-b border-[color:var(--border)]">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center text-lg font-bold shadow-[0_8px_22px_rgba(245,158,11,0.3)]">م</div>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center text-lg font-bold shadow-[0_8px_22px_rgba(245,158,11,0.3)]">خ</div>
             <div className="flex flex-col">
-              <span className="font-bold text-[color:var(--text)] leading-tight">مركزك</span>
-              <span className="text-[10px] text-[color:var(--muted)] uppercase tracking-wider">Training Center OS</span>
+              <span className="font-bold text-[color:var(--text)] leading-tight">سنتر الخوارزمي</span>
+              <span className="text-[10px] text-[color:var(--muted)] uppercase tracking-wider">Al-Khwarizmi Center</span>
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm text-[color:var(--muted)]">
             <a href="#modules" className="hover:text-[color:var(--text)] transition-colors">الوحدات</a>
-            <a href="#why" className="hover:text-[color:var(--text)] transition-colors">لماذا مركزك</a>
+            <a href="#why" className="hover:text-[color:var(--text)] transition-colors">لماذا سنتر الخوارزمي</a>
             <Link href="/plans" className="hover:text-[color:var(--text)] transition-colors">الأسعار</Link>
           </nav>
-          <Link href="/login" className="primary !min-h-0 py-2 px-4">دخول النظام</Link>
+          <ThemeToggle />
+            <Link href="/login" className="primary !min-h-0 py-2 px-4">دخول النظام</Link>
         </div>
       </header>
 
@@ -52,12 +54,12 @@ export default function Landing() {
         <div className="relative max-w-6xl mx-auto px-4 py-20 lg:py-28 text-center">
           <span className="badge">v2.0 — منصة SaaS عربية بالكامل</span>
           <h1 className="mt-6 text-4xl lg:text-6xl font-extrabold leading-[1.25]">
-            مركزك — نظام تشغيل
+            سنتر الخوارزمي — نظام تشغيل
             <br />
             <span className="text-[color:var(--gold)]">مراكز التدريب</span> من مكان واحد
           </h1>
           <p className="mt-6 text-lg text-[color:var(--muted)] max-w-2xl mx-auto">
-            الطلاب، الدورات، الحضور، الفواتير، الشهادات والتقارير — بواجهة عربية داكنة فاخرة،
+            الطلاب، الدورات، الحضور، الفواتير، الشهادات والتقارير — بواجهة عربية فاخرة بثيمين: مظلم وفاتح،
             تعدد مستأجرين، وأمان على مستوى الإنتاج.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -96,7 +98,7 @@ export default function Landing() {
         <div className="bento-card p-8 lg:p-12">
           <div className="grid lg:grid-cols-2 gap-10 items-center">
             <div>
-              <span className="badge">لماذا مركزك</span>
+              <span className="badge">لماذا سنتر الخوارزمي</span>
               <h2 className="mt-4 text-3xl font-extrabold leading-snug">مبني لمراكز التدريب السعودية والخليج</h2>
               <p className="mt-4 text-[color:var(--muted)] leading-relaxed">
                 بدل الأنظمة الموروثة والمنصات الأجنبية غير العربية — واجهة RTL أصيلة،
@@ -104,7 +106,7 @@ export default function Landing() {
               </p>
               <ul className="mt-6 space-y-3 text-sm text-[color:var(--text-soft)]">
                 <li className="flex items-center gap-2"><Layers size={16} className="text-[color:var(--gold)]" /> بنية Multi-tenant بعزل كامل للبيانات</li>
-                <li className="flex items-center gap-2"><Building2 size={16} className="text-[color:var(--gold)]" /> لوحة تحكم عربية داكنة مريحة للعمل الطويل</li>
+                <li className="flex items-center gap-2"><Building2 size={16} className="text-[color:var(--gold)]" /> لوحة تحكم عربية مريحة للعمل الطويل</li>
                 <li className="flex items-center gap-2"><Sparkles size={16} className="text-[color:var(--gold)]" /> خارطة طريق نشطة: مكتبة ملفات، فيديو آمن، امتحانات إلكترونية</li>
               </ul>
               <div className="mt-8 flex flex-wrap gap-4">
@@ -137,8 +139,8 @@ export default function Landing() {
       <footer className="border-t border-[color:var(--border)] mt-8">
         <div className="max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-[color:var(--muted)]">
           <div className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center font-bold">م</span>
-            <span>مركزك — Training Center OS © 2026</span>
+            <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center font-bold">خ</span>
+            <span>سنتر الخوارزمي — Al-Khwarizmi Center &copy; 2026</span>
           </div>
           <div className="flex items-center gap-5">
             <Link href="/login" className="hover:text-[color:var(--text)] transition-colors">تسجيل الدخول</Link>
