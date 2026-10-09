@@ -234,3 +234,35 @@ DONE: 0, 1, U, T, 2. NEXT: Scope 3 secure video + watermark (7-step ritual). The
 ## Open items (carried)
 - npm audit backlog (11 findings): never audit fix --force; scheduled review.
 - tsconfig.json paste (optional: exclude audit-out); lessons 1-12 reserved; origins pending (memory source, tool/, 7629365); F9 docs cleanup; seed.ts debt (re-seed may restore the old tenant name LOCALLY); H2 pronoun kept (DEC-045); future landing redesign may revisit W2/W3.
+
+---
+
+# MEMORY v6 UPDATE - 2026-10-10 (Scope 3 CLOSED with live proof)
+
+## Scope 3: CLOSED with live proof (PROVEN-S3 owner attestation on prod)
+- S3 schema: public.videos (12 cols incl. duration_seconds) + 2 indexes. Migrated LOCAL + PROD (identity self-guarded; PROD verified independently by check-videos-table: rows=0 before any upload). Migration raced once (duplicate pg_type) with ZERO damage - guards held; race-proofed after.
+- Code (fb3b432, 11 files, +409, full gate GREEN, 61 routes built): lib/video-storage.ts (DEC-054: 500MB cap until Hobby limits measured; video types mp4/webm/mov/m4v; path tenants/{id}/videos/{uuid}/{safe}); /api/videos/prepare; /api/videos/upload (client-direct handleUpload + onUploadCompleted dedup); /api/videos/upload-complete (head-verify, dedupe, race-safe coalesce, logAudit video.upload); /api/videos (tenant-scoped, course filter); /api/videos/[id] DELETE (DEC-057: isAdmin() || uploader, blob FIRST then row, logAudit); app/api/me (name/email/userId for watermark); app/videos/page.tsx (upload with auto duration read, table, modal player via STREAM PROXY, watermark overlay CSS).
+- DEC-053 LIVE: /api/videos/[id]/stream = session-gated Range passthrough (206/416), Blob URL never leaves the server, video.play audited once per initial load. Unauthorized (sessionless) access returns 401 - verified by owner in a private window.
+- DEC-055 MVP: watermark = client-side CSS overlay (name+email+date, pointer-events none) - documented honest limit: removable by DevTools; real protection is the proxy (no capturable playback URL). Server-side burn-in deferred.
+- Download button decision (owner): REMOVE. Note: raw Blob URL download = DEC-051 model (unguessable path).
+- Blob plan limits documented from store page (Hobby): 1GB storage / 10GB monthly transfer / 10k simple ops. Video consumption may hit the 1GB ceiling quickly - upgrade Pro or R2 decision deferred to real usage (Usage dashboard is the evidence).
+
+## Commits (main, pushed)
+- f2441d5 memory v5.1 (blob incident correction, lessons 74-76)
+- fb3b432 feat(scope 3): video library batch (11 files, gate GREEN, 53 static pages + 6 video/me routes)
+
+## Lessons added (77-80)
+77. DDL migration scripts must be single-flight: advisory lock + RE-CHECK table existence INSIDE the lock. check-then-create outside a lock races even with idempotent DDL (duplicate pg_type) - the race fired live; guards (neon-only + identity) kept damage at zero, and the first runner had actually completed the work.
+78. Relative imports in nested tool scripts must be verified against real file depth (tools/session-T needs ../../): a checker that never ran is still wrong before it runs. Verify every import path before delivery (extends 71 to imports).
+79. PowerShell inline JS (-e "...") is quote-mangled by the shell - banned in chains; file-based checks only. A broken inline check must never abort a chain as if the underlying state were bad (distinguish CHECK FAILURE from STATE FAILURE).
+80. Structural verify checks marker presence; tsc checks compilability - only together they gate. A missing import passed VERIFY (markers present) and was caught by the chain BUILD stage, exactly as designed: no commit on red, one-line fix, re-run.
+
+## Architecture notes
+- getSession() casts the JWT payload as Session; real tenancy enforcement lives in per-query tenant_id filters. Audit must use the logAudit wrapper (best-effort, never breaks the action). Scope 2 file routes still insert audit_logs raw - unify on logAudit opportunistically later.
+- detect (DEC-035) not applicable to this batch: no public-surface change; Shell is auth-gated (Lesson 73).
+
+## Roadmap
+DONE: 0, 1, U, T, 2, 3. NEXT: Scope 4 exam engine + question bank (7-step ritual). Then: 5 assignments + gradebook, 6 activation codes + subscriptions + advanced reports.
+
+## Open items (carried)
+- npm audit backlog (11): never audit fix --force. tsconfig paste (optional). Lessons 1-12 reserved. Origins pending. F9 docs cleanup. seed.ts debt. W2/W3 revisit at landing redesign. OIDC read-write token revocation recommendation deferred until downloads go through proxy. Unify files audit on logAudit.
