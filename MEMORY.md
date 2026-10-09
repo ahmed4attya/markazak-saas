@@ -186,7 +186,7 @@ DONE: 0, 1, U, T. REMAINING: Scope 2 file library | Scope 3 secure video + water
 
 ---
 
-# MEMORY v5 UPDATE - 2026-10-09 (Scope 2 CLOSED + T3-prod CLOSED + design gate register signed)
+# MEMORY v5.1 UPDATE - 2026-10-09 (Scope 2 CLOSED on corrected evidence + T3-prod CLOSED + design gate register signed)
 
 ## Scope 2: CLOSED with live proof (PROVEN-6 owner attestation on prod)
 - S2 schema: public.files (12 cols) + indexes files_tenant_course, files_tenant_created. Migrated LOCAL via db:migrate (check-files-table OK) and PROD via s2-prod.mts with identity self-guard (required public.tenants rows=1 before any DDL): CREATED_OK files (12 columns) + 2 indexes.
@@ -194,6 +194,7 @@ DONE: 0, 1, U, T. REMAINING: Scope 2 file library | Scope 3 secure video + water
 - UI: app/library/page.tsx (client-direct upload, course filter, system-class table, download via storage_key, delete confirm) + Shell nav item under Operations (DEC-050, 2-line protected touch). DEC-051: storage_key = unguessable Blob URL for MVP; session proxy is a future option.
 
 - Blob binding note: first upload attempt failed "Failed to retrieve the client token" (BLOB_READ_WRITE_TOKEN absent from the serving deployment). Fixed by connecting the Blob store + redeploy; upload then succeeded (owner attestation covers post-fix state).
+- CORRECTION (v5.1, 2026-10-09): the v5 live-proof claim "upload verified live" was PREMATURE - post-closure upload failed "Failed to retrieve the client token". Root cause: NO Blob store existed and BLOB_READ_WRITE_TOKEN was absent from the production environment (v5 was attested before the last env var entered the serving deployment). Fix: created blob store markazak-saas-blob (FRA1, Public per DEC-052-candidate), connected to markazak-saas (Production+Preview) with BLOB_READ_WRITE_TOKEN + BLOB_STORE_ID + BLOB_WEBHOOK_PUBLIC_KEY, redeployed, then owner re-verified ON PROD: upload green + row listed (1.pdf 485KB) with download/delete present. Scope 2 stays CLOSED on corrected evidence.
 ## T3-prod: CLOSED (full sequence in v4.1 addendum)
 - Identity resolved mechanically by neonctl content sweep (v2 syntax): WINNER = markazak-saas-prod (curly-shape-28384075, hostHash c4b1e9b25e): tenants=1, exact old-name match, students=13. Foreign 21-table PascalCase DB = qudurati (b16e88382b) - all four hand-copied strings were that sibling app's.
 - Applied on prod: backup branch backup-pre-s2-t3 (br-young-mountain-b2fthq0a) -> S2 DDL -> T3 UPDATE (exact old-name guard, full-row JSON backup audit-out\session-T\backup-tenant-prod.json, fresh independent read-back, ROLLBACK SQL in transcript). tenants.name = سنتر الخوارزمي / Al-Khwarizmi Center (slug alriyadh untouched). Prod DB matches prod UI brand. students=13 on prod (live growth; earlier memory said 12).
@@ -219,6 +220,9 @@ DONE: 0, 1, U, T. REMAINING: Scope 2 file library | Scope 3 secure video + water
 71. Delivered files must be parse-clean, no exceptions: a shipped .ps1 containing PS5.1-banned ?: produced ParserError = zero execution (the only saving grace). A warning printed in the same message as the broken file is worthless; the banned-pattern check runs BEFORE delivery - the v5 gate standard applies to assistant-authored files too.
 72. Edit anchors derive from the LIVE on-disk text, never from remembered intent: DEC-045 had made the subtitle English, so an Arabic anchor was doomed; and a single-count anchor aborted correctly on count=2, forcing investigation that revealed a second 10px position + a hidden 9px badge (Lessons 23/58 extended to edit-anchors).
 73. The design scanner sees the PUBLIC surface only: auth-gated screens are invisible to it. Their violations are fixed for consistency and documented (DESIGN.md ch.6.1), never assumed "clean".
+74. A live-proof attestation is only valid AFTER the last environment variable has entered the serving deployment: v5 was attested (PROVEN-6) while BLOB_READ_WRITE_TOKEN was still absent from production - the upload then failed post-closure. Rule: before attesting, enumerate every env var the feature needs and confirm each exists in the DEPLOYMENT, not in the dashboard.
+75. Vercel Blob stores are created from the TEAM-level Storage page (https://vercel.com/<team>/storage -> Create Database -> Blob); the in-project "Connect to a Database" search covers third-party marketplace providers only and shows "No Results" for native Vercel products (Lesson: surface of creation differs from surface of connection).
+76. In vercel env pull, "[SENSITIVE]" means a secret EXISTS but its value is withheld from the CLI - never classify it as absent. Tools must distinguish present-hidden from missing; the deployment behavior (actual upload) is the only verdict that matters.
 
 ## Production state (evidence)
 - Neon markazak-saas-prod: files live, tenants renamed, backup branch + JSON row backup on disk.
