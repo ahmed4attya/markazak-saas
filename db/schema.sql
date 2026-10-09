@@ -23,3 +23,8 @@ alter table students add column if not exists type varchar(20) not null default 
 alter table enrollments add column if not exists sub_start date;
 alter table enrollments add column if not exists sub_end date;
 create index if not exists students_tenant_type on students(tenant_id,type);
+
+-- S2: file library (Scope 2, DEC-047..051)
+create table if not exists files(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,course_id uuid references courses(id) on delete set null,group_id uuid references groups(id) on delete set null,name varchar(255) not null,mime varchar(120),size_bytes bigint default 0,storage_key text not null unique,uploaded_by uuid references users(id) on delete set null,note text,created_at timestamptz default now(),updated_at timestamptz default now());
+create index if not exists files_tenant_course on files(tenant_id,course_id);
+create index if not exists files_tenant_created on files(tenant_id,created_at desc);

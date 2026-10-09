@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  LayoutDashboard, Users, GraduationCap, BookOpen, Layers, CalendarCheck,
+  LayoutDashboard, Users, GraduationCap, BookOpen, Layers, FolderOpen, CalendarCheck,
   Wallet, FileBadge, BarChart3, Brain, UserCog, Settings, LogOut, Search,
   Bell, Building2, ChevronDown, Menu, TrendingUp, ClipboardList, CreditCard,
 } from 'lucide-react';
@@ -21,6 +21,7 @@ const groups = [
       ['/courses', 'الدورات', BookOpen],
       ['/groups', 'المجموعات', Layers],
       ['/attendance', 'الحضور والغياب', CalendarCheck],
+           ['/library', 'مكتبة الملفات', FolderOpen],
       ['/finance', 'الفواتير والمدفوعات', Wallet],
       ['/certificates', 'الشهادات', FileBadge],
     ],
