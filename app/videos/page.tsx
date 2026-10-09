@@ -163,7 +163,7 @@ export default function Videos() {
             <div className="modal" onClick={(e) => e.stopPropagation()}>
               <div className="modalHead"><h2>{playing.title}</h2><button onClick={() => setPlaying(null)}>×</button></div>
               <div style={{ position: 'relative', background: '#000' }}>
-                <video src={'/api/videos/' + playing.id + '/stream'} controls autoPlay style={{ width: '100%', maxHeight: '70vh', display: 'block' }} />
+                <video src={'/api/videos/' + playing.id + '/stream'} controls autoPlay controlsList="nodownload" disablePictureInPicture style={{ width: '100%', maxHeight: '70vh', display: 'block' }} />
                 <Watermark text={wmText} />
               </div>
             </div>
