@@ -183,3 +183,50 @@ DONE: 0, 1, U, T. REMAINING: Scope 2 file library | Scope 3 secure video + water
 65. Secrets never cross the screen - INCLUDING the owner side. Guards control what scripts print; they cannot control what the owner pastes. Rotation is the only remedy after exposure; values are referenced by NAME in documents, never by value.
 66. Connection-target authority is mechanical, not recalled: fetch the exact env the app reads (vercel env pull) and fingerprint (schema + row counts + name needle) before any write. A wrong-database abort before any write is the system working, four times in a row.
 - Remaining open items: detect on prod URL (browser env or dated waiver); MEMORY v5 at Scope 2 close (DEC-047..051 + lessons: PS wildcard brackets break Test-Path, chain-enforced RED discipline, npm audit backlog - never audit fix --force); tsconfig.json paste (optional); lessons 1-12 reserved; origins pending; F9 docs cleanup; seed.ts debt; duplicate v4 commit messages on main (3bffd21/05e9943) noted, harmless.
+
+---
+
+# MEMORY v5 UPDATE - 2026-10-09 (Scope 2 CLOSED + T3-prod CLOSED + design gate register signed)
+
+## Scope 2: CLOSED with live proof (PROVEN-6 owner attestation on prod)
+- S2 schema: public.files (12 cols) + indexes files_tenant_course, files_tenant_created. Migrated LOCAL via db:migrate (check-files-table OK) and PROD via s2-prod.mts with identity self-guard (required public.tenants rows=1 before any DDL): CREATED_OK files (12 columns) + 2 indexes.
+- Code (e683267, 11 files, +705, full gate GREEN): lib/storage.ts (DEC-047/048: 100MB cap, allowed types, sanitizeName, buildPathname tenants/{tenantId}/{uuid}/{safe-name}); /api/files/prepare; /api/files/upload (client-direct handleUpload + onUploadCompleted dedup insert); /api/files/upload-complete (head-verify, unique storage_key dedupe, race-safe coalesce update, audit file.upload); /api/files (tenant-scoped, filters); /api/files/[id] DELETE (DEC-049: admin/owner-or-uploader, blob deleted FIRST then row, audit).
+- UI: app/library/page.tsx (client-direct upload, course filter, system-class table, download via storage_key, delete confirm) + Shell nav item under Operations (DEC-050, 2-line protected touch). DEC-051: storage_key = unguessable Blob URL for MVP; session proxy is a future option.
+
+- Blob binding note: first upload attempt failed "Failed to retrieve the client token" (BLOB_READ_WRITE_TOKEN absent from the serving deployment). Fixed by connecting the Blob store + redeploy; upload then succeeded (owner attestation covers post-fix state).
+## T3-prod: CLOSED (full sequence in v4.1 addendum)
+- Identity resolved mechanically by neonctl content sweep (v2 syntax): WINNER = markazak-saas-prod (curly-shape-28384075, hostHash c4b1e9b25e): tenants=1, exact old-name match, students=13. Foreign 21-table PascalCase DB = qudurati (b16e88382b) - all four hand-copied strings were that sibling app's.
+- Applied on prod: backup branch backup-pre-s2-t3 (br-young-mountain-b2fthq0a) -> S2 DDL -> T3 UPDATE (exact old-name guard, full-row JSON backup audit-out\session-T\backup-tenant-prod.json, fresh independent read-back, ROLLBACK SQL in transcript). tenants.name = سنتر الخوارزمي / Al-Khwarizmi Center (slug alriyadh untouched). Prod DB matches prod UI brand. students=13 on prod (live growth; earlier memory said 12).
+
+## Design gate (DEC-035) - first full register entry
+- First production detect: 17 findings. Classification: 1 REAL FIX (undersized-ui-text, functional text below 11px) + 3 signed waiver classes: W1 dark-glow x4 (Night Luxe gold signature, DEC-036/037), W2 icon-tile-stack x8 (Scope U landing pattern), W3 nested-cards x4 (Scope U stats-in-bento). Registered in DESIGN.md ch.6.1 with a surface-visibility note.
+- Fix commit 3b6b121: 10px/9px -> 11px (Shell x3 incl. auth-gated user line + soon badge; landing x1). Waivers signed by owner (WAIVED attestation). Final detect after deploy: ZERO undersized; W1-W3 remain as signed waivers - the only legitimate closure DEC-035 allows.
+
+## Security (both incidents closed)
+- qudurati connection string leaked in chat -> role password reset same session (sibling app must be updated if it reads it).
+- markazak-saas prod string NEVER crossed the screen (fingerprint proof); lives only in Vercel env store + owner terminal.
+
+## Commits (main, pushed, auto-deploy per DEC-034)
+- e683267 feat(scope 2): file library batch (11 files, gate GREEN, 47 pages)
+- 6681850 chore: gitignore (.vercel + .env* added by vercel link; .neon/.neon-target/.env.vercel-prod appended). NOTE (Lesson 68): also carries v4.1 memory addendum - pre-staged by an aborted batch; content truthful, message under-describes.
+- 3b6b121 fix(detect): 11px floor (Shell x3 + landing x1) + waivers W1-W3 registered in DESIGN.md ch.6.1.
+
+## Lessons added (67-73)
+67. PowerShell wildcards: Test-Path treats [id] as a character class - reported an EXISTING file missing, twice. Rule: -LiteralPath everywhere; verify a checker's RED with an independent command before rewriting anything (sibling of Lesson 58).
+68. An aborted chain leaves its staged set behind; the next gate runs on the UNION - the chore commit carried the memory addendum too. Rule: chain scripts must handle pre-staged state explicitly, and commit messages must not under-describe their content.
+69. CLI syntax is version-bound: neonctl rebranded (whoami -> me, --json -> -o json) and an interactive org prompt hung execSync. Rule: authenticate non-interactively first; verify flags against the installed version; never trust an ABORT message over the raw error.
+70. Identity is proven by CONTENT, not by names, URLs, memory, or hand-copied strings: one sweep + fingerprint (schema, row counts, name needle) settled in minutes what four attempts could not. Names are labels; rows are evidence.
+71. Delivered files must be parse-clean, no exceptions: a shipped .ps1 containing PS5.1-banned ?: produced ParserError = zero execution (the only saving grace). A warning printed in the same message as the broken file is worthless; the banned-pattern check runs BEFORE delivery - the v5 gate standard applies to assistant-authored files too.
+72. Edit anchors derive from the LIVE on-disk text, never from remembered intent: DEC-045 had made the subtitle English, so an Arabic anchor was doomed; and a single-count anchor aborted correctly on count=2, forcing investigation that revealed a second 10px position + a hidden 9px badge (Lessons 23/58 extended to edit-anchors).
+73. The design scanner sees the PUBLIC surface only: auth-gated screens are invisible to it. Their violations are fixed for consistency and documented (DESIGN.md ch.6.1), never assumed "clean".
+
+## Production state (evidence)
+- Neon markazak-saas-prod: files live, tenants renamed, backup branch + JSON row backup on disk.
+- Vercel: markazak-saas (ours) + siblings qudurati, markazak; Node 24.x; Blob bound (BLOB_READ_WRITE_TOKEN); live proof 6/6 recorded; detect register signed (fix + 3 waivers).
+
+## Roadmap
+DONE: 0, 1, U, T, 2. NEXT: Scope 3 secure video + watermark (7-step ritual). Then: 4 exam engine, 5 assignments + gradebook, 6 activation codes + subscriptions + advanced reports.
+
+## Open items (carried)
+- npm audit backlog (11 findings): never audit fix --force; scheduled review.
+- tsconfig.json paste (optional: exclude audit-out); lessons 1-12 reserved; origins pending (memory source, tool/, 7629365); F9 docs cleanup; seed.ts debt (re-seed may restore the old tenant name LOCALLY); H2 pronoun kept (DEC-045); future landing redesign may revisit W2/W3.
