@@ -153,9 +153,9 @@ export default function Shell({
               <Menu size={20} />
             </button>
             <div className="relative group">
-              <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-[color:var(--muted-dim)] group-focus-within:text-[color:var(--gold)] transition-colors" />
+              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--muted-dim)] group-focus-within:text-[color:var(--gold)] transition-colors" />
               <input
-                className="bg-[color:var(--surface-2)] border border-[color:var(--border)] rounded-full py-2 pr-10 pl-4 text-sm w-56 lg:w-80 focus:ring-2 focus:ring-[rgba(91,155,255,0.25)] focus:bg-[color:var(--surface-3)] transition-all outline-none text-[color:var(--text)] placeholder:text-[color:var(--muted-dim)]"
+                className="bg-[color:var(--surface-2)] border border-[color:var(--border)] rounded-full py-2 pr-12 pl-4 text-left text-sm w-64 lg:w-96 focus:ring-2 focus:ring-[rgba(91,155,255,0.25)] focus:bg-[color:var(--surface-3)] transition-all outline-none text-[color:var(--text)] placeholder:text-[color:var(--muted-dim)]"
                 placeholder="ابحث عن طالب، دورة، فاتورة..."
               />
             </div>

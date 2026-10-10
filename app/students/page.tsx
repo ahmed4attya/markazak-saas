@@ -1,14 +1,11 @@
 import Shell from "@/components/Shell";
 import CrudPage from "@/components/CrudPage";
-import AttendanceSummaryCards from "@/components/AttendanceSummaryCards";
 import PageStatsCards from "@/components/PageStatsCards";
 
 export default function Students() {
   return (
     <Shell title="الطلاب" subtitle="ملفات الطلاب والتسجيلات والمتابعة">
       <div className="space-y-6">
-        <AttendanceSummaryCards title="حضور الطلاب" />
-
         <div className="space-y-6">
           <PageStatsCards mode="students" />
 
