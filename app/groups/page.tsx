@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import Shell from "@/components/Shell";
 import CrudPage from "@/components/CrudPage";
-import AttendanceSummaryCards from "@/components/AttendanceSummaryCards";
-import PageStatsCards from "@/components/PageStatsCards";
 
 type Option = {
   value: string;
@@ -84,10 +82,8 @@ export default function Groups() {
           </div>
         </div>
 
-        <AttendanceSummaryCards title="حضور المجموعات" />
 
         <div className="mb-6">
-          <PageStatsCards mode="groups" />
         </div>
 
         <CrudPage

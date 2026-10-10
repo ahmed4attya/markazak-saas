@@ -42,7 +42,7 @@ const groups = [
       ['/users', 'المستخدمون والصلاحيات', UserCog],
       ['/settings', 'إعدادات المركز', Settings],
       ['/plans', 'الاشتراك', CreditCard],
-      ['soon:audit', 'سجل التدقيق', ClipboardList],
+      ['/audit', 'سجل التدقيق', ClipboardList],
     ],
   },
 ] as const;

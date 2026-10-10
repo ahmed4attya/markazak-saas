@@ -43,3 +43,4 @@ tools/session-T/
 .neon-target
 .env.vercel-prod
 tools/session-P/
+tools/session-R/
