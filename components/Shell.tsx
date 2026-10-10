@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from './ThemeToggle';
+import InstallPWA from './InstallPWA';
 
 const groups = [
   { title: 'الرئيسية', items: [['/dashboard', 'لوحة التحكم', LayoutDashboard]] },
@@ -163,6 +164,7 @@ export default function Shell({
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
+			<InstallPWA />
             <button className="p-2 text-[color:var(--muted)] hover:bg-[color:var(--surface-2)] rounded-full relative transition-colors">
               <Bell size={20} />
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-[color:var(--surface)]"></span>
