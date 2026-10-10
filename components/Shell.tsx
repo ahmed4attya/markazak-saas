@@ -78,8 +78,7 @@ export default function Shell({
     <div className="flex min-h-screen bg-[color:var(--bg)] text-[color:var(--text)] font-['IBM_Plex_Sans_Arabic']" dir="rtl">
       <aside
         className={cn(
-          'fixed inset-y-0 right-0 z-50 w-72 bg-[color:var(--surface)] border-l border-[color:var(--border)] transition-transform duration-300 ease-in-out',
-open ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
+          'fixed inset-y-0 right-0 z-50 w-72 bg-[color:var(--surface)] border-l border-[color:var(--border)] transition-transform duration-300 ease-in-out',open ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
         )}
       >
         <div className="flex flex-col h-full p-5">
@@ -147,7 +146,7 @@ open ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
         </div>
       </aside>
 
-      <main className="flex-1 lg:mr-72 min-h-screen flex flex-col">
+      <main className="flex-1 lg:mr-72 min-h-screen flex flex-col min-w-0 overflow-x-clip">
         <header className="h-16 bg-[rgba(var(--glass-rgb),0.85)] backdrop-blur-md border-b border-[color:var(--border)] sticky top-0 z-40 px-4 lg:px-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button onClick={() => setOpen(true)} className="lg:hidden p-2 text-[color:var(--muted)] hover:bg-[color:var(--surface-2)] rounded-lg transition-colors">
@@ -187,7 +186,7 @@ open ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
           </div>
         </header>
 
-        <section className="p-4 lg:p-8 flex-1">
+        <section className="p-4 lg:p-8 flex-1 min-w-0">
           <div className="mb-8">
             <h1 className="text-2xl lg:text-3xl font-bold text-[color:var(--text)] leading-tight">{title}</h1>
             {subtitle && <p className="text-[color:var(--muted)] text-sm mt-1">{subtitle}</p>}
