@@ -34,3 +34,7 @@ create index if not exists files_tenant_created on files(tenant_id,created_at de
 create table if not exists videos(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,course_id uuid references courses(id) on delete set null,group_id uuid references groups(id) on delete set null,title varchar(255) not null,mime varchar(120),size_bytes bigint default 0,duration_seconds int,storage_key text not null unique,uploaded_by uuid references users(id) on delete set null,created_at timestamptz default now(),updated_at timestamptz default now());
 create index if not exists videos_tenant_course on videos(tenant_id,course_id);
 create index if not exists videos_tenant_created on videos(tenant_id,created_at desc);
+
+-- S-R: internal notifications (Scope R, DEC-060)
+create table if not exists notifications(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,user_id uuid references users(id) on delete cascade,title varchar(200),body text,type varchar(30),read_at timestamptz,created_at timestamptz default now());
+create index if not exists notifications_user_read on notifications(user_id,read_at);

@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from './ThemeToggle';
 import InstallPWA from './InstallPWA';
+       import QuickContact from './QuickContact';
 
 const groups = [
   { title: 'الرئيسية', items: [['/dashboard', 'لوحة التحكم', LayoutDashboard]] },
@@ -63,7 +64,8 @@ export default function Shell({
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [dateStr, setDateStr] = useState('');
+  const [qcOpen, setQcOpen] = useState(false);
+       const [dateStr, setDateStr] = useState('');
 
   useEffect(() => {
     setDateStr(new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' }));
@@ -108,7 +110,11 @@ export default function Shell({
           <div className="flex-1 space-y-4 overflow-y-auto nav-scroll">
             {groups.map((g) => (
               <div key={g.title}>
-                <p className="text-[11px] font-bold text-[color:var(--muted-dim)] uppercase tracking-widest mb-2 px-3">{g.title}</p>
+                {g.title === 'التواصل السريع' ? (
+  <button onClick={() => setQcOpen(true)} className="w-full text-right text-[11px] font-bold text-[color:var(--muted-dim)] uppercase tracking-widest mb-2 px-3 hover:text-[color:var(--gold)] transition-colors cursor-pointer">{g.title}</button>
+) : (
+  <p className="text-[11px] font-bold text-[color:var(--muted-dim)] uppercase tracking-widest mb-2 px-3">{g.title}</p>
+)}
                 <nav className="space-y-1">
                   {g.items.map(([href, label, Icon]) => {
                     if (href.startsWith('soon:')) {
@@ -210,6 +216,7 @@ export default function Shell({
           />
         )}
       </AnimatePresence>
+	  <QuickContact open={qcOpen} onClose={() => setQcOpen(false)} />
     </div>
   );
 }
