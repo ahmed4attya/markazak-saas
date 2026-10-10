@@ -266,3 +266,36 @@ DONE: 0, 1, U, T, 2, 3. NEXT: Scope 4 exam engine + question bank (7-step ritual
 
 ## Open items (carried)
 - npm audit backlog (11): never audit fix --force. tsconfig paste (optional). Lessons 1-12 reserved. Origins pending. F9 docs cleanup. seed.ts debt. W2/W3 revisit at landing redesign. OIDC read-write token revocation recommendation deferred until downloads go through proxy. Unify files audit on logAudit.
+
+---
+
+# MEMORY v7 UPDATE - 2026-10-10 (Scope P CLOSED + mobile responsiveness fixed live)
+
+## Scope P: CLOSED with live proof (PROVEN-P owner attestation on installed PWA)
+- Icons: brand-generated via System.Drawing script (dark navy rounded canvas + gold gradient badge + khah glyph) - 5 files (192/512, maskable x2, apple-touch-180). Owner visually approved before commit.
+- PWA stack (commit 42c620f): app/manifest.ts (RTL, standalone, dark #0b0f17, maskable icons); public/sw.js (conservative: static cache-first, navigation network-first + /offline fallback, /api/* NEVER cached, versioned cache + skipWaiting/claim); app/offline/page.tsx (brand card + retry, 'use client' - Lesson 82); components/InstallPWA.tsx (beforeinstallprompt, theme-toggle style, hides on standalone); components/PWARegister.tsx; layout.tsx (viewport themeColor, manifest link, appleWebApp meta, PWARegister first-in-body - full-file rebuild from known content per Lesson 35); Shell third protected touch (InstallPWA beside ThemeToggle).
+- iOS: no beforeinstallprompt - Add to Home Screen documented as platform constraint; apple meta served.
+- Blob store markazak-saas-blob (FRA1) bound: Production+Preview (BLOB_READ_WRITE_TOKEN + STORE_ID + WEBHOOK_PUBLIC_KEY). Hobby limits noted: 1GB storage / 10GB monthly transfer / 10k simple ops - video consumption will hit ceiling; upgrade decision deferred to real usage evidence.
+
+## Mobile responsiveness - root causes found ONLY on the installed PWA (live testing)
+- Three fixes in components/Shell.tsx (commits 0a2f36b + 429f599):
+  1. RTL slide direction: closed sidebar must slide +x (off the RIGHT edge in RTL), not -x (into viewport). '-translate-x-full' in RTL = menu always visible - the classic trap, invisible on desktop.
+  2. Table overflow containment: .tableWrap min-width 850px forced EVERY table page wider than the phone; browser zoomed out the whole page ("need to shrink to see content") and the fixed sidebar appeared mid-screen (fixed to real 410px edge while the page was zoomed to 850px+). Fix: min-w-0 on main+section + overflow-x-clip - tables now scroll INSIDE their card.
+  3. Main margin transition cleanup.
+- VERIFIED LIVE: dashboard full-width, tables contained, sidebar hidden + hamburger overlay works, both themes sane on the installed PWA.
+
+## Commits (main, pushed)
+- 6ac340c icons / 42c620f PWA stack / ca48aca nodownload+PiP / 0e9b4d5 videos download button removed / 05e9943..f2441d5 memory chain / 0a2f36b+429f599 responsive fixes
+
+## Lessons added (81-85)
+81. Verification needles derive from the TEXT'S NATURE: an import line contains the identifier TWICE (name + path) - expecting 1 or 2 fired false REDs three times in a row (63, 72, 81 family). Count = (occurrences per line) x (lines), derived before writing the check.
+82. Any component with event handlers must be 'use client' from line one - a static export page with onClick fails the build. Static verify (markers) and tsc (compilability) are complementary gates - the chain build stage caught what markers could not (Lesson 80 applied).
+83. Verify imports of nested tool scripts against real depth (../../ from tools/session-T) - a checker that never ran is still wrong before it runs.
+84. PWA installed on a device serves ITS CACHED bytes ferociously: live-proof of a fix requires clearing site data (or reinstall) on the device, otherwise you are testing history, not the present. Combined with Lesson 74 (last env var) as: "prove on the CURRENT serving state".
+85. Screen-dimension diagnosis is math (CSS width = physical / DPR), never screenshot appearance - a 430px-CSS phone was misjudged as ">=1024 legal desktop mode" from its look. And RTL fixed-edge elements slide +x to hide, not -x.
+
+## Roadmap (owner-approved v2, ROADMAP.md)
+DONE: 0, 1, U, T, 2, 3, P. NEXT: Scope R (owner-led reformatting - inventory of every screen -> owner decides keep/edit/remove per item -> DESIGN.md v2 -> batched execution; first items queued: sidebar breakpoint (keep 1024?), table-on-mobile pattern (scroll-in-card OK?)). Then: 4 exam engine + question bank (GAT/Achievement taxonomy, DEC-058), 5 assignments + gradebook, S student portal, 6 activation codes + subscriptions + advanced reports, C content operations (bulk import).
+
+## Open items (carried)
+- npm audit backlog (11): never audit fix --force. tsconfig paste (optional). Lessons 1-12 reserved. Origins pending. F9 docs cleanup. seed.ts debt. W2/W3 landing revisit. OIDC token revocation after proxy-downloads. Unify files audit on logAudit. gitignore += tools/session-P/ (session-T pattern) - small chore next commit.
