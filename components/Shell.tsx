@@ -79,7 +79,7 @@ export default function Shell({
       <aside
         className={cn(
           'fixed inset-y-0 right-0 z-50 w-72 bg-[color:var(--surface)] border-l border-[color:var(--border)] transition-transform duration-300 ease-in-out',
-open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+open ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
         )}
       >
         <div className="flex flex-col h-full p-5">
