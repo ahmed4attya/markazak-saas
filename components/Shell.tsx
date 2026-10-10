@@ -79,7 +79,7 @@ export default function Shell({
       <aside
         className={cn(
           'fixed inset-y-0 right-0 z-50 w-72 bg-[color:var(--surface)] border-l border-[color:var(--border)] transition-transform duration-300 ease-in-out',
-          open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
         <div className="flex flex-col h-full p-5">
@@ -147,7 +147,7 @@ export default function Shell({
         </div>
       </aside>
 
-      <main className="flex-1 lg:mr-72 min-h-screen flex flex-col transition-all duration-300">
+      <main className="flex-1 lg:mr-72 min-h-screen flex flex-col">
         <header className="h-16 bg-[rgba(var(--glass-rgb),0.85)] backdrop-blur-md border-b border-[color:var(--border)] sticky top-0 z-40 px-4 lg:px-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button onClick={() => setOpen(true)} className="lg:hidden p-2 text-[color:var(--muted)] hover:bg-[color:var(--surface-2)] rounded-lg transition-colors">
