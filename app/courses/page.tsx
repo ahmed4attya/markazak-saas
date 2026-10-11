@@ -11,15 +11,20 @@ export default function Courses() {
           title="دورة"
           endpoint="/api/courses"
           columns={[
-            { key: "name", label: "الدورة" },
             { key: "category", label: "التصنيف" },
+
             { key: "duration_hours", label: "الساعات" },
             { key: "price", label: "السعر" },
             { key: "status", label: "الحالة" },
           ]}
           fields={[
             { key: "name", label: "اسم الدورة", required: true },
-            { key: "category", label: "التصنيف" },
+            { key: "category", label: "التصنيف", type: "select", options: [
+			{ value: "قدرات كمي", label: "قدرات كمي" },
+			{ value: "قدرات لفظي", label: "قدرات لفظي" },
+			{ value: "تحصيلي", label: "تحصيلي" },
+			{ value: "أخرى", label: "أخرى" },
+		] },
             { key: "duration_hours", label: "عدد الساعات", type: "number" },
             { key: "price", label: "السعر", type: "number" },
             { key: "description", label: "الوصف", type: "textarea" },

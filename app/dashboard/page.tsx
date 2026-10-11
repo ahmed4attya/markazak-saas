@@ -30,6 +30,7 @@ type Invoice = {
 };
 
 type Attendance = {
+  attendance_date?: string;
   id: string;
   status?: string;
 };
@@ -80,17 +81,22 @@ export default function Dashboard() {
   const paidInvoices = invoices.filter(x => x.status === 'paid').length;
   const partialInvoices = invoices.filter(x => x.status === 'partial').length;
   const unpaidInvoices = invoices.filter(x => x.status === 'unpaid').length;
-  const present = attendanceRows.filter(x => x.status === 'present').length;
-  const absent = attendanceRows.filter(x => x.status === 'absent').length;
-  const late = attendanceRows.filter(x => x.status === 'late').length;
-  const excused = attendanceRows.filter(x => x.status === 'excused').length;
-  const totalAttendance = attendanceRows.length;
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const todayRows = attendanceRows.filter(x => String(x.attendance_date || '').startsWith(todayIso));
+  const attSrc = todayRows.length > 0 ? todayRows : attendanceRows;
+  const present = attSrc.filter(x => x.status === 'present').length;
+  const absent = attSrc.filter(x => x.status === 'absent').length;
+  const late = attSrc.filter(x => x.status === 'late').length;
+  const excused = attSrc.filter(x => x.status === 'excused').length;
+  const totalAttendance = attSrc.length;
   const attendanceRate = totalAttendance > 0 ? Math.round(((present + late) / totalAttendance) * 100) : Number(d.attendance || 0);
   const collectionRate = totalInvoices > 0 ? Math.min(100, Math.round((totalCollected / totalInvoices) * 100)) : 0;
   const students = Number(d.students || 0);
   const teachers = Number(d.teachers || 0);
   const courses = Number(d.courses || 0);
   const groups = Number(d.groups || 0);
+  
+  
 
   const cards = [
     { name: 'الطلاب', value: students, Icon: Users, href: '/students', color: 'bg-blue-500', accent: 'border-[color:var(--blue-border)] bg-[color:var(--blue-soft)]' },
@@ -121,6 +127,11 @@ export default function Dashboard() {
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
               تحديث
             </button>
+            {totalRemaining > 0 && (
+              <Link href="/finance" className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-red-700 bg-red-50 border border-red-200 rounded-xl transition-all hover:bg-red-100">
+                <AlertCircle size={16} /> متأخرات: {totalRemaining.toLocaleString('ar-SA')} ر.س
+              </Link>
+            )}
             <Link href="/students" className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#0b0f17] bg-[image:var(--gold-cta)] hover:opacity-90 rounded-xl transition-all shadow-[0_8px_20px_rgba(245,158,11,0.3)]">
               <Plus size={16} />
               تسجيل طالب
@@ -154,7 +165,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* Finance Panel - Large Bento */}
-          <div className="lg:col-span-2 bento-card">
+          <div className="lg:col-span-2 bento-card lg:order-2">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-lg font-bold text-slate-800">ملخص مالي</h3>
@@ -211,11 +222,11 @@ export default function Dashboard() {
           </div>
 
           {/* Attendance Panel - Bento */}
-          <div className="bento-card flex flex-col">
+          <div className="bento-card flex flex-col lg:order-3">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-lg font-bold text-slate-800">الحضور</h3>
-                <p className="text-slate-500 text-xs">إحصاءات سجلات الحضور</p>
+                <h3 className="text-lg font-bold text-slate-800">حضور اليوم</h3>
+                <p className="text-slate-500 text-xs">{todayRows.length > 0 ? "سجلات اليوم" : "لا سجلات اليوم - كل الفترات"}</p>
               </div>
               <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
                 <CalendarDays size={20} />
@@ -256,7 +267,7 @@ export default function Dashboard() {
           </div>
 
           {/* Quick Actions - Wide Bento */}
-          <div className="lg:col-span-2 bento-card">
+          <div className="lg:col-span-2 bento-card lg:order-1">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-lg font-bold text-slate-800">إجراءات سريعة</h3>
@@ -295,7 +306,7 @@ export default function Dashboard() {
           </div>
 
           {/* Operational Summary - Bento */}
-          <div className="bento-card">
+          <div className="bento-card lg:order-4">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-lg font-bold text-slate-800">حالة التشغيل</h3>

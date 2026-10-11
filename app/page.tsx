@@ -52,15 +52,14 @@ export default function Landing() {
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(900px 480px at 85% -10%, rgba(245,158,11,0.12), transparent 60%), radial-gradient(700px 400px at 10% 110%, rgba(91,155,255,0.07), transparent 55%)" }} />
         <div className="relative max-w-6xl mx-auto px-4 py-20 lg:py-28 text-center">
-          <span className="badge">v2.0 — منصة SaaS عربية بالكامل</span>
+          <span className="badge">v2.0 — تدريب  SaaS عربية بالكامل</span>
           <h1 className="mt-6 text-4xl lg:text-6xl font-extrabold leading-[1.25]">
             سنتر الخوارزمي — نظام تشغيل
             <br />
-            <span className="text-[color:var(--gold)]">مراكز التدريب</span> من مكان واحد
+            <span className="text-[color:var(--gold)]">القدرات والتحصيلي</span> من مكان واحد
           </h1>
           <p className="mt-6 text-lg text-[color:var(--muted)] max-w-2xl mx-auto">
-            الطلاب، الدورات، الحضور، الفواتير، الشهادات والتقارير — بواجهة عربية فاخرة بثيمين: مظلم وفاتح،
-            تعدد مستأجرين، وأمان على مستوى الإنتاج.
+               تدريب متخصص على اختبارات القدرات العامة (كمي ولفظي) والتحصيلي — مكتبة محتوى محمية، بنك أسئلة، امتحانات محاكية، بواجهة عربية فاخرة بثيمين وتطبيق يعمل بلا تثبيت.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link href="/login" className="primary px-8 py-3">ابدأ الآن <ArrowLeft size={18} /></Link>
@@ -99,7 +98,7 @@ export default function Landing() {
           <div className="grid lg:grid-cols-2 gap-10 items-center">
             <div>
               <span className="badge">لماذا سنتر الخوارزمي</span>
-              <h2 className="mt-4 text-3xl font-extrabold leading-snug">مبني لمراكز التدريب السعودية والخليج</h2>
+              <h2 className="mt-4 text-3xl font-extrabold leading-snug">مبني لالقدرات والتحصيلي السعودية والخليج</h2>
               <p className="mt-4 text-[color:var(--muted)] leading-relaxed">
                 بدل الأنظمة الموروثة والمنصات الأجنبية غير العربية — واجهة RTL أصيلة،
                 عملة ريال، تقارير جاهزة، ونشر سحابي سريع على Vercel مع قاعدة Neon المُدارة.
@@ -107,7 +106,7 @@ export default function Landing() {
               <ul className="mt-6 space-y-3 text-sm text-[color:var(--text-soft)]">
                 <li className="flex items-center gap-2"><Layers size={16} className="text-[color:var(--gold)]" /> بنية Multi-tenant بعزل كامل للبيانات</li>
                 <li className="flex items-center gap-2"><Building2 size={16} className="text-[color:var(--gold)]" /> لوحة تحكم عربية مريحة للعمل الطويل</li>
-                <li className="flex items-center gap-2"><Sparkles size={16} className="text-[color:var(--gold)]" /> خارطة طريق نشطة: مكتبة ملفات، فيديو آمن، امتحانات إلكترونية</li>
+                <li className="flex items-center gap-2"><Sparkles size={16} className="text-[color:var(--gold)]" /> جاهز اليوم: مكتبة ملفات وفيديو محمي بعلامة مائية، وتطبيق PWA يُثبَّت من المتصفح</li>
               </ul>
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link href="/login" className="primary px-8 py-3">ابدأ الآن <ArrowLeft size={18} /></Link>
