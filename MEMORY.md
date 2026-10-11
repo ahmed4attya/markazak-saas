@@ -299,3 +299,38 @@ DONE: 0, 1, U, T, 2, 3, P. NEXT: Scope R (owner-led reformatting - inventory of 
 
 ## Open items (carried)
 - npm audit backlog (11): never audit fix --force. tsconfig paste (optional). Lessons 1-12 reserved. Origins pending. F9 docs cleanup. seed.ts debt. W2/W3 landing revisit. OIDC token revocation after proxy-downloads. Unify files audit on logAudit. gitignore += tools/session-P/ (session-T pattern) - small chore next commit.
+
+---
+
+# MEMORY v8 UPDATE - 2026-10-10 (Scope R CLOSED - owner-led reformatting complete)
+
+## Scope R: CLOSED with live proof (PROVEN-R owner attestation)
+- R1: header search text far-LEFT in wider box (w-64/lg:w-96), icon RIGHT (RTL swap); AttendanceSummaryCards removed from students+teachers (only /attendance keeps it).
+- R2/R2B: /audit built (admin-only isAdmin, 9 tabs, pagination) + nav activated; stray app/api/audit/page.tsx relocated (parallel-pages caught by build); AttendanceSummaryCards platform-deduped (attendance-only).
+- R3: quick-contact sidebar (wa.me prefilled: late-payers + today absentees; admin/manager gate) + notifications (index local+prod; GET/POST read/read-all; bell in Shell). Full student/parent activation deferred to Scope S. Groups stats: none found in page (Dashboard-sourced).
+- R4: landing pivot copy (GAT quant/verbal + Achievement per DEC-058); dashboard dues chip + حضور اليوم (todayRows fallback all) + quick-actions order-1; courses category 4-option select in fields + API null-category accepted. prod: notifications_user_read index live (SR PROD: OK).
+
+## Commits: 8c31e2a R1 / af375d2 R2B / 3389fd9 R3 / 9c982ce R4
+
+## Lessons added (86-98)
+86. Empty saved file survives checks until "is not a module" - byte-length check after manual creation.
+87. vercel env pull [SENSITIVE] = present-hidden, never absent - behavior is the verdict.
+88. Blob store creation = team-level /storage; project search lists marketplace only.
+89. Arabic anchors from LIVE UTF-8 reads - console display mojibake misled anchor construction.
+90. Pasted content alters line structure - insert beside unique-stable anchors, not block-matching.
+91. Occurrence counts MEASURED (Select-String) before asserted - prior edits change the numbers.
+92. Decorative anchors (comments) mutate; functional anchors (className) stable - grep comments first.
+93. Whitespace is bytes - double space defeated a 99% match; switch to whole-line dynamic rewrite.
+94. Final verify uses INDEPENDENT strong markers, not re-matching the script's own sentence.
+95. columns=display vs fields=form types - "type:select" belongs to fields; tsc caught it.
+96. Verify (definition+usage) PAIRS - "already present" on usage missed missing definition (used-before-declaration followed).
+97. Manual fix + scripted fix stack = duplicated blocks - after manual edits, chains re-align or stop; webpack printed literal duplicates and settled it.
+98. const declarations must precede first use - cut/paste the block above its consumers; ordering is correctness.
+
+## Design gate: detect re-run = 16 findings = W1(4)+W2(8)+W3(4) exactly, zero new, zero undersized - signed waivers register (DESIGN.md ch.6.1) functioning per DEC-035.
+
+## Roadmap
+DONE: 0, 1, U, T, 2, 3, P, R. NEXT: Scope 4 exam engine + question bank (GAT/Achievement taxonomy per DEC-058). Then: 5, S (portal; activates notifications fully), 6, C.
+
+## Open items (carried)
+npm audit backlog (11; never --force) / tsconfig paste optional / lessons 1-12 reserved / origins pending / F9 docs cleanup / seed.ts debt / W2-W3 landing revisit / OIDC revocation after proxy-downloads / unify files audit on logAudit / brand-dynamic Shell at Scope S / plans page revisit at Scope 6.
