@@ -38,3 +38,15 @@ create index if not exists videos_tenant_created on videos(tenant_id,created_at 
 -- S-R: internal notifications (Scope R, DEC-060)
 create table if not exists notifications(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,user_id uuid references users(id) on delete cascade,title varchar(200),body text,type varchar(30),read_at timestamptz,created_at timestamptz default now());
 create index if not exists notifications_user_read on notifications(user_id,read_at);
+
+
+-- S4a: exam engine foundation + access model (Scope 4A, DEC-062)
+create table if not exists course_teachers(course_id uuid references courses(id) on delete cascade,teacher_user_id uuid references users(id) on delete cascade,assigned_at timestamptz default now(),primary key(course_id,teacher_user_id));
+alter table students add column if not exists guardian_user_id uuid references users(id) on delete set null;
+create table if not exists questions(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,course_id uuid references courses(id) on delete cascade,domain varchar(40) not null,subject varchar(120),topic varchar(160),skill varchar(160),difficulty int default 3,kind varchar(20) default 'mcq',text text not null,options jsonb not null default '[]',correct_index int not null default 0,explanation text,created_by uuid references users(id) on delete set null,created_at timestamptz default now());
+create index if not exists questions_tenant_domain on questions(tenant_id,domain);
+create index if not exists questions_course on questions(course_id);
+create table if not exists exams(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,course_id uuid references courses(id) on delete set null,title varchar(255) not null,kind varchar(20) default 'practice',duration_minutes int,sections jsonb,randomize boolean default true,created_by uuid references users(id) on delete set null,created_at timestamptz default now());
+create table if not exists exam_questions(exam_id uuid references exams(id) on delete cascade,question_id uuid references questions(id) on delete cascade,position int,primary key(exam_id,question_id));
+create table if not exists attempts(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,exam_id uuid references exams(id) on delete cascade,user_id uuid references users(id) on delete set null,answers jsonb,score numeric,total int,started_at timestamptz default now(),finished_at timestamptz);
+create index if not exists attempts_exam on attempts(exam_id);
