@@ -5,15 +5,17 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, GraduationCap, BookOpen, Layers, FolderOpen, CalendarCheck,
   Wallet, FileBadge, BarChart3, Brain, UserCog, Settings, LogOut, Search, MonitorPlay,
-  Bell, Building2, ChevronDown, Menu, TrendingUp, ClipboardList, CreditCard,
+  Bell, Building2, ChevronDown, Menu, TrendingUp, ClipboardList, CreditCard, HelpCircle,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from './ThemeToggle';
 import InstallPWA from './InstallPWA';
-       import QuickContact from './QuickContact';
-
-const groups = [
+import { isAdminRole } from '@/lib/roles';
+import QuickContact from './QuickContact';
+type NavItem = [string, string, any];
+type NavGroup = { title: string; items: NavItem[] };
+const groups: NavGroup[] = [
   { title: 'الرئيسية', items: [['/dashboard', 'لوحة التحكم', LayoutDashboard]] },
   {
     title: 'العمليات',
@@ -23,8 +25,9 @@ const groups = [
       ['/courses', 'الدورات', BookOpen],
       ['/groups', 'المجموعات', Layers],
       ['/attendance', 'الحضور والغياب', CalendarCheck],
-           ['/library', 'مكتبة الملفات', FolderOpen],
-		   ['/videos', 'مكتبة الفيديو', MonitorPlay],
+      ['/library', 'مكتبة الملفات', FolderOpen],
+      ['/videos', 'مكتبة الفيديو', MonitorPlay],
+      ['/questions', 'بنك الأسئلة', HelpCircle],
       ['/finance', 'الفواتير والمدفوعات', Wallet],
       ['/certificates', 'الشهادات', FileBadge],
     ],
@@ -46,7 +49,10 @@ const groups = [
       ['/audit', 'سجل التدقيق', ClipboardList],
     ],
   },
-] as const;
+];
+
+// Items visible only to admin/owner/manager (DEC-062 isolation)
+const ADMIN_ONLY: string[] = ['/finance', '/users', '/settings', '/plans', '/audit', '/reports'];
 
 function cn(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
@@ -65,10 +71,12 @@ export default function Shell({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [qcOpen, setQcOpen] = useState(false);
-       const [dateStr, setDateStr] = useState('');
+  const [dateStr, setDateStr] = useState('');
+  const [role, setRole] = useState('');
 
   useEffect(() => {
     setDateStr(new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' }));
+    fetch('/api/me').then((r) => (r.ok ? r.json() : null)).then((d) => { if (d && d.role) setRole(String(d.role)); }).catch(() => {});
   }, []);
 
   async function logout() {
@@ -76,11 +84,28 @@ export default function Shell({
     router.push('/login');
   }
 
+  const isAdmin = isAdminRole(role);
+
+  const visibleGroups = groups
+    .map((g) => ({
+      ...g,
+            items: g.items.filter((item) => {
+        const href = item[0];
+        if (isAdmin) return true;
+        if (role === 'teacher') {
+          if (ADMIN_ONLY.indexOf(href) >= 0) return false;
+        }
+        return true;
+      }),
+    }))
+    .filter((g) => g.items.length > 0);
+
   return (
     <div className="flex min-h-screen bg-[color:var(--bg)] text-[color:var(--text)] font-['IBM_Plex_Sans_Arabic']" dir="rtl">
       <aside
         className={cn(
-          'fixed inset-y-0 right-0 z-50 w-72 bg-[color:var(--surface)] border-l border-[color:var(--border)] transition-transform duration-300 ease-in-out',open ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
+          'fixed inset-y-0 right-0 z-50 w-72 bg-[color:var(--surface)] border-l border-[color:var(--border)] transition-transform duration-300 ease-in-out',
+          open ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
         )}
       >
         <div className="flex flex-col h-full p-5">
@@ -108,15 +133,18 @@ export default function Shell({
           </div>
 
           <div className="flex-1 space-y-4 overflow-y-auto nav-scroll">
-            {groups.map((g) => (
+            {visibleGroups.map((g) => (
               <div key={g.title}>
                 {g.title === 'التواصل السريع' ? (
-  <button onClick={() => setQcOpen(true)} className="w-full text-right text-[11px] font-bold text-[color:var(--muted-dim)] uppercase tracking-widest mb-2 px-3 hover:text-[color:var(--gold)] transition-colors cursor-pointer">{g.title}</button>
-) : (
-  <p className="text-[11px] font-bold text-[color:var(--muted-dim)] uppercase tracking-widest mb-2 px-3">{g.title}</p>
-)}
+                  isAdmin && (
+                    <button onClick={() => setQcOpen(true)} className="w-full text-right text-[11px] font-bold text-[color:var(--muted-dim)] uppercase tracking-widest mb-2 px-3 hover:text-[color:var(--gold)] transition-colors cursor-pointer">{g.title}</button>
+                  )
+                ) : (
+                  <p className="text-[11px] font-bold text-[color:var(--muted-dim)] uppercase tracking-widest mb-2 px-3">{g.title}</p>
+                )}
                 <nav className="space-y-1">
-                  {g.items.map(([href, label, Icon]) => {
+                  {g.items.map((item: NavItem) => {
+         const href = item[0]; const label = item[1]; const Icon = item[2];
                     if (href.startsWith('soon:')) {
                       return (
                         <div key={href} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[color:var(--muted-dim)] cursor-default">
@@ -169,7 +197,7 @@ export default function Shell({
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-			<InstallPWA />
+            <InstallPWA />
             <button className="p-2 text-[color:var(--muted)] hover:bg-[color:var(--surface-2)] rounded-full relative transition-colors">
               <Bell size={20} />
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-[color:var(--surface)]"></span>
@@ -216,7 +244,7 @@ export default function Shell({
           />
         )}
       </AnimatePresence>
-	  <QuickContact open={qcOpen} onClose={() => setQcOpen(false)} />
+      {isAdmin && <QuickContact open={qcOpen} onClose={() => setQcOpen(false)} />}
     </div>
   );
 }

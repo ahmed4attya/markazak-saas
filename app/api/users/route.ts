@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
 import { query, safeError } from '@/lib/db';
 import { getSession, isAdmin } from '@/lib/auth';
+import { isAdminRole } from '@/lib/roles';
 import { logAudit } from '@/lib/audit';
 import bcrypt from 'bcryptjs';
 
 export async function GET() {
   const s = await getSession();
-
+  if (s && !isAdminRole(s.role)) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
   if (!s) {
     return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
   }

@@ -1,6 +1,6 @@
 ﻿import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { getSession } from '@/lib/auth';
+import { getSession, isAdmin } from '@/lib/auth';
 
 async function getContext(tenantId: string) {
   const [
@@ -164,6 +164,13 @@ export async function POST(req: Request) {
     );
   }
 
+  if (!isAdmin(s.role)) {
+    return NextResponse.json(
+      { error: 'forbidden' },
+      { status: 403 }
+    );
+  }
+
   try {
     const body = await req.json();
     const prompt = String(body.prompt || '').trim();
@@ -200,10 +207,10 @@ export async function POST(req: Request) {
               role: 'user',
               content: `
 بيانات المركز:
-${JSON.stringify(context, null, 2)}
+ ${JSON.stringify(context, null, 2)}
 
 سؤال المستخدم:
-${prompt}
+ ${prompt}
               `,
             },
           ],

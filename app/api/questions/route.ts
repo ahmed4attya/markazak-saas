@@ -1,7 +1,8 @@
 ﻿import { NextResponse } from 'next/server';
 import { query, safeError } from '@/lib/db';
 import { getSession } from '@/lib/auth';
-import { isAdminRole, teacherCourseIds, canAccessCourse } from '@/lib/access';
+import { teacherCourseIds, canAccessCourse } from '@/lib/access';
+import { isAdminRole } from '@/lib/roles';
 import { logAudit } from '@/lib/audit';
 
 const DOMAINS = ['quant', 'verbal', 'achievement'];

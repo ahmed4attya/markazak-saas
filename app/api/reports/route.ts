@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { getSession } from '@/lib/auth';
+import { getSession, isAdmin } from '@/lib/auth';
 
 export async function GET() {
   const session = await getSession();
@@ -9,6 +9,13 @@ export async function GET() {
     return NextResponse.json(
       { error: 'غير مصرح' },
       { status: 401 }
+    );
+  }
+
+  if (!isAdmin(session.role)) {
+    return NextResponse.json(
+      { error: 'forbidden' },
+      { status: 403 }
     );
   }
 
