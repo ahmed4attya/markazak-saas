@@ -1,4 +1,4 @@
-﻿# MEMORY.md - markazak-saas project memory (canonical)
+# MEMORY.md - markazak-saas project memory (canonical)
 # Read first every session. Update at end of every scope.
 # v2 written 2026-10-08 closing Session 0.
 
@@ -330,7 +330,24 @@ DONE: 0, 1, U, T, 2, 3, P. NEXT: Scope R (owner-led reformatting - inventory of 
 ## Design gate: detect re-run = 16 findings = W1(4)+W2(8)+W3(4) exactly, zero new, zero undersized - signed waivers register (DESIGN.md ch.6.1) functioning per DEC-035.
 
 ## Roadmap
-DONE: 0, 1, U, T, 2, 3, P, R. NEXT: Scope 4 exam engine + question bank (GAT/Achievement taxonomy per DEC-058). Then: 5, S (portal; activates notifications fully), 6, C.
+DONE: 0, 1, U, T, 2, 3, P, R.
+NEXT:
+  Scope 4: Exam engine + question bank (GAT/Achievement taxonomy per DEC-058) - the core capabilities and achievement platform.
+  Scope 5: Homework + grade record
+  Scope S: Student and guardian portal (activates notifications fully)
+  Scope 6: Activation codes + subscriptions + advanced reports
+  Scope C: Content operations (bulk question import, etc.).
+
+Parallel developments (low-risk, can be done during any scope):
+  - Early Excel question import to populate Scope 4
+  - Staff notifications (internal)
+  - CSV exports from live tables
+  - Global search (header bar)
+  - Duplicate exam/course
+  - User profile page
+  - Usage monitor (Blob storage alerts)
+  - Security backlog (npm audit without --force)
 
 ## Open items (carried)
 npm audit backlog (11; never --force) / tsconfig paste optional / lessons 1-12 reserved / origins pending / F9 docs cleanup / seed.ts debt / W2-W3 landing revisit / OIDC revocation after proxy-downloads / unify files audit on logAudit / brand-dynamic Shell at Scope S / plans page revisit at Scope 6.
+
