@@ -23,6 +23,7 @@
 - [x] Phase 3 / content-security: scope teacher file and video reads/uploads to assigned tenant courses and validate course/group consistency.
 - [x] Security/operations: bound external AI provider requests with a server-side timeout and regression test.
 - [x] Phase 3 / content: add sequenced course lessons, published learner access, and student progress tracking.
+- [x] Phase 6 / monetization: add tenant-scoped activation codes, student entitlements and secure student redemption.
 - [ ] Checkpoint 1: tsc, build, gate, focused tests, review diff, commit whitelist.
 - [ ] Phase 2 / assessment: question taxonomy and validation contract.
 - [ ] Phase 2 / assessment: exam composition and teacher workflow.

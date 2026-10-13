@@ -575,3 +575,17 @@ npm audit backlog (11; never --force) / tsconfig paste optional / lessons 1-12 r
 ## Release state
 - Local build/runtime/migration evidence is green. Production migration and authenticated live proof remain pending; PR merge is not performed automatically.
 
+---
+
+# MEMORY v22 UPDATE - 2026-10-13 (Activation codes)
+
+## Verified addition
+- Added S7 schema tables `activation_codes` and `student_entitlements`, with tenant foreign keys, hashed codes, usage limits and per-student uniqueness.
+- Added admin-only activation-code creation/listing and a student-only transactional redemption endpoint with row locks, expiry and usage enforcement.
+- Added `/activation-codes` administration UI and student portal redemption form.
+- Added `tests/activation-isolation.test.mjs`.
+- Evidence: activation isolation test PASS, `npx tsc --noEmit` exit `0`, `git diff --check` clean, pre-S7 local DB backup created (86,822 bytes), migration succeeded, and schema-only verification found both new tables.
+
+## Release state
+- S7 is applied only to the local application database. Production migration and authenticated live proof remain pending.
+

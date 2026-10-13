@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, GraduationCap, BookOpen, Layers, FolderOpen, CalendarCheck,
   Wallet, FileBadge, BarChart3, Brain, UserCog, Settings, LogOut, Search, MonitorPlay,
-  Bell, Building2, ChevronDown, Menu, TrendingUp, ClipboardList, CreditCard, HelpCircle,
+  Bell, Building2, ChevronDown, Menu, TrendingUp, ClipboardList, CreditCard, HelpCircle, KeyRound,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -50,13 +50,14 @@ const groups: NavGroup[] = [
       ['/users', 'المستخدمون والصلاحيات', UserCog],
       ['/settings', 'إعدادات المركز', Settings],
       ['/plans', 'الاشتراك', CreditCard],
+      ['/activation-codes', 'أكواد التفعيل', KeyRound],
       ['/audit', 'سجل التدقيق', ClipboardList],
     ],
   },
 ];
 
 // Items visible only to admin/owner/manager (DEC-062 isolation)
-const ADMIN_ONLY: string[] = ['/finance', '/users', '/settings', '/plans', '/audit', '/reports'];
+const ADMIN_ONLY: string[] = ['/finance', '/users', '/settings', '/plans', '/activation-codes', '/audit', '/reports'];
 
 function cn(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
