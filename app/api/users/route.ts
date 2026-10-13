@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query, safeError, withTx } from '@/lib/db';
 import { getSession, isAdmin } from '@/lib/auth';
+import { rateLimit } from '@/lib/rateLimit';
 import { isAdminRole } from '@/lib/roles';
 import { logAudit } from '@/lib/audit';
 import bcrypt from 'bcryptjs';
@@ -12,7 +13,10 @@ export async function GET() {
   }
   if (!s) {
     return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+
   }
+  const rl = rateLimit('users-create:' + s.userId, 3, 3600000);
+  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } });
 
   try {
     const result = await query(

@@ -1,4 +1,9 @@
-import {NextResponse} from 'next/server';import {query} from '@/lib/db';import {signSession} from '@/lib/auth';import {rateLimit} from '@/lib/rateLimit';import bcrypt from 'bcryptjs';import {z} from 'zod'
+﻿import {NextResponse} from 'next/server';
+import {query} from '@/lib/db';
+import {signSession} from '@/lib/auth';
+import {rateLimit} from '@/lib/rateLimit';
+import bcrypt from 'bcryptjs';
+import {z} from 'zod';
 export async function POST(req:Request){
   const ip=req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'unknown';
   try{

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { getSession, isAdmin } from '@/lib/auth';
+import { rateLimit } from '@/lib/rateLimit';
 
 export async function GET() {
   const session = await getSession();
@@ -11,13 +12,15 @@ export async function GET() {
       { status: 401 }
     );
   }
-
   if (!isAdmin(session.role)) {
     return NextResponse.json(
       { error: 'forbidden' },
       { status: 403 }
     );
   }
+  const rl = rateLimit('reports:' + session.userId, 10, 600000);
+  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } });
+
 
   try {
     const tenantId = session.tenantId;

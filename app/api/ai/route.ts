@@ -1,6 +1,7 @@
 ﻿import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { getSession, isAdmin } from '@/lib/auth';
+import { rateLimit } from '@/lib/rateLimit';
 
 async function getContext(tenantId: string) {
   const [
@@ -161,15 +162,18 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { error: 'غير مصرح' },
       { status: 401 }
+
     );
   }
-
   if (!isAdmin(s.role)) {
     return NextResponse.json(
       { error: 'forbidden' },
       { status: 403 }
     );
   }
+  const rl = rateLimit('ai:' + s.userId, 10, 600000);
+  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } });
+
 
   try {
     const body = await req.json();

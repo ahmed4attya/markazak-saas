@@ -1,6 +1,7 @@
 ﻿import { NextResponse } from 'next/server';
 import { query, safeError } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { rateLimit } from '@/lib/rateLimit';
 import { teacherCourseIds, canAccessCourse } from '@/lib/access';
 import { isAdminRole } from '@/lib/roles';
 import { logAudit } from '@/lib/audit';
@@ -9,7 +10,9 @@ const DOMAINS = ['quant', 'verbal', 'achievement'];
 
 export async function GET(req: Request) {
   const s = await getSession();
-  if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  const rl = rateLimit('questions:' + s.userId, 30, 3600000);
+  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } });
   const { searchParams } = new URL(req.url);
   const domain = (searchParams.get('domain') || '').trim();
   const courseId = (searchParams.get('courseId') || '').trim();
