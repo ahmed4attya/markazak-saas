@@ -351,3 +351,55 @@ Parallel developments (low-risk, can be done during any scope):
 ## Open items (carried)
 npm audit backlog (11; never --force) / tsconfig paste optional / lessons 1-12 reserved / origins pending / F9 docs cleanup / seed.ts debt / W2-W3 landing revisit / OIDC revocation after proxy-downloads / unify files audit on logAudit / brand-dynamic Shell at Scope S / plans page revisit at Scope 6.
 
+
+---
+
+# MEMORY v10 UPDATE - 2026-10-14 (Scope SEC CLOSED + Scope 4A CLOSED - dual closure)
+
+## Scope SEC: CLOSED with live proof (curl -I showing all 5 defensive headers)
+- N2: Defensive headers live 100% via middleware (XFO DENY + nosniff + Referrer-Policy + Permissions-Policy + HSTS preload) - verified by owner curl -I on prod (?nocache=1014e). Lesson: headers() in next.config may miss cached paths - middleware guarantees 100% response coverage.
+- N1: rateLimit wired to 4 heavy routes (users-create 3/h, questions 30/h, ai 10/h, reports 10/h) - rateLimit(key, limit, windowMs) signature confirmed from lib/rateLimit.ts (not assumed). login was already wired (5 per 15min) - lesson: inventory BEFORE modifying (a broken checkRate import was removed after discovering login was already protected).
+- N3 (security-audit.ts periodic): DEFERRED to a standalone maintenance scope.
+- AGENTS.md adopted as binding (8 rules - 4 already implemented; remaining rules covered by existing architecture).
+- README mojibake title fixed (Arabic now reads correctly in source).
+
+## Scope 4A: CLOSED with live proof (DEC-062 isolation live across 3 roles)
+- Foundation: 5 tables (questions/exams/exam_questions/attempts/course_teachers) + guardian_user_id - migrated LOCAL + PROD with single-flight advisory lock (Lesson 77 applied proactively).
+- Isolation model: middleware (JWT role at platform boundary - learner/teacher/admin boundaries) + lib/roles.ts (client-safe isAdminRole) + lib/access.ts (server-only isolation queries) - three-layer defense.
+- Role guards: users GET/stats/dashboard/reports/ai admin-only via isAdmin - verified live: teacher saw "forbidden" on /users and /api/reports.
+- Role-aware sidebar: Shell filters by role (teacher sees no finance/users/settings/plans/audit/reports/quick-contact) - verified live.
+- /questions authoring: works for admin (with course) and teacher (course-bound only) - verified live.
+- /exams authoring: exam creation UI live (title + course + type + duration + question picker) - verified live.
+- course-teacher assignment API: admin-only assign/unassign, teacher scoped read - live.
+- /api/me exposes role (client-side role awareness).
+- /dashboard non-admin redirect to /questions - live.
+
+## External agent work merge (truthful documentation)
+- An external agent (Codex CLI) was granted "all permissions" by owner (owner decision, Lesson 106: no external agent gets unrestricted repo access - protocol applies to all).
+- Agent work: tenant isolation fixes (access/questions/course-teachers/users), isolation regression tests (20+ test files), exam authoring slice, README demo-credentials removal, /api/me + dashboard redirect groundwork.
+- Merge process: agent session stopped → all work preserved via git stash → clean build at solid point → stash pop → manual review of critical files → selective adoption via line-surgery scripts → gate v5 → commit → push. No blind adoption - every file reviewed against DEC-062.
+- Agent build failure diagnosed: agent ran multiple overlapping next build processes on same .next (Lesson 107 - build silence = two builders, not broken code) + agent archived .next inside project tree breaking Next's type validator (moved archive outside tree).
+
+## Commits (main, pushed)
+- 65265c7 4A-1 foundation / db862c5 4A-2 roles split / 4fd731a 4A-3 assignment API / 7167376 4A merge slices 1-2 / 2117397 SEC N1+N2 / df81790 SEC N2-v2 middleware headers
+
+## Lessons added (99-111)
+99. External analysis claiming project modification - verify by DISK EVIDENCE (file, git log, line numbers) before adoption; description is not execution.
+100. Centralized value type any[] from the start - first consumer needing array-in-array exposed the narrowing.
+101. Detection family extends beyond (c): Arabic guillemets «» hit same suspicious-pair pattern - fix by replacing with ASCII-safe alternatives; byte-context distinguishes legit from corrupt.
+102. Client-safe vs server-only library split is architectural - any shared helper touching pg/fs/net breaks client builds; separate roles.ts (client-safe) from access.ts (server-only).
+103. Explicit types beat casting - NavItem tuple removed all destructuring errors after as const removal.
+104. Guard insertion into files with different check patterns produced nesting errors - flat pattern (session-check then role-check) is the only safe standard.
+105. Manual + scripted fixes stack into duplicated blocks (webpack printed the duplicates) - after any manual edit, chains must re-align or stop.
+106. No external agent gets unrestricted repo access - protocol (gates, whitelist, live-proof) applies to ALL including owner's tools; owner grant of "all permissions" is documented as a protocol exception that was corrected post-hoc.
+107. next build silence with CPU progress = two builders racing on same .next; clean terminal single-run is the verdict - plus agent archived .next INSIDE the tree breaking Next's type validator (archive must live OUTSIDE the app tree).
+108. Verify (definition + usage) PAIRS - "already present" on usage missed missing definition (used-before-declaration followed).
+109. Verify final state with INDEPENDENT strong markers, not re-matching the script's own sentence.
+110. Guard auto-insertion across varied check patterns produces nested blocks - manual flat insertion or full-file rewrite after reading live structure is the only safe standard.
+111. Whitespace is bytes; double-space defeated a 99% visual match - when chasing byte differences, rewrite the whole line dynamically with derived indentation.
+
+## Roadmap (ROADMAP.md v3 + DEC-062 isolation model)
+DONE: 0, 1, U, T, 2, 3, P, R, SEC, 4A. NEXT: Scope S-1 student/guardian portal (read-only, activates notifications fully - middleware ready), 4B exam-taking screen + attempts + "why-wrong" AI (middleware isolation ready), 4C Excel question import, 5 assignments+gradebook, 6 activation+subscriptions+reports, C content ops.
+
+## Open items (carried)
+npm audit backlog (11; never --force) / tsconfig paste optional / lessons 1-12 reserved / origins pending / F9 docs cleanup / seed.ts debt / W2-W3 landing revisit / OIDC revocation after proxy-downloads / unify files audit on logAudit / brand-dynamic Shell at Scope S / plans page revisit at Scope 6 / rateLimit in-memory per-instance (Redis at scale).
