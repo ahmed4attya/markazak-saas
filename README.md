@@ -14,7 +14,6 @@ npm run db:migrate
 npm run db:seed
 npm run dev
 ```
-Demo: `admin@center.sa` / `admin123`
 
 ## Production
 Use managed PostgreSQL, set a strong `AUTH_SECRET`, database SSL, and provider keys. Run `npm run db:migrate`, `npm run build`, then `npm start` or deploy to Vercel.
