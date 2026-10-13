@@ -22,7 +22,9 @@ create index if not exists students_tenant_name on students(tenant_id,name); cre
 alter table students add column if not exists type varchar(20) not null default 'center';
 alter table enrollments add column if not exists sub_start date;
 alter table enrollments add column if not exists sub_end date;
+alter table students add column if not exists student_user_id uuid references users(id) on delete set null;
 create index if not exists students_tenant_type on students(tenant_id,type);
+create unique index if not exists students_tenant_user on students(tenant_id,student_user_id) where student_user_id is not null;
 
 -- S2: file library (Scope 2, DEC-047..051)
 create table if not exists files(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,course_id uuid references courses(id) on delete set null,group_id uuid references groups(id) on delete set null,name varchar(255) not null,mime varchar(120),size_bytes bigint default 0,storage_key text not null unique,uploaded_by uuid references users(id) on delete set null,note text,created_at timestamptz default now(),updated_at timestamptz default now());
@@ -50,3 +52,23 @@ create table if not exists exams(id uuid primary key default gen_random_uuid(),t
 create table if not exists exam_questions(exam_id uuid references exams(id) on delete cascade,question_id uuid references questions(id) on delete cascade,position int,primary key(exam_id,question_id));
 create table if not exists attempts(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,exam_id uuid references exams(id) on delete cascade,user_id uuid references users(id) on delete set null,answers jsonb,score numeric,total int,started_at timestamptz default now(),finished_at timestamptz);
 create index if not exists attempts_exam on attempts(exam_id);
+
+-- S5: assignments, submissions and gradebook foundation
+create table if not exists assignments(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,course_id uuid not null references courses(id) on delete cascade,group_id uuid references groups(id) on delete set null,title varchar(255) not null,description text,due_at timestamptz,points numeric(8,2) not null default 100,created_by uuid references users(id) on delete set null,created_at timestamptz default now(),updated_at timestamptz default now());
+create index if not exists assignments_tenant_course on assignments(tenant_id,course_id);
+create index if not exists assignments_due on assignments(tenant_id,due_at);
+create table if not exists submissions(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,assignment_id uuid not null references assignments(id) on delete cascade,student_id uuid not null references students(id) on delete cascade,answer_text text,attachment_key text,submitted_at timestamptz default now(),grade numeric(8,2),feedback text,graded_by uuid references users(id) on delete set null,graded_at timestamptz,unique(assignment_id,student_id));
+create index if not exists submissions_tenant_student on submissions(tenant_id,student_id);
+create index if not exists submissions_assignment on submissions(tenant_id,assignment_id);
+
+-- S6: sequenced lessons and learner progress
+create table if not exists course_lessons(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,course_id uuid not null references courses(id) on delete cascade,video_id uuid references videos(id) on delete set null,position int not null,title varchar(255) not null,description text,body text,duration_minutes int default 0,published boolean default false,created_by uuid references users(id) on delete set null,created_at timestamptz default now(),updated_at timestamptz default now(),unique(course_id,position));
+create index if not exists course_lessons_tenant_course on course_lessons(tenant_id,course_id,position);
+create table if not exists lesson_progress(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,lesson_id uuid not null references course_lessons(id) on delete cascade,student_id uuid not null references students(id) on delete cascade,seconds_watched int not null default 0,completed_at timestamptz,updated_at timestamptz default now(),unique(lesson_id,student_id));
+create index if not exists lesson_progress_tenant_student on lesson_progress(tenant_id,student_id);
+
+-- S7: tenant-scoped activation codes and learner entitlements
+create table if not exists activation_codes(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,code_prefix varchar(24) not null,code_hash varchar(128) not null,plan_code varchar(40) not null,max_uses int not null default 1,used_count int not null default 0,expires_at timestamptz,active boolean not null default true,created_by uuid references users(id) on delete set null,created_at timestamptz default now(),unique(tenant_id,code_hash));
+create index if not exists activation_codes_tenant_active on activation_codes(tenant_id,active,expires_at);
+create table if not exists student_entitlements(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,student_id uuid not null references students(id) on delete cascade,activation_code_id uuid not null references activation_codes(id) on delete restrict,plan_code varchar(40) not null,starts_at timestamptz default now(),ends_at timestamptz,status varchar(20) not null default 'active',created_at timestamptz default now(),unique(activation_code_id,student_id));
+create index if not exists student_entitlements_tenant_student on student_entitlements(tenant_id,student_id,status);

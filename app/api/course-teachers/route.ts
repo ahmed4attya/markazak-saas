@@ -11,12 +11,15 @@ export async function GET(req: Request) {
   if (courseId) {
     if (!(s.role === 'teacher' || isAdmin(s.role))) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
     if (s.role === 'teacher') {
-      const mine = (await query('select 1 from course_teachers where course_id=$1 and teacher_user_id=$2', [courseId, s.userId])).rows;
+      const mine = (await query(
+        'select 1 from course_teachers ct join courses c on c.id=ct.course_id where ct.course_id=$1 and ct.teacher_user_id=$2 and c.tenant_id=$3',
+        [courseId, s.userId, s.tenantId]
+      )).rows;
       if (!mine.length) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
     }
     const rows = (await query(
-      `select u.id, u.name, u.email from course_teachers ct join users u on u.id = ct.teacher_user_id where ct.course_id=$1 order by u.name`,
-      [courseId]
+      `select u.id, u.name, u.email from course_teachers ct join users u on u.id = ct.teacher_user_id join courses c on c.id=ct.course_id where ct.course_id=$1 and c.tenant_id=$2 and u.tenant_id=$2 order by u.name`,
+      [courseId, s.tenantId]
     )).rows;
     return NextResponse.json(rows);
   }
@@ -64,6 +67,14 @@ export async function DELETE(req: Request) {
   const courseId = (searchParams.get('courseId') || '').trim();
   const userId = (searchParams.get('userId') || '').trim();
   if (!courseId || !userId) return NextResponse.json({ error: 'bad request' }, { status: 400 });
+  const owned = (await query(
+    `select 1 from course_teachers ct
+     join courses c on c.id=ct.course_id and c.tenant_id=$3
+     join users u on u.id=ct.teacher_user_id and u.tenant_id=$3 and u.role='teacher'
+     where ct.course_id=$1 and ct.teacher_user_id=$2`,
+    [courseId, userId, s.tenantId]
+  )).rows;
+  if (!owned.length) return NextResponse.json({ error: 'الربط غير موجود' }, { status: 404 });
   await query('delete from course_teachers where course_id=$1 and teacher_user_id=$2', [courseId, userId]);
   await logAudit({ tenantId: s.tenantId, userId: s.userId, action: 'course.unassign-teacher', entity: 'course', entityId: courseId, metadata: { userId } });
   return NextResponse.json({ ok: true });

@@ -4,6 +4,7 @@ import { query, safeError } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
 import { MAX_VIDEO_BYTES, isAllowedVideoFile } from '@/lib/video-storage';
+import { canAccessCourse } from '@/lib/access';
 
 export async function POST(req: Request) {
   const s = await getSession();
@@ -20,8 +21,16 @@ export async function POST(req: Request) {
     if (sizeBytes <= 0 || sizeBytes > MAX_VIDEO_BYTES) return NextResponse.json({ error: 'حجم غير مسموح' }, { status: 400 });
     try { await head(url); } catch { return NextResponse.json({ error: 'الفيديو غير موجود في التخزين' }, { status: 400 }); }
     if (b.courseId) {
+      if (s.role === 'teacher' && !(await canAccessCourse(s, b.courseId))) return NextResponse.json({ error: 'غير مصرح بهذه الدورة' }, { status: 403 });
       const c = await query('select id from courses where id=$1 and tenant_id=$2', [b.courseId, s.tenantId]);
       if (!c.rows.length) return NextResponse.json({ error: 'الدورة غير موجودة' }, { status: 400 });
+    }
+    if (s.role === 'teacher' && !b.courseId) return NextResponse.json({ error: 'يجب ربط الفيديو بدورة مسندة لك' }, { status: 403 });
+    if (b.groupId) {
+      const g = await query('select id,course_id from groups where id=$1 and tenant_id=$2', [b.groupId, s.tenantId]);
+      if (!g.rows.length) return NextResponse.json({ error: 'المجموعة غير موجودة' }, { status: 400 });
+      if (b.courseId && String(g.rows[0].course_id || '') !== b.courseId) return NextResponse.json({ error: 'المجموعة لا تنتمي للدورة' }, { status: 400 });
+      if (s.role === 'teacher' && !(await canAccessCourse(s, String(g.rows[0].course_id)))) return NextResponse.json({ error: 'غير مصرح بالمجموعة' }, { status: 403 });
     }
     const ins = await query(
       'insert into videos(tenant_id,course_id,group_id,title,mime,size_bytes,duration_seconds,storage_key,uploaded_by) values($1,$2,$3,$4,$5,$6,$7,$8,$9) on conflict (storage_key) do nothing returning *',

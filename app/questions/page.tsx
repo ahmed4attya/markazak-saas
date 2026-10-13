@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Plus, Trash2, HelpCircle } from 'lucide-react';
+import { Plus, Trash2, HelpCircle, Upload } from 'lucide-react';
 import Shell from '@/components/Shell';
 
 type Question = { id: string; course_id: string | null; domain: string; subject: string | null; topic: string | null; skill: string | null; difficulty: number; kind: string; text: string; options: string[]; correct_index: number; explanation: string | null; created_at: string };
@@ -19,6 +19,7 @@ export default function Questions() {
   const [busy, setBusy] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [f, setF] = useState<typeof EMPTY>({ ...EMPTY });
+  const [showImport, setShowImport] = useState(false); const [importCsv, setImportCsv] = useState(''); const [importCourseId, setImportCourseId] = useState(''); const [importBusy, setImportBusy] = useState(false); const [importResult, setImportResult] = useState('');
 
   const load = useCallback(async () => {
     const qs = domain ? '?domain=' + domain : '';
@@ -57,6 +58,18 @@ export default function Questions() {
     finally { setBusy(false); }
   }
 
+  async function runImport(apply: boolean) {
+    setImportBusy(true); setError(''); setOk(''); setImportResult('');
+    try {
+      const r = await fetch(apply ? '/api/questions/import/apply' : '/api/questions/import', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ csv: importCsv, courseId: importCourseId || null }) });
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(body.error || 'تعذر تنفيذ الاستيراد');
+      if (apply) { setOk(`تم استيراد ${body.inserted} سؤال، وتعطيل ${body.disabled} صف`); setImportCsv(''); await load(); }
+      else setImportResult(`الإجمالي: ${body.total} · صالح: ${body.ready} · معطّل: ${body.disabled}`);
+    } catch (e) { setError(e instanceof Error ? e.message : 'تعذر تنفيذ الاستيراد'); }
+    finally { setImportBusy(false); }
+  }
+
   function setOpt(i: number, v: string) {
     setF((p) => ({ ...p, ['o' + (i + 1)]: v } as typeof EMPTY));
   }
@@ -73,11 +86,13 @@ export default function Questions() {
               <option value="achievement">تحصيلي</option>
             </select>
           </div>
-          <button className="primary" onClick={() => setShowForm(!showForm)}><Plus size={16} /> سؤال جديد</button>
+          <div className="flex gap-2"><button className="secondary" onClick={() => setShowImport(!showImport)}><Upload size={16} /> استيراد CSV</button><button className="primary" onClick={() => setShowForm(!showForm)}><Plus size={16} /> سؤال جديد</button></div>
         </div>
 
         {error && <div className="error">{error}</div>}
         {ok && <div className="success">{ok}</div>}
+
+        {showImport && <div className="panel space-y-4"><h3 className="font-extrabold text-[color:var(--text)]">استيراد أسئلة CSV</h3><p className="text-sm text-[color:var(--muted)]">الأعمدة: domain,text,options,correctIndex,difficulty,subject,topic,skill,explanation,courseId. الخيارات تفصل بعلامة |. الصفوف غير السليمة لا تُحذف؛ تُعطّل وتظهر في الفحص.</p><label>الدورة الافتراضية للصفوف التي لا تحتوي courseId<select value={importCourseId} onChange={(e) => setImportCourseId(e.target.value)}><option value="">سؤال عام (للمدير فقط)</option>{courses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label><textarea value={importCsv} onChange={(e) => setImportCsv(e.target.value)} rows={8} dir="ltr" placeholder="domain,text,options,correctIndex,difficulty\nquant,ما قيمة 2+2؟,3|4|5,1,1" /><div className="flex flex-wrap gap-2"><button className="secondary" disabled={importBusy || !importCsv.trim()} onClick={() => runImport(false)}>فحص فقط</button><button className="primary" disabled={importBusy || !importCsv.trim()} onClick={() => runImport(true)}>تطبيق السليم فقط</button></div>{importResult && <div className="success">{importResult}</div>}</div>}
 
         {showForm && (
           <div className="panel space-y-4">

@@ -351,3 +351,241 @@ Parallel developments (low-risk, can be done during any scope):
 ## Open items (carried)
 npm audit backlog (11; never --force) / tsconfig paste optional / lessons 1-12 reserved / origins pending / F9 docs cleanup / seed.ts debt / W2-W3 landing revisit / OIDC revocation after proxy-downloads / unify files audit on logAudit / brand-dynamic Shell at Scope S / plans page revisit at Scope 6.
 
+---
+
+# MEMORY v9 UPDATE - 2026-10-13 (Phase Zero refresh and first security slice)
+
+## 1. Current state, verified from disk
+- Working tree at phase-zero start: CLEAN (`git status --short` returned no entries); this session then added the plan, tests, README cleanup and access-boundary hardening.
+- Branch: `main`.
+- Solid point: `4fd731a feat(scope 4A-3): course-teacher assignment API (admin-only assign/unassign, teacher scoped read)`.
+- Recent Scope 4A sequence: `65265c7` foundation, `db862c5` roles/access split, `4fd731a` course-teacher assignment. The current disk is therefore beyond the older v8 narrative that says Scope 4 is only next.
+- Runtime/config: Next.js 15.5.4, React 19.1.1, TypeScript 5.9.2, PostgreSQL via `pg`, Node engine `24.x`; entrypoint is `app/`, middleware is root `middleware.ts`, database definition is `db/schema.sql` plus `scripts/migrate.ts`.
+- Current schema on disk includes S1, S2, S3, S-R and S4a declarations: student types, subscription periods, files, videos, notifications, course-teacher assignments, guardian linkage, questions, exams, exam_questions and attempts. No separate migrations directory exists; the project uses the documented schema/migrate flow.
+- Current UI/API surface includes `/questions`, questions API, course-teacher API, existing file/video libraries, PWA/offline support, audit, notifications and the established tenant CRUD modules.
+- Verification evidence: `node tests/access-isolation.test.mjs` PASS and `npx tsc --noEmit` PASS after the first security slice. A clean `npm run build` was attempted but produced no output for more than six minutes; overlapping earlier attempts were stopped. No build-success or production-success claim is made.
+- Secrets were not read. Presence of `.env.local` and `.env.vercel-prod` was observed only from directory listing; values remain out of scope and were not transmitted.
+
+## 2. Protected files (carried forward; explicit owner approval required)
+`lib/db.ts`, `lib/auth.ts`, `lib/rateLimit.ts`, `lib/validation.ts`, `lib/audit.ts`, `middleware.ts`, `next.config.ts`, `db/schema.sql`, `scripts/migrate.ts`, `scripts/seed.ts`, `scripts/env.ts`, `components/Shell.tsx`, `components/CrudPage.tsx`, `components/DataTable.tsx`, `app/layout.tsx`, `app/globals.css`, `package.json`, `package-lock.json`, `tsconfig.json`.
+
+## 3. Phase-zero documentation reconciliation
+- Read completely: `AGENTS.md`, `PROJECT-PROTOCOL.md`, `README.md`, `DESIGN.md`, `ROADMAP.md`, `MEMORY.md`, `docs/DEPLOYMENT.md`, `docs/PRODUCT.md`, `audit-out/PASTE-THIS.md`, and `audit-out/session-T/E1-MEMORY-full.md`.
+- Vendor Markdown under `node_modules` was excluded from project-memory interpretation; it is third-party package documentation, not project history.
+- Conflict A: `MEMORY.md` historical sections stop at Scope R/v8, while the current Git history and schema show Scope 4A work. Resolution: preserve the historical record and append this evidence-based addendum; no prior entry was rewritten.
+- Conflict B: `README.md` published demo credentials, while MEMORY records their removal from the login UI and production password rotation. Resolution: the public README line was removed in this session; no environment values or production accounts were touched.
+- Conflict C: `docs/DEPLOYMENT.md` describes a generic deployment sequence, while MEMORY records automatic Vercel deployment from GitHub. Resolution: both are preserved; deployment behavior must be re-verified before the next push rather than assumed.
+
+## 4. New lessons from phase zero
+99. A roadmap/memory can lag the executable tree: use current Git history, schema and entrypoints as evidence, then append a dated reconciliation instead of rewriting prior history.
+100. A credential in documentation is still an exposed credential even when the login UI no longer pre-fills it: README and other public-facing docs require the same secret review as client code.
+101. “Current” deployment behavior must be proven from the serving platform; generic deployment instructions and old session claims cannot substitute for a fresh live check.
+102. Build evidence is invalid when multiple builds share a dirty generated cache: stop overlapping processes, isolate one run, and distinguish an execution/environment hang from a code failure.
+103. Authorization helpers must carry tenant identity in their inputs and SQL joins; a user id alone is insufficient evidence of ownership in a multi-tenant system.
+
+## 5. Proposed roadmap for owner decision (not approved)
+| Scope | Value | Risk | Effort | Priority | Status / decision needed |
+|---|---|---|---|---|---|
+| 4A closeout: question-bank and teacher-access hardening | Makes the current exam foundation safe and usable for staff | High: tenant/RBAC leakage or incomplete audit could expose content | Medium | P0 | Current implementation; owner chooses closeout acceptance criteria |
+| 4B: exam authoring, composition and attempt flow | Delivers the core GAT/Achievement product loop | High: schema, timer/autosave, mobile and scoring correctness | High | P0 | Proposed next product scope |
+| Security/documentation credential cleanup | Removes the README demo-credential hazard and verifies all public surfaces | Medium/High: accidental secret disclosure or stale docs | Small | P0 | Owner approval needed for doc edit and credential policy |
+| 4C: Excel/CSV question import with structural validation | Populates the question bank without manual entry | High: malformed media/options and broken dependencies | Medium | P1 | Proposed parallel slice; needs source format decision |
+| Student/guardian portal (Scope S) | Activates student delivery, notifications and mobile learning | High: identity linkage and privacy boundaries | High | P1 | Deferred until exam core contract is stable |
+| Assignments + gradebook (Scope 5) | Completes learning operations and reporting inputs | Medium/High: grading permissions and data integrity | High | P2 | Depends on exam/student models |
+| Activation codes, subscriptions and advanced reports (Scope 6) | Monetization and operational scale | High: billing/webhook correctness and reporting trust | High | P2 | Deferred until usage model is approved |
+| Blob usage monitor / audit unification / npm audit review | Reduces operational and security backlog | Medium | Small-Medium | P1 | Maintenance track; never use `npm audit fix --force` |
+
+## 6. Phase-zero completion state
+- Done with evidence: all project Markdown read; protocol and agent rules loaded; package/config/schema/entrypoints inventoried; Git state checked; secrets excluded; protected list carried forward; roadmap conflicts surfaced; first tenant-boundary patch and source guard test added; public README credential removed.
+- Ready for owner discussion: choose the first approved scope and acceptance criteria from the table above.
+- Pending owner decisions: whether to address the README credential text immediately; whether Scope 4A is accepted as a closeout or proceeds directly to 4B; the exact import source format; which production proof is required for the next scope.
+- Deferred by evidence: clean production build, deployment behavior re-check, database migration/backup work, and live verification. Current uncommitted files are intentional and must not be pushed until the gate is green.
+
+---
+
+# MEMORY v10 UPDATE - 2026-10-13 (Assessment vertical slice; uncommitted)
+
+## Implemented on disk
+- Exam contract and staff authoring: `lib/exam-contract.ts`, `/api/exams`, `/api/exams/[id]`, and `/exams` UI. Exams are tenant-scoped, course-access scoped, question-validated and created in a transaction.
+- Identity boundary: `students.student_user_id` plus a tenant-partial unique index in `db/schema.sql`; user creation can transactionally link a student or guardian account only to a student in the current tenant.
+- Learner boundary: `/api/learner/me` exposes only the authenticated student's own record or the guardian's explicitly linked children.
+- Attempt boundary: `/api/attempts` and `/api/attempts/[id]` allow only student accounts, require a linked student and active enrollment for course exams, keep attempts tenant/user scoped, autosave only allowed question ids, and calculate scores server-side on submit.
+- Learner UI: `/portal` and `/api/learner/exams` provide a student-only, enrollment-filtered entry point to available exams; middleware now includes the portal, question-bank and exam surfaces in the authenticated matcher.
+- Attempt UI: `/portal/attempts/[id]` provides timed question navigation, autosave, server-side submit, and review data only after `finished_at` is set.
+- Role boundary: `middleware.ts` now denies student/guardian access outside the learner portal APIs, permits student attempts only for student roles, blocks teacher mutations on administrative CRUD prefixes, and leaves endpoint-level tenant checks in place as the final authorization layer.
+- Learning operations: S5 schema foundation adds tenant-scoped `assignments` and `submissions`; APIs support teacher/admin creation, enrollment-scoped student submission, and course-scoped teacher grading. `/assignments` provides staff creation/listing and `/portal` exposes student submission UI.
+- Progress intelligence: `/api/learner/progress` computes self/explicit-child scoped attempts, average scores, assignment completion/grades and course counts; the portal displays these metrics without trusting client-supplied ids.
+- Identity UI: `/users` now offers student and guardian roles only with an explicit same-tenant student record selected; the API performs the transactional lock and uniqueness checks.
+- Tests currently passing: access isolation, exam route isolation, identity linking, learner/attempt isolation, and runtime exam-contract validation; `npx tsc --noEmit` passes.
+
+## Migration and release state
+- `db/schema.sql` changed and therefore requires the project's local migration plus production backup/migration workflow before any live attempt or account-link flow can be claimed.
+- The current working tree is intentionally uncommitted. Full build/pre-push gate remains unresolved because Next build consumes CPU and writes artifacts but does not return an exit code in the available Windows runtime window.
+- A diagnostic `generate` run produced a concrete `PageNotFoundError` because it was invoked before recompiling newly added dynamic routes; the correct `compile` phase is still too slow to complete within the available run window. This is recorded as a build-verification limitation, not a code-success claim.
+- No production data was read or mutated and no live proof exists for this slice.
+
+---
+
+# MEMORY v11 UPDATE - 2026-10-13 (Question import dry-run)
+
+## Verified addition
+- Added `lib/question-import.ts` with BOM-aware CSV parsing, quoted-field handling, taxonomy validation, option-count and correct-index checks, difficulty validation, and explicit `READY`/`DISABLED` row status.
+- Added `POST /api/questions/import` as a staff-only, tenant-authenticated dry-run endpoint. It validates and reports rows without writing database records.
+- Added `tests/question-import.test.ts`; it proves valid rows are ready and malformed rows are disabled with issues instead of being deleted.
+- Evidence: `npx tsx tests/question-import.test.ts` returned `PASS: question CSV dry-run validates and disables invalid rows`; `npx tsc --noEmit` exited `0`.
+
+## Release state
+- This is a non-mutating preparation slice. No imported content was applied to any database, and no tenant-owned data was accessed.
+- Full Next build and pre-push gate remain unresolved; therefore this slice is not committed, pushed, migrated, or declared production-ready.
+
+---
+
+# MEMORY v12 UPDATE - 2026-10-13 (Gradebook operation slice)
+
+## Verified addition
+- Added `GET /api/assignments/[id]/submissions`, which resolves the assignment inside the current tenant, checks the teacher's course assignment through `canAccessCourse`, and joins submissions to students with tenant predicates on every relation.
+- Extended `/assignments` with a staff gradebook: select an assignment, inspect submitted answers, enter a bounded grade and feedback, and save through the existing audited grading mutation.
+- Added `tests/gradebook-isolation.test.mjs`.
+- Evidence: gradebook isolation test PASS, question import test PASS, `npx tsc --noEmit` exit `0`, and `git diff --check` returned no errors (only Windows line-ending warnings).
+
+## Release state
+- No production data was read or changed. The new gradebook remains uncommitted and has no live proof until the full build gate, migration workflow, commit whitelist and deployment verification are completed.
+
+---
+
+# MEMORY v13 UPDATE - 2026-10-13 (Guardian portal boundary)
+
+## Verified addition
+- Learner exam listing and assignment listing now accept `student` and `guardian` sessions, selecting the link column by role and retaining tenant predicates.
+- The guardian portal displays linked children’s exam and assignment status as read-only; only student accounts can start attempts or submit assignments.
+- Assignment cards include the linked student identity, preventing ambiguity when one guardian has multiple children.
+- Added `tests/guardian-portal-isolation.test.mjs`.
+- Evidence: guardian isolation test PASS, `npx tsc --noEmit` exit `0`, and `git diff --check` returned no errors.
+
+## Release state
+- No database or production data was touched. Build, migration, release gate and live proof remain pending.
+
+## New lesson
+104. When a role-aware query deliberately changes from a fixed identity column to a validated dynamic link column, source regression tests must assert the authorization invariant (tenant plus selected link) rather than freeze one role’s implementation detail.
+
+## Build gate update
+- A single Node 24 `next build` attempt was run after the guardian and gradebook slices. It produced the normal Next environment header, consumed CPU for approximately six minutes, emitted no progress or error, and was stopped after confirming no new `.next` artifacts were being written. This is an unresolved environment/build-runner limitation, not a green result.
+- Full focused tests remain green after correcting the two stale role-specific source assertions.
+
+---
+
+# MEMORY v14 UPDATE - 2026-10-13 (CSV import apply)
+
+## Verified addition
+- Added `/api/questions/import/apply`, which reparses the submitted CSV on the server, rejects oversized batches, applies only `READY` rows, validates every effective course through the authenticated role and tenant, inserts all rows in one transaction, and records an audit event.
+- Extended `/questions` with a CSV dry-run/apply panel. Invalid rows remain disabled and are never inserted.
+- Added `tests/question-import-apply-isolation.test.mjs`.
+- Evidence: apply isolation test PASS, dry-run parser test PASS, `npx tsc --noEmit` exit `0`, and `git diff --check` returned no errors.
+
+## Release state
+- This flow has not been run against a real database. Schema migration, full Next build, commit/push and live proof remain pending.
+
+---
+
+# MEMORY v15 UPDATE - 2026-10-13 (Learning analytics)
+
+## Verified addition
+- Added `/api/reports/learning`, restricted to admin roles or teachers, with teacher course assignment filtering, tenant predicates, optional course filtering, and separate exam/attempt and assignment/submission aggregates.
+- Added `/reports/learning` RTL staff page and navigation entry. Teachers can access this learning report while remaining blocked from finance and administrative reports.
+- Evidence: learning-report isolation test PASS, middleware role test PASS, `npx tsc --noEmit` exit `0`, and `git diff --check` returned no errors.
+
+## Release state
+- No live database query or production proof has been performed. Build remains unresolved; lint is also currently unavailable because ESLint is not declared or installed.
+
+---
+
+# MEMORY v16 UPDATE - 2026-10-13 (Release gate artifact)
+
+## Verified addition
+- Added `scripts/deploy-check-v1.ps1` as an ASCII PowerShell gate with byte-level mojibake checks, TypeScript check, production build invocation, `git diff --check`, unstaged deletion detection, and uncommitted source detection.
+- The gate has not been declared green: the production build invocation remains the known long-running blocker, and the current working tree intentionally contains uncommitted implementation files.
+- `npm run lint` was attempted and failed immediately because `eslint` is not installed or declared; this remains an explicit release-quality gap rather than a silently skipped check.
+- The sensitive-string audit found legacy demo credentials in seed/test tooling (`scripts/` and root integration scripts), while the public `README.md` demo login was removed. These references remain a documented cleanup item; no environment secret was opened or transmitted.
+
+---
+
+# MEMORY v17 UPDATE - 2026-10-13 (Media access isolation)
+
+## Verified addition
+- Hardened files and videos listing so teachers see only assigned-course content plus their own unassigned uploads; all queries remain tenant-scoped.
+- Hardened file/video prepare and completion flows so teachers must provide an assigned course, course access is checked server-side, and group/course mismatches are rejected.
+- Added `tests/media-isolation.test.mjs`.
+- Evidence: media isolation test PASS, `npx tsc --noEmit` exit `0`, and `git diff --check` returned no errors.
+
+## Release state
+- No media storage or production records were accessed. Full build, migration, commit/push and live proof remain pending.
+
+---
+
+# MEMORY v18 UPDATE - 2026-10-13 (External AI timeout)
+
+## Verified addition
+- Added `AbortSignal.timeout(15000)` to the external AI provider request so a slow or unavailable provider falls back through the existing error path instead of holding the request indefinitely.
+- Added `tests/external-timeout.test.mjs`.
+- Evidence: timeout test PASS, `npx tsc --noEmit` exit `0`, and `git diff --check` returned no errors.
+
+---
+
+# MEMORY v19 UPDATE - 2026-10-13 (Lesson sequencing)
+
+## Verified addition
+- Added S6 schema tables `course_lessons` and `lesson_progress`, with tenant foreign keys, ordered lessons, published state, and unique per-student progress.
+- Added staff lesson CRUD and a responsive `/lessons` page. Teachers are limited to assigned courses.
+- Added learner lesson listing and student-only progress mutation. Guardians can observe linked-child progress but cannot mark lessons complete.
+- Added `/portal` lesson progress cards and graceful fallback when the new table is not yet migrated.
+- Added `tests/lesson-isolation.test.mjs`.
+- Evidence: lesson isolation test PASS, `npx tsc --noEmit` exit `0`, and `git diff --check` returned no errors.
+
+## Release state
+- S6 schema is not migrated locally or in production. No live lesson data was accessed. Full build and release proof remain pending.
+
+## Build evidence update
+- A fresh single `next build --no-lint --debug` after S6 printed only the lint-disabled warning and Next environment header, then produced no output for approximately two minutes. It was stopped with exit `1`; no success or code failure was inferred.
+
+---
+
+# MEMORY v20 UPDATE - 2026-10-13 (Clean build and local migration)
+
+## Verified release evidence
+- Archived the stale generated `.next` cache under `_archive/` and added `_archive` to `.gitignore` and `tsconfig.json` exclusion. The first clean build correctly exposed the archive-inclusion issue; after the exclusion, the second clean build completed with exit `0`, compiled successfully, checked types, generated 78 static pages, collected traces and finalized optimization.
+- Created a correct recovery dump for the application database at `_archive/training-center-local-20261013-after-s6-migration.dump` (86,822 bytes). The first dump was from the wrong local container and is not counted as the required pre-migration backup.
+- Ran `npm run db:migrate` successfully against the application’s local `localhost:5432/training_center` database. Schema-only verification confirmed `course_lessons`, `lesson_progress`, and `students` exist.
+- Staged the explicit whitelist in an alternate Git index because the normal index could not be written. Git then failed to update `refs/heads/main`; no commit was created. No push was attempted.
+- Local runtime smoke proof: `next start -p 3100` reported Ready; `GET /api/health` returned HTTP 200 with `{"status":"ok","database":"ok"}`; `GET /` returned HTTP 200 and HTML. The local server was stopped after verification.
+
+## New lessons
+105. A generated build archive inside the repository must be excluded from TypeScript; `.gitignore` alone does not prevent `**/*.ts` from type inclusion.
+106. A successful migration is only evidence for the database actually named by the application environment; container names must be resolved from the host/port mapping, never guessed.
+
+---
+
+# MEMORY v21 UPDATE - 2026-10-13 (PR and preview evidence)
+
+## Remote state
+- Pull Request `#1` is open from `codex/platform-completion` to `main`: `https://github.com/ahmed4attya/markazak-saas/pull/1`.
+- GitHub reports Vercel Preview and Vercel Preview Comments as successful for commit `c6945e721fe4b49cb06f5c26fb5f6f6209061781`.
+- The preview deployment URL is `https://markazak-saas-jvy88t99g-ahmed4attyas-projects.vercel.app`.
+- Direct smoke requests to the preview receive Vercel Authentication HTML (HTTP 200) rather than the app’s health JSON; no bypass credential was accessed or used. Therefore preview runtime behavior is not claimed as live application proof.
+
+## Release state
+- Local build/runtime/migration evidence is green. Production migration and authenticated live proof remain pending; PR merge is not performed automatically.
+
+---
+
+# MEMORY v22 UPDATE - 2026-10-13 (Activation codes)
+
+## Verified addition
+- Added S7 schema tables `activation_codes` and `student_entitlements`, with tenant foreign keys, hashed codes, usage limits and per-student uniqueness.
+- Added admin-only activation-code creation/listing and a student-only transactional redemption endpoint with row locks, expiry and usage enforcement.
+- Added `/activation-codes` administration UI and student portal redemption form.
+- Added `tests/activation-isolation.test.mjs`.
+- Evidence: activation isolation test PASS, `npx tsc --noEmit` exit `0`, `git diff --check` clean, pre-S7 local DB backup created (86,822 bytes), migration succeeded, and schema-only verification found both new tables.
+
+## Release state
+- S7 is applied only to the local application database. Production migration and authenticated live proof remain pending.
+
