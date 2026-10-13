@@ -1,6 +1,6 @@
-import {NextRequest,NextResponse} from 'next/server'
+﻿import {NextRequest,NextResponse} from 'next/server'
 import {jwtVerify} from 'jose'
-function resolveAuthSecret(){const s=process.env.AUTH_SECRET;if(s&&s.length>=32)return s;if(process.env.NODE_ENV==='production')throw new Error('AUTH_SECRET غير مضبوط أو أقصر من 32 حرف. حدد قيمة عشوائية قوية (32+ حرف) في متغيرات البيئة قبل تشغيل production.');return s||'dev-only-insecure-secret-change-me-before-prod'}
+function resolveAuthSecret(){const s=process.env.AUTH_SECRET;if(s&&s.length>=32)return s;if(process.env.NODE_ENV==='production')throw new Error('AUTH_SECRET missing or under 32 chars. Set a strong random value (32+ chars) in environment variables before production.');return s||'dev-only-insecure-secret-change-me-before-prod'}
 const secret=new TextEncoder().encode(resolveAuthSecret())
 export async function middleware(req:NextRequest){
   const path=req.nextUrl.pathname;
@@ -21,7 +21,13 @@ export async function middleware(req:NextRequest){
     if(isLearner&&!learnerAllowed){if(isApi)return NextResponse.json({error:'forbidden'},{status:403});return NextResponse.redirect(new URL('/portal',req.url))}
     if((role==='teacher'&&hasPrefix(teacherAdminOnly))||teacherAdminReport){if(isApi)return NextResponse.json({error:'forbidden'},{status:403});return NextResponse.redirect(new URL('/dashboard',req.url))}
     if(role==='teacher'&&method!=='GET'&&hasPrefix(teacherMutationBlocked))return NextResponse.json({error:'forbidden'},{status:403});
-    return NextResponse.next();
+    const res=NextResponse.next();
+    res.headers.set('X-Frame-Options','DENY');
+    res.headers.set('X-Content-Type-Options','nosniff');
+    res.headers.set('Referrer-Policy','strict-origin-when-cross-origin');
+    res.headers.set('Permissions-Policy','camera=(), microphone=(), geolocation=()');
+    res.headers.set('Strict-Transport-Security','max-age=63072000; includeSubDomains; preload');
+    return res;
   }catch{if(path.startsWith('/api/'))return NextResponse.json({error:'unauthorized'},{status:401});return NextResponse.redirect(new URL('/login',req.url))}
 }
 export const config={matcher:['/dashboard/:path*','/students/:path*','/teachers/:path*','/courses/:path*','/groups/:path*','/attendance/:path*','/finance/:path*','/certificates/:path*','/reports/:path*','/ai/:path*','/users/:path*','/plans/:path*','/activation-codes/:path*','/settings/:path*','/questions/:path*','/exams/:path*','/lessons/:path*','/portal/:path*','/api/:path*']}
