@@ -28,6 +28,9 @@ const groups: NavGroup[] = [
       ['/library', 'مكتبة الملفات', FolderOpen],
       ['/videos', 'مكتبة الفيديو', MonitorPlay],
       ['/questions', 'بنك الأسئلة', HelpCircle],
+      ['/exams', 'الامتحانات والمحاكاة', ClipboardList],
+      ['/assignments', 'الواجبات والدرجات', ClipboardList],
+      ['/lessons', 'محتوى الدورات', BookOpen],
       ['/finance', 'الفواتير والمدفوعات', Wallet],
       ['/certificates', 'الشهادات', FileBadge],
     ],
@@ -37,6 +40,7 @@ const groups: NavGroup[] = [
     items: [
       ['soon:analytics', 'التحليلات', TrendingUp],
       ['/reports', 'التقارير', BarChart3],
+      ['/reports/learning', 'تحليلات التعلم', TrendingUp],
       ['/ai', 'المساعد الذكي', Brain],
     ],
   },

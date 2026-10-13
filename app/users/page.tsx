@@ -12,6 +12,7 @@ type User = {
   active: boolean;
   last_login_at?: string;
 };
+type Student = { id: string; name: string; student_no: string };
 
 const roles = [
   ['admin', 'مدير النظام'],
@@ -19,10 +20,13 @@ const roles = [
   ['staff', 'موظف'],
   ['teacher', 'مدرب'],
   ['accountant', 'محاسب'],
+  ['student', 'طالب'],
+  ['guardian', 'ولي أمر'],
 ];
 
 export default function Users() {
   const [users, setUsers] = useState<User[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -34,6 +38,7 @@ export default function Users() {
     password: '',
     phone: '',
     role: 'staff',
+    studentId: '',
   });
 
   async function load() {
@@ -46,6 +51,8 @@ export default function Users() {
       if (!r.ok) throw new Error(j.error || 'تعذر تحميل المستخدمين');
 
       setUsers(j);
+      const studentsResponse = await fetch('/api/students', { cache: 'no-store' });
+      if (studentsResponse.ok) setStudents(await studentsResponse.json());
     } catch (e: any) {
       setError(e.message || 'حدث خطأ');
     } finally {
@@ -82,6 +89,7 @@ export default function Users() {
         password: '',
         phone: '',
         role: 'staff',
+        studentId: '',
       });
 
       setShowForm(false);
@@ -195,6 +203,22 @@ export default function Users() {
                 ))}
               </select>
             </label>
+
+            {(form.role === 'student' || form.role === 'guardian') && (
+              <label>
+                سجل الطالب المرتبط
+                <select
+                  value={form.studentId}
+                  onChange={e => setForm({ ...form, studentId: e.target.value })}
+                  required
+                >
+                  <option value="">اختر الطالب</option>
+                  {students.map(student => (
+                    <option key={student.id} value={student.id}>{student.name} — {student.student_no}</option>
+                  ))}
+                </select>
+              </label>
+            )}
 
             <div>
               <button className="primary" disabled={saving}>

@@ -44,3 +44,6 @@ tools/session-T/
 .env.vercel-prod
 tools/session-P/
 tools/session-R/
+
+# Recoverable generated build archives
+_archive/

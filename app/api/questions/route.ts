@@ -17,7 +17,7 @@ export async function GET(req: Request) {
   const vals: any[] = [s.tenantId];
   if (!isAdminRole(s.role)) {
     if (s.role !== 'teacher') return NextResponse.json({ error: 'forbidden' }, { status: 403 });
-    const ids = await teacherCourseIds(s.userId);
+    const ids = await teacherCourseIds(s.userId, s.tenantId);
     if (!ids.length) return NextResponse.json([]);
     vals.push(ids);
     sql += ' and (course_id = ANY($' + vals.length + ') or (course_id is null and created_by=$' + (vals.length + 1) + '))';
@@ -71,7 +71,9 @@ export async function DELETE(req: Request) {
   const rows = (await query('select * from questions where id=$1 and tenant_id=$2', [id, s.tenantId])).rows;
   if (!rows.length) return NextResponse.json({ error: 'السؤال غير موجود' }, { status: 404 });
   const q = rows[0];
-  const allowed = isAdminRole(s.role) || String(q.created_by || '') === s.userId;
+  const allowed = isAdminRole(s.role)
+    ? true
+    : String(q.created_by || '') === s.userId && (!q.course_id || await canAccessCourse(s, String(q.course_id)));
   if (!allowed) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
   await query('delete from questions where id=$1', [id]);
   await logAudit({ tenantId: s.tenantId, userId: s.userId, action: 'question.delete', entity: 'question', entityId: id });

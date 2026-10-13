@@ -190,6 +190,7 @@ export async function POST(req: Request) {
     ) {
       const response = await fetch(process.env.AI_API_URL, {
         method: 'POST',
+        signal: AbortSignal.timeout(15000),
         headers: {
           'content-type': 'application/json',
           authorization: `Bearer ${process.env.AI_API_KEY}`,

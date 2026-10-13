@@ -1,0 +1,37 @@
+# Execution checklist
+
+- [x] Phase 1 / identity-access: inventory current policy helpers and identify untested boundaries.
+- [x] Phase 1 / identity-access: add an initial source-level isolation regression test for tenant and teacher boundaries.
+- [x] Phase 1 / identity-access: harden the smallest reusable policy boundary and make the regression test pass.
+- [x] Phase 1 / docs: remove demo credentials from public documentation after byte-safe verification.
+- [x] Phase 2 / identity: add tenant-scoped student/guardian account links to the schema contract.
+- [x] Phase 2 / assessment: add tenant-scoped exam authoring API and staff UI.
+- [x] Phase 2 / assessment: add student self-scoped learner summary and enrollment-gated attempt lifecycle.
+- [x] Phase 2 / learner: add session-gated student portal and enrollment-filtered exam list.
+- [x] Phase 2 / assessment: add responsive attempt screen with navigation, autosave, timed expiry and post-submit review.
+- [x] Phase 1 / identity-access: add middleware role boundary for learner read-only portal and teacher mutation denial.
+- [x] Phase 3 / learning-operations: add tenant-scoped assignments, submissions and teacher grading APIs.
+- [x] Phase 3 / learning-operations: add staff assignment UI and student portal submission flow.
+- [x] Phase 5 / intelligence: add self/guardian-scoped learning progress metrics to the student portal.
+- [x] Phase 1 / identity-access: expose explicit student/guardian linking in administration UI.
+- [x] Phase 3 / content: add CSV question-import dry-run with structural validation and DISABLED invalid rows.
+- [x] Phase 3 / content: add atomic server-validated CSV question import apply flow and staff UI.
+- [x] Phase 4 / learning-operations: add tenant/course-scoped gradebook read API and responsive staff grading UI.
+- [x] Phase 5 / learner-experience: enable guardian-linked read-only portal data while keeping attempts and submissions student-only.
+- [x] Phase 5 / intelligence: add tenant/course-scoped learning analytics for admin and assigned teachers.
+- [x] Release engineering: add PowerShell deploy-check-v1 gate for encoding, types, build, diff and source cleanliness.
+- [x] Phase 3 / content-security: scope teacher file and video reads/uploads to assigned tenant courses and validate course/group consistency.
+- [x] Security/operations: bound external AI provider requests with a server-side timeout and regression test.
+- [x] Phase 3 / content: add sequenced course lessons, published learner access, and student progress tracking.
+- [ ] Checkpoint 1: tsc, build, gate, focused tests, review diff, commit whitelist.
+- [ ] Phase 2 / assessment: question taxonomy and validation contract.
+- [ ] Phase 2 / assessment: exam composition and teacher workflow.
+- [ ] Phase 2 / assessment: timed attempt lifecycle and autosave.
+- [ ] Phase 2 / assessment: scoring, review and explanation.
+- [ ] Checkpoint 2: database backup/migration proof, tests, build, RTL mobile proof.
+- [ ] Phase 3 / content: lesson sequencing and import dry-run.
+- [ ] Phase 4 / learning-operations: assignments, submissions and gradebook.
+- [ ] Phase 5 / learner-experience: student portal and guardian portal.
+- [ ] Phase 6 / monetization: activation codes, entitlements and webhook reconciliation.
+- [ ] Phase 6 / intelligence: reports, search, exports and usage monitor.
+- [ ] Final checkpoint: production proof for all critical journeys and MEMORY update.

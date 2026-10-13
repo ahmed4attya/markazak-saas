@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { query, safeError } from '@/lib/db';
+import { query, safeError, withTx } from '@/lib/db';
 import { getSession, isAdmin } from '@/lib/auth';
 import { isAdminRole } from '@/lib/roles';
 import { logAudit } from '@/lib/audit';
@@ -57,9 +57,10 @@ export async function POST(req: Request) {
   const email = String(body.email || '').trim().toLowerCase();
   const password = String(body.password || '');
   const phone = String(body.phone || '').trim();
-  const role = ['admin', 'manager', 'staff', 'teacher', 'accountant'].includes(body.role)
+  const role = ['admin', 'manager', 'staff', 'teacher', 'accountant', 'student', 'guardian'].includes(body.role)
     ? body.role
     : 'staff';
+  const studentId = body.studentId ? String(body.studentId) : '';
 
   if (!name || !email || password.length < 8) {
     return NextResponse.json(
@@ -68,51 +69,34 @@ export async function POST(req: Request) {
     );
   }
 
+  if ((role === 'student' || role === 'guardian') && !studentId) {
+    return NextResponse.json({ error: 'حساب الطالب أو ولي الأمر يحتاج ربطاً بسجل طالب' }, { status: 400 });
+  }
+
   try {
-    const exists = await query(
-      `select id from users where lower(email) = lower($1) limit 1`,
-      [email]
-    );
-
-    if (exists.rows.length) {
-      return NextResponse.json(
-        { error: 'البريد الإلكتروني مستخدم بالفعل' },
-        { status: 409 }
-      );
-    }
-
     const passwordHash = await bcrypt.hash(password, 12);
-
-    const result = await query(
-      `
-        insert into users (
-          tenant_id,
-          email,
-          name,
-          password_hash,
-          role,
-          phone,
-          active
-        )
-        values ($1,$2,$3,$4,$5,$6,true)
-        returning
-          id,
-          name,
-          email,
-          phone,
-          role,
-          active,
-          created_at
-      `,
-      [
-        s.tenantId,
-        email,
-        name,
-        passwordHash,
-        role,
-        phone,
-      ]
-    );
+    const result = await withTx(async (client) => {
+      const exists = await client.query(`select id from users where lower(email) = lower($1) limit 1`, [email]);
+      if (exists.rows.length) throw Object.assign(new Error('البريد الإلكتروني مستخدم بالفعل'), { code: '23505' });
+      if (role === 'student' || role === 'guardian') {
+        const student = await client.query(
+          `select id, student_user_id, guardian_user_id from students where id=$1 and tenant_id=$2 for update`,
+          [studentId, s.tenantId]
+        );
+        if (!student.rows.length) throw Object.assign(new Error('سجل الطالب غير موجود'), { code: '23503' });
+        if (role === 'student' && student.rows[0].student_user_id) throw Object.assign(new Error('للطالب حساب مرتبط بالفعل'), { code: '23505' });
+        if (role === 'guardian' && student.rows[0].guardian_user_id) throw Object.assign(new Error('للطالب ولي أمر مرتبط بالفعل'), { code: '23505' });
+      }
+      const inserted = await client.query(
+        `insert into users (tenant_id,email,name,password_hash,role,phone,active)
+         values ($1,$2,$3,$4,$5,$6,true)
+         returning id,name,email,phone,role,active,created_at`,
+        [s.tenantId, email, name, passwordHash, role, phone]
+      );
+      if (role === 'student') await client.query('update students set student_user_id=$1, updated_at=now() where id=$2 and tenant_id=$3', [inserted.rows[0].id, studentId, s.tenantId]);
+      if (role === 'guardian') await client.query('update students set guardian_user_id=$1, updated_at=now() where id=$2 and tenant_id=$3', [inserted.rows[0].id, studentId, s.tenantId]);
+      return inserted;
+    });
 
     await logAudit({
       tenantId: s.tenantId,
@@ -151,7 +135,7 @@ export async function PATCH(req: Request) {
   }
 
   const role = body.role
-    ? ['admin', 'manager', 'staff', 'teacher', 'accountant'].includes(body.role)
+    ? ['admin', 'manager', 'staff', 'teacher', 'accountant', 'student', 'guardian'].includes(body.role)
       ? body.role
       : null
     : null;
