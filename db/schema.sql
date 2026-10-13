@@ -50,3 +50,13 @@ create table if not exists exams(id uuid primary key default gen_random_uuid(),t
 create table if not exists exam_questions(exam_id uuid references exams(id) on delete cascade,question_id uuid references questions(id) on delete cascade,position int,primary key(exam_id,question_id));
 create table if not exists attempts(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,exam_id uuid references exams(id) on delete cascade,user_id uuid references users(id) on delete set null,answers jsonb,score numeric,total int,started_at timestamptz default now(),finished_at timestamptz);
 create index if not exists attempts_exam on attempts(exam_id);
+
+
+-- S1: student identity link (Scope S-1, DEC-062)
+alter table students add column if not exists user_id uuid references users(id) on delete set null;
+create unique index if not exists students_user_id_unique on students(user_id) where user_id is not null;
+
+
+-- S1: student identity link (Scope S-1, DEC-062)
+alter table students add column if not exists user_id uuid references users(id) on delete set null;
+create unique index if not exists students_user_id_unique on students(user_id) where user_id is not null;
