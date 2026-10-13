@@ -562,3 +562,16 @@ npm audit backlog (11; never --force) / tsconfig paste optional / lessons 1-12 r
 105. A generated build archive inside the repository must be excluded from TypeScript; `.gitignore` alone does not prevent `**/*.ts` from type inclusion.
 106. A successful migration is only evidence for the database actually named by the application environment; container names must be resolved from the host/port mapping, never guessed.
 
+---
+
+# MEMORY v21 UPDATE - 2026-10-13 (PR and preview evidence)
+
+## Remote state
+- Pull Request `#1` is open from `codex/platform-completion` to `main`: `https://github.com/ahmed4attya/markazak-saas/pull/1`.
+- GitHub reports Vercel Preview and Vercel Preview Comments as successful for commit `c6945e721fe4b49cb06f5c26fb5f6f6209061781`.
+- The preview deployment URL is `https://markazak-saas-jvy88t99g-ahmed4attyas-projects.vercel.app`.
+- Direct smoke requests to the preview receive Vercel Authentication HTML (HTTP 200) rather than the app’s health JSON; no bypass credential was accessed or used. Therefore preview runtime behavior is not claimed as live application proof.
+
+## Release state
+- Local build/runtime/migration evidence is green. Production migration and authenticated live proof remain pending; PR merge is not performed automatically.
+
