@@ -15,9 +15,6 @@ export async function GET() {
     return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
 
   }
-  const rl = rateLimit('users-create:' + s.userId, 3, 3600000);
-  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } });
-
   try {
     const result = await query(
       `
@@ -55,6 +52,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'الصلاحية دي للإدارة بس' }, { status: 403 });
   }
 
+  const rl = rateLimit('users-create:' + s.userId, 3, 3600000);
+  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } });
+
   const body = await req.json();
 
   const name = String(body.name || '').trim();
@@ -84,11 +84,11 @@ export async function POST(req: Request) {
       if (exists.rows.length) throw Object.assign(new Error('البريد الإلكتروني مستخدم بالفعل'), { code: '23505' });
       if (role === 'student' || role === 'guardian') {
         const student = await client.query(
-          `select id, student_user_id, guardian_user_id from students where id=$1 and tenant_id=$2 for update`,
+          `select id, user_id, guardian_user_id from students where id=$1 and tenant_id=$2 for update`,
           [studentId, s.tenantId]
         );
         if (!student.rows.length) throw Object.assign(new Error('سجل الطالب غير موجود'), { code: '23503' });
-        if (role === 'student' && student.rows[0].student_user_id) throw Object.assign(new Error('للطالب حساب مرتبط بالفعل'), { code: '23505' });
+        if (role === 'student' && student.rows[0].user_id) throw Object.assign(new Error('للطالب حساب مرتبط بالفعل'), { code: '23505' });
         if (role === 'guardian' && student.rows[0].guardian_user_id) throw Object.assign(new Error('للطالب ولي أمر مرتبط بالفعل'), { code: '23505' });
       }
       const inserted = await client.query(
@@ -97,7 +97,7 @@ export async function POST(req: Request) {
          returning id,name,email,phone,role,active,created_at`,
         [s.tenantId, email, name, passwordHash, role, phone]
       );
-      if (role === 'student') await client.query('update students set student_user_id=$1, updated_at=now() where id=$2 and tenant_id=$3', [inserted.rows[0].id, studentId, s.tenantId]);
+      if (role === 'student') await client.query('update students set user_id=$1, updated_at=now() where id=$2 and tenant_id=$3', [inserted.rows[0].id, studentId, s.tenantId]);
       if (role === 'guardian') await client.query('update students set guardian_user_id=$1, updated_at=now() where id=$2 and tenant_id=$3', [inserted.rows[0].id, studentId, s.tenantId]);
       return inserted;
     });

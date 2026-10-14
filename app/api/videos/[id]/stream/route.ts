@@ -1,4 +1,4 @@
-﻿// Session-gated Range passthrough: the Blob URL never leaves the server.
+// Session-gated Range passthrough: the Blob URL never leaves the server.
 // video.play is audited once per initial load (no Range, or Range starts at 0).
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
@@ -12,6 +12,19 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const rows = (await query('select * from videos where id=$1 and tenant_id=$2', [id, s.tenantId])).rows;
   if (!rows.length) return NextResponse.json({ error: 'الفيديو غير موجود' }, { status: 404 });
   const row = rows[0];
+  if (s.role === 'student' || s.role === 'guardian') {
+    const linked = (await query(
+      `select 1 from videos v
+       join courses c on c.id = v.course_id
+       join groups g on g.course_id = c.id
+       join enrollments e on e.group_id = g.id
+       join students st on st.id = e.student_id
+       where v.id = $1 and v.tenant_id = $2 and (st.user_id = $3 or st.guardian_user_id = $3)
+       limit 1`,
+      [id, s.tenantId, s.userId]
+    )).rows.length;
+    if (!linked) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
   const range = req.headers.get('range') || '';
   let upstream: Response;
   try {

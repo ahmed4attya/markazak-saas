@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Shell from '@/components/Shell';
 import { useEffect, useState } from 'react';
@@ -19,6 +19,8 @@ const roles = [
   ['staff', 'موظف'],
   ['teacher', 'مدرب'],
   ['accountant', 'محاسب'],
+  ['student', 'طالب (بوابة)'],
+  ['guardian', 'ولي أمر (بوابة)'],
 ];
 
 export default function Users() {
@@ -34,7 +36,17 @@ export default function Users() {
     password: '',
     phone: '',
     role: 'staff',
+    studentId: '',
   });
+  const [students, setStudents] = useState<{ id: string; name: string; student_no: string }[]>([]);
+
+  useEffect(() => {
+    if (form.role !== 'student' && form.role !== 'guardian') return;
+    fetch('/api/students', { cache: 'no-store' })
+      .then(r => (r.ok ? r.json() : []))
+      .then(d => { if (Array.isArray(d)) setStudents(d); })
+      .catch(() => {});
+  }, [form.role]);
 
   async function load() {
     setLoading(true);
@@ -67,7 +79,7 @@ export default function Users() {
       const r = await fetch('/api/users', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, studentId: form.role === 'student' || form.role === 'guardian' ? form.studentId : undefined }),
       });
 
       const j = await r.json();
@@ -82,6 +94,7 @@ export default function Users() {
         password: '',
         phone: '',
         role: 'staff',
+        studentId: '',
       });
 
       setShowForm(false);
@@ -167,7 +180,7 @@ export default function Users() {
               كلمة المرور
               <input
                 type="password"
-                minLength={6}
+                minLength={8}
                 value={form.password}
                 onChange={e => setForm({ ...form, password: e.target.value })}
                 required
@@ -186,7 +199,7 @@ export default function Users() {
               الدور
               <select
                 value={form.role}
-                onChange={e => setForm({ ...form, role: e.target.value })}
+                onChange={e => setForm({ ...form, role: e.target.value, studentId: '' })}
               >
                 {roles.map(([value, label]) => (
                   <option key={value} value={value}>
@@ -195,6 +208,24 @@ export default function Users() {
                 ))}
               </select>
             </label>
+
+            {(form.role === 'student' || form.role === 'guardian') && (
+              <label>
+                ربط بسجل الطالب
+                <select
+                  value={form.studentId}
+                  onChange={e => setForm({ ...form, studentId: e.target.value })}
+                  required
+                >
+                  <option value="">— اختر الطالب —</option>
+                  {students.map(st => (
+                    <option key={st.id} value={st.id}>
+                      {st.name} ({st.student_no})
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
 
             <div>
               <button className="primary" disabled={saving}>
