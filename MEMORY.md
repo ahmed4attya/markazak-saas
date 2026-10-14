@@ -403,3 +403,25 @@ DONE: 0, 1, U, T, 2, 3, P, R, SEC, 4A. NEXT: Scope S-1 student/guardian portal (
 
 ## Open items (carried)
 npm audit backlog (11; never --force) / tsconfig paste optional / lessons 1-12 reserved / origins pending / F9 docs cleanup / seed.ts debt / W2-W3 landing revisit / OIDC revocation after proxy-downloads / unify files audit on logAudit / brand-dynamic Shell at Scope S / plans page revisit at Scope 6 / rateLimit in-memory per-instance (Redis at scale).
+
+---
+
+# MEMORY v10.1 ADDENDUM - Phase Zero re-read (2026-10-14, read-only audit session)
+
+- All 10 project MD files re-read in full (PROTOCOL / MEMORY / AGENTS / README / ROADMAP / DESIGN / docs pair / audit-out pair). Structural inventory verified against disk.
+- Disk truth: main CLEAN (empty status) at 0031b4b; engines 24.x confirmed (DEC-046R); tools/pre-push.ps1 present; all 19 protected files exist; 24 schema tables; migration mechanism = whole-file idempotent db/schema.sql (CREATE + ALTER ... IF NOT EXISTS) executed by scripts/migrate.ts - no separate increment files.
+- GAP FOUND: commits d5e91ff (S1-1: students.user_id + learner read APIs) and 0031b4b (S1-2: portal pages + staff notifications) POSTDATE the last memory entry (46035fc = v10) with NO memory closure entry and NO owner live-proof record for Scope S1. Per Protocol ch.6 + Lesson 8: Scope S1 remains OPEN until owner attests live proof; this memory does not claim closure.
+- Hygiene findings (schema.sql is PROTECTED - owner decision required before any touch): notifications table defined twice (line 14 nullable tenant_id vs line 39 NOT NULL - first definition wins at fresh install); students.user_id ALTER + unique index duplicated (lines 56-57 identical to 61-62). All idempotent - zero runtime harm; cleanup is an owner-approved scope item.
+- Session scope: read-only Phase Zero + this addendum. No code, no push, no schema change.
+
+---
+
+# MEMORY v10.2 UPDATE - 2026-10-14 (Phase Zero re-run - DSH harness session, read-only)
+
+- New assistant session (DeepSeek harness, direct disk read/write). All 10 project MD files re-read in FULL (PROTOCOL / MEMORY v2..v10.1 / AGENTS / README / ROADMAP v3 / DESIGN / docs pair / audit-out pair). Structural inventory verified against disk.
+- Disk truth: main at 0031b4b; working tree = ONLY MEMORY.md modified (the uncommitted v10.1 addendum, +10 lines) - zero untracked code files. All 19 protected files present.
+- Structure: 24 unique tables in db/schema.sql; 55 API routes; 23 top-level page dirs + 6 portal routes + offline; lib = 10 files (access/audit/auth/db/exam-contract/rateLimit/roles/storage/validation/video-storage).
+- Schema duplication re-confirmed (v10.1 finding stands): notifications defined twice (L14 nullable tenant_id vs L39 NOT NULL - first definition wins at fresh install) + students.user_id ALTER+unique-index block duplicated (L56-57 = L61-62). All idempotent - zero runtime harm; cleanup = owner decision (schema.sql PROTECTED).
+- Scope S1 formal status: S1-1 + S1-2 committed (d5e91ff/0031b4b) but protocol closure NEVER recorded - no owner live-proof attestation. Deploy presumed automatic per DEC-034 (last independently verified deploy evidence = SEC-era df81790 curl proof); portal pages formally OPEN until owner attests.
+- Session scope: read-only Phase Zero + this addendum. No code, no push, no schema change. Proposed execution order presented to owner (S1-closure first, then ROADMAP v3 sequence); next scope awaits owner decision.
+- OWNER DECISIONS (2026-10-14, structured answers): DEC-063 execution mechanism = assistant DIRECT disk tools via DSH harness (full read before every touch, byte-verify after every write; owner keeps gate + push + live proof). DEC-064 first scope = S1 closure with owner live proof. DEC-065 next big scope = 4B exam-taking screen + why-wrong AI. DEC-066 MEMORY.md v10.1+v10.2 committed via whitelist (MEMORY.md only). DEC-067 legacy pendings (lessons 1-12 paste; origins tool//7629365/old-memory) stay OPEN.
