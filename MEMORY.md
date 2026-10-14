@@ -444,3 +444,18 @@ npm audit backlog (11; never --force) / tsconfig paste optional / lessons 1-12 r
 - S1 OWNER LIVE-PROOF CHECKLIST (awaiting attestation): (1) users page: create student-role user via picker - succeeds; (2) login as student -> lands /portal, cards + own name; (3) portal courses/videos/files/attendance show ONLY own data; (4) two student accounts = no cross-visibility; (5) users page lists fine after >3 refreshes.
 - Lessons added (112-113): 112. A scope can be pushed and look done while its core loop is dead code - S1 portal had NO possible user (link-column typo in the only write path). Gates catch types/bytes/build; cross-file contract mismatches need tracing the write path AND read path of every new column together. 113. vercel env pull [SENSITIVE] kills the env-pull channel for sensitive vars - persisted platform auth (neonctl) is the mechanical fallback; redirect secrets to git-ignored files, print lengths/booleans only.
 - NEXT: Scope 4B exam-taking screen (timer + navigation + autosave + submit + auto-score + why-wrong AI) per DEC-065.
+
+---
+
+# MEMORY v10.4 UPDATE - 2026-10-14 (Scope 4B CLOSED - code + local functional proof 27/27)
+
+## Scope 4B: exam-taking engine COMPLETE (commits 8a6aa9c + 23a536b, gate GREEN each, pushed, auto-deploy)
+- APIs: POST /api/learner/attempts (start/resume; payload answers-HIDDEN; per-attempt question order persisted in attempts.answers jsonb {order,c}; randomize honored), PATCH (autosave choices, own+unfinished only), POST /api/learner/attempts/submit (auto-score from DB correct_index, score/total/finished_at, perQuestion feedback with explanation, 409 double-submit), GET /api/learner/exams (course-bound via ACTIVE enrollments; student done_count; guardian read-only), POST /api/learner/ai-explain (server-built prompt, ownership+finished checks, 30s AbortSignal, internal fallback, rate 20/h).
+- UI: /portal/exams + /portal/exams/[id] (live timer auto-submit, nav grid with answered state, autosave 12s, confirm modal, results view per-question + why-wrong AI button, retry=fresh attempt), portal home 5th card.
+- Security: correct answers NEVER leave the server pre-submit (test-asserted); student-only start/save/submit; enrollment-scoped; tab-switch counter = visual MVP warning only (persistence deferred per ROADMAP anti-cheat item).
+- FUNCTIONAL PROOF (local dev, 27-assertion e2e tools/session-S1/test-4b-flow.mjs): 27/27 PASS - authoring->link->start->autosave->resume->submit->engineered score 2/3->409->ai-explain->done_count->full cleanup. Caught ONE real bug: done_count subquery compared a.user_id=$2 (tenantId) instead of $1 (userId) - fixed 23a536b. Two other failures were TEST bugs (wrong expected indexes; jsonb key-order compare).
+- No schema change (4A tables sufficient). Exam access MVP = course-bound only; tenant-wide GAT exams need an assignment model - deferred to S-2/6.
+- Rate-limit note: users-create 3/h (SEC spec) may friction bulk student creation at enrollment - revisit S-2.
+- 4B OWNER LIVE-PROOF CHECKLIST: questions+exam bound to enrolled course -> linked student account -> portal امتحاناتي -> take (timer/autosave/submit) -> score + لماذا-أخطأت button.
+- Lesson 114: jsonb roundtrips do NOT preserve key order - never compare jsonb objects via JSON.stringify; normalize sorted keys. (false-negative caught in e2e)
+- Gate revalidated: tsc caught 4 type errors pre-push (80 family); e2e caught the runtime SQL bug the gate cannot see - both gates complementary.
