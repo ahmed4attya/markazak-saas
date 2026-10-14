@@ -425,3 +425,22 @@ npm audit backlog (11; never --force) / tsconfig paste optional / lessons 1-12 r
 - Scope S1 formal status: S1-1 + S1-2 committed (d5e91ff/0031b4b) but protocol closure NEVER recorded - no owner live-proof attestation. Deploy presumed automatic per DEC-034 (last independently verified deploy evidence = SEC-era df81790 curl proof); portal pages formally OPEN until owner attests.
 - Session scope: read-only Phase Zero + this addendum. No code, no push, no schema change. Proposed execution order presented to owner (S1-closure first, then ROADMAP v3 sequence); next scope awaits owner decision.
 - OWNER DECISIONS (2026-10-14, structured answers): DEC-063 execution mechanism = assistant DIRECT disk tools via DSH harness (full read before every touch, byte-verify after every write; owner keeps gate + push + live proof). DEC-064 first scope = S1 closure with owner live proof. DEC-065 next big scope = 4B exam-taking screen + why-wrong AI. DEC-066 MEMORY.md v10.1+v10.2 committed via whitelist (MEMORY.md only). DEC-067 legacy pendings (lessons 1-12 paste; origins tool//7629365/old-memory) stay OPEN.
+
+---
+
+# MEMORY v10.3 UPDATE - 2026-10-14 (S1 closure executed + roadmap delegation)
+
+- DEC-068: owner delegated FULL execution to assistant (2026-10-14, explicit): full roadmap execution without stopping, including push after GREEN gate; live proof consolidated into end-of-scope checklists for owner attestation.
+- Scope S1 FULL READ done (16 files): middleware, lib/access, lib/roles, 7 learner APIs, 6 portal pages, users API+page, students API, videos stream.
+- FIVE bugs fixed (commit c8db958, gate GREEN 5/5, pushed, Vercel Ready 43s):
+  1. users API wrote students.student_user_id (column NEVER existed) -> user_id (3 spots) - student/guardian account creation was guaranteed to crash live (runtime SQL error invisible to gate).
+  2. users-create rate limit (3/h) wired on GET (list) instead of POST (create) - users page broke after 3 views/hour, create unprotected.
+  3. learner/files select lacked storage_key -> portal library download button broken (undefined href).
+  4. videos stream had NO learner enrollment check - added student/guardian enrollment guard (DEC-062 doctrine); staff roles unchanged (tenant scope).
+  5. users UI lacked student/guardian roles + student picker - added (conditional picker + POST studentId + password minLength 6->8 to match server).
+- Prod schema verified MECHANICALLY (neonctl 8.4.4, persisted OAuth; cs redirected to git-ignored audit-out/session-S1/prod-db.env; identity by content per Lesson 70: tenants=1, students=13, name needle MATCH, host hash bf49598f94): students.user_id + unique index ALREADY present - NO DDL needed. Guarded script: tools/session-S1/s1-prod-check-migrate.mts (neon-only host, identity, advisory-lock single-flight, content-verified backup, post-verify).
+- vercel env pull returns DATABASE_URL=[SENSITIVE] (11 chars) - env-pull channel dead for sensitive vars (Lesson 76 extended); neonctl is the mechanical authority now.
+- S1 known limits (documented): guardian linked to ONE student at creation (multi-child = S-2); file downloads still raw unguessable Blob URL (DEC-051 model; proxy = future option).
+- S1 OWNER LIVE-PROOF CHECKLIST (awaiting attestation): (1) users page: create student-role user via picker - succeeds; (2) login as student -> lands /portal, cards + own name; (3) portal courses/videos/files/attendance show ONLY own data; (4) two student accounts = no cross-visibility; (5) users page lists fine after >3 refreshes.
+- Lessons added (112-113): 112. A scope can be pushed and look done while its core loop is dead code - S1 portal had NO possible user (link-column typo in the only write path). Gates catch types/bytes/build; cross-file contract mismatches need tracing the write path AND read path of every new column together. 113. vercel env pull [SENSITIVE] kills the env-pull channel for sensitive vars - persisted platform auth (neonctl) is the mechanical fallback; redirect secrets to git-ignored files, print lengths/booleans only.
+- NEXT: Scope 4B exam-taking screen (timer + navigation + autosave + submit + auto-score + why-wrong AI) per DEC-065.
