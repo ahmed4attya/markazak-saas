@@ -11,7 +11,7 @@ export async function GET() {
     const rows = (await query(
       `select e.id, e.title, e.kind, e.duration_minutes, c.name as course_name,
               count(eq.question_id)::int as question_count,
-              (select count(*)::int from attempts a where a.exam_id = e.id and a.user_id = $2 and a.finished_at is not null) as done_count
+              (select count(*)::int from attempts a where a.exam_id = e.id and a.user_id = $1 and a.finished_at is not null) as done_count
        from exams e
        join courses c on c.id = e.course_id
        join groups g on g.course_id = c.id
