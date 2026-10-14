@@ -1,7 +1,8 @@
-﻿'use client';
+'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Plus, Trash2, HelpCircle } from 'lucide-react';
+import Link from 'next/link';
+import { Plus, Trash2, HelpCircle, Upload } from 'lucide-react';
 import Shell from '@/components/Shell';
 
 type Question = { id: string; course_id: string | null; domain: string; subject: string | null; topic: string | null; skill: string | null; difficulty: number; kind: string; text: string; options: string[]; correct_index: number; explanation: string | null; created_at: string };
@@ -73,6 +74,7 @@ export default function Questions() {
               <option value="achievement">تحصيلي</option>
             </select>
           </div>
+          <Link href="/questions/import" className="ghost"><Upload size={16} /> استيراد CSV</Link>
           <button className="primary" onClick={() => setShowForm(!showForm)}><Plus size={16} /> سؤال جديد</button>
         </div>
 

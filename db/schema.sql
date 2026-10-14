@@ -60,3 +60,7 @@ create unique index if not exists students_user_id_unique on students(user_id) w
 -- S1: student identity link (Scope S-1, DEC-062)
 alter table students add column if not exists user_id uuid references users(id) on delete set null;
 create unique index if not exists students_user_id_unique on students(user_id) where user_id is not null;
+
+-- 4C: question import QA status (active | review | disabled) - figure-suspect imports land as review
+alter table questions add column if not exists status varchar(20) not null default 'active';
+create index if not exists questions_tenant_status on questions(tenant_id,status);

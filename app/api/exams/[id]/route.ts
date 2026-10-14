@@ -30,7 +30,7 @@ export async function GET(_req: Request, context: Context) {
   const exam = await loadExam(id, s.tenantId);
   if (!exam || !(await canManageExam(s, exam))) return NextResponse.json({ error: 'الامتحان غير موجود' }, { status: 404 });
   const questions = (await query(
-    `select q.id, q.text, q.kind, q.options, q.correct_index, q.explanation,
+    `select q.id, q.text, q.kind, q.options, q.correct_index, q.explanation, q.status,
             q.domain, q.subject, q.topic, q.skill, eq.position
      from exam_questions eq join questions q on q.id=eq.question_id and q.tenant_id=$2
      where eq.exam_id=$1 order by eq.position`,

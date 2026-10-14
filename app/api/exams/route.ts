@@ -54,7 +54,7 @@ export async function POST(req: Request) {
 
     const result = await withTx(async (client) => {
       const questions = (await client.query(
-        `select id, course_id from questions where tenant_id=$1 and id=any($2::uuid[])`,
+        `select id, course_id from questions where tenant_id=$1 and id=any($2::uuid[]) and status='active'`,
         [s.tenantId, questionIds]
       )).rows as Array<{ id: string; course_id: string | null }>;
       if (questions.length !== questionIds.length) {

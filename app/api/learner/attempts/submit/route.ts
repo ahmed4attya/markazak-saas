@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   const qs = (await query(
     `select q.id, q.correct_index, q.explanation, q.text from exam_questions eq
      join questions q on q.id = eq.question_id and q.tenant_id=$2
-     where eq.exam_id=$1`,
+     where eq.exam_id=$1 and q.status='active'`,
     [attempt.exam_id, s.tenantId]
   )).rows as Array<{ id: string; correct_index: number; explanation: string | null; text: string }>;
   if (!qs.length) return NextResponse.json({ error: 'الامتحان بلا أسئلة' }, { status: 400 });

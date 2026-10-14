@@ -83,7 +83,7 @@ export async function POST(req: Request) {
   }
 
   const qs = (await query(
-    `select q.id, q.kind, q.text, q.options from exam_questions eq join questions q on q.id=eq.question_id and q.tenant_id=$2 where eq.exam_id=$1 order by eq.position`,
+    `select q.id, q.kind, q.text, q.options from exam_questions eq join questions q on q.id=eq.question_id and q.tenant_id=$2 where eq.exam_id=$1 and q.status='active' order by eq.position`,
     [examId, s.tenantId]
   )).rows as Array<{ id: string; kind: string; text: string; options: any }>;
 
