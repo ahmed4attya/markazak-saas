@@ -459,3 +459,17 @@ npm audit backlog (11; never --force) / tsconfig paste optional / lessons 1-12 r
 - 4B OWNER LIVE-PROOF CHECKLIST: questions+exam bound to enrolled course -> linked student account -> portal امتحاناتي -> take (timer/autosave/submit) -> score + لماذا-أخطأت button.
 - Lesson 114: jsonb roundtrips do NOT preserve key order - never compare jsonb objects via JSON.stringify; normalize sorted keys. (false-negative caught in e2e)
 - Gate revalidated: tsc caught 4 type errors pre-push (80 family); e2e caught the runtime SQL bug the gate cannot see - both gates complementary.
+
+---
+
+# MEMORY v10.5 UPDATE - 2026-10-14 (Scope 4C CLOSED - CSV import with QA fingerprints, both envs synced)
+
+## Scope 4C: COMPLETE (commit 6911bb3, 9 files, gate GREEN after guillemet fix, pushed, auto-deploy)
+- db/schema.sql (PROTECTED touch under DEC-068): questions.status varchar(20) NOT NULL default 'active' + index questions_tenant_status. Migrated LOCAL (db:migrate OK) + PROD (guarded whole-file sync tools/session-S1/prod-schema-sync.mts: neon host + identity-by-content [tenants=1, students=13, name MATCH] + questions JSON backup + post-verify PASS; Neon backup branch backup-pre-4c = br-long-pond-b220d1ss). Rule 5 fully honored both legs.
+- Import: lib/csv.ts (zero-dep RFC4180: BOM/quotes/escaped-quotes/commas-in-quotes); /api/questions/import (EN+AR header aliases, figure-fingerprint QA - rows mentioning شكل/رسم/مدرج/بياني land status=review, per-row reject reasons, 500 cap, 2MB cap, rate 5/h, audit question.import); import UI app/questions/import/page.tsx (file/paste, sample filler, report table); questions page toolbar link.
+- active-only enforcement: taking (learner attempts start), scoring (submit), authoring (exams POST rejects non-active questions) - review rows are invisible to students until explicitly activated (activation UI = Scope C).
+- FUNCTIONAL PROOF: e2e tools/session-S1/test-4c-import.mjs 10/10 PASS (clean->active, suspect->review+hidden, malformed->rejected, active-only authoring enforced, cleanup verified). Test bugs fixed en route: prefix filled the "malformed" row's text (still valid) + self-heal sweep added for idempotent reruns.
+- Gate caught C2BB («) in new page = Lesson 101 family; swapped to ASCII parens (721 files audit clean after).
+- Lessons: 115. Windows job_kill does NOT kill the process tree - orphaned next dev keeps the port; kill via Get-NetTCPConnection LocalPort -> OwningProcess -> Stop-Process, then verify port free. (hit twice this session) 116. Test fixtures with "corrupted" rows must be corrupted in the FIELD THAT MATTERS - adding a text prefix accidentally healed the row; assert the reject reason, not just counts.
+- 4C OWNER LIVE-PROOF CHECKLIST: /questions/import -> paste sample or upload CSV -> report shows imported/review/rejected -> review rows absent from student exam payloads.
+- NEXT: Scope 5 (assignments + submissions tables + gradebook) per approved roadmap; then S-2 portal full activation.
