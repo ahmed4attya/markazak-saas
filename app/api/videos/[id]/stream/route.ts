@@ -12,6 +12,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const rows = (await query('select * from videos where id=$1 and tenant_id=$2', [id, s.tenantId])).rows;
   if (!rows.length) return NextResponse.json({ error: 'الفيديو غير موجود' }, { status: 404 });
   const row = rows[0];
+  // Role-scoped access (owner spec): admin/owner/manager = tenant-wide; teacher = instructor of
+  // the video's course only; student/guardian = enrolled in a group of the video's course only.
   if (s.role === 'student' || s.role === 'guardian') {
     const linked = (await query(
       `select 1 from videos v
@@ -24,6 +26,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       [id, s.tenantId, s.userId]
     )).rows.length;
     if (!linked) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
+  if (s.role === 'teacher') {
+    const teaching = row.course_id
+      ? (await query('select 1 from course_teachers where course_id=$1 and teacher_user_id=$2 limit 1', [row.course_id, s.userId])).rows.length
+      : 0;
+    if (!teaching) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
   const range = req.headers.get('range') || '';
   let upstream: Response;
