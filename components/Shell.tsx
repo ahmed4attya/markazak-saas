@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, GraduationCap, BookOpen, Layers, FolderOpen, CalendarCheck,
   Wallet, FileBadge, BarChart3, Brain, UserCog, Settings, LogOut, Search, MonitorPlay,
-  Bell, Building2, ChevronDown, Menu, TrendingUp, ClipboardList, CreditCard, HelpCircle, NotebookPen, KeyRound,
+  Bell, Building2, ChevronDown, Menu, ClipboardList, CreditCard, HelpCircle, NotebookPen, KeyRound, BookMarked,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,6 +28,8 @@ const groups: NavGroup[] = [
       ['/library', 'مكتبة الملفات', FolderOpen],
       ['/videos', 'مكتبة الفيديو', MonitorPlay],
       ['/questions', 'بنك الأسئلة', HelpCircle],
+      ['/exams', 'الامتحانات', ClipboardList],
+      ['/lessons', 'الدروس', BookMarked],
       ['/assignments', 'الواجبات', NotebookPen],
       ['/gradebook', 'سجل الدرجات', ClipboardList],
       ['/finance', 'الفواتير والمدفوعات', Wallet],
@@ -37,7 +39,6 @@ const groups: NavGroup[] = [
   {
     title: 'التواصل السريع',
     items: [
-      ['soon:analytics', 'التحليلات', TrendingUp],
       ['/reports', 'التقارير', BarChart3],
       ['/ai', 'المساعد الذكي', Brain],
     ],
@@ -46,16 +47,16 @@ const groups: NavGroup[] = [
     title: 'الإدارة',
     items: [
       ['/users', 'المستخدمون والصلاحيات', UserCog],
-      ['/activation-codes', 'أكواد التفعيل', KeyRound],
       ['/settings', 'إعدادات المركز', Settings],
       ['/plans', 'الاشتراك', CreditCard],
+      ['/activation-codes', 'أكواد التفعيل', KeyRound],
       ['/audit', 'سجل التدقيق', ClipboardList],
     ],
   },
 ];
 
-// Items visible only to admin/owner/manager (DEC-062 isolation)
-const ADMIN_ONLY: string[] = ['/finance', '/users', '/settings', '/plans', '/audit', '/reports'];
+// Items visible only to admin/owner/manager (DEC-062 isolation + owner sidebar spec)
+const ADMIN_ONLY: string[] = ['/finance', '/users', '/settings', '/plans', '/audit', '/reports', '/certificates', '/activation-codes', '/ai'];
 
 function cn(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
