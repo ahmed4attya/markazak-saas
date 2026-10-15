@@ -577,3 +577,19 @@ OWNER LIVE-PROOF: all checklists accumulated in v10.3-v10.9 - one sitting on pro
 - Lesson 123: `next build` (gate) while `next dev` is live corrupts shared .next (Cannot find module ./chunks...) - STOP the dev server before running the gate; clear .next when resuming dev after a gate.
 - Lesson 124: e2e suites must self-heal their own leftovers (delete created users/enrollments at START) - a crashed run poisons the next run's assertions (state carryover produced 3 false failures).
 - OWNER LIVE-TEST LIST (as specified): admin uploads video -> student/guardian play it (was 403) -> assigned teacher plays, unassigned 403; admin add/edit/delete student/course/group/teacher with dialogs; assign students to a group (checkboxes); assign teachers to a course (checkboxes); teacher sees his course + group students.
+
+---
+
+# MEMORY v13 UPDATE - 2026-10-15 (MISSION: private content storage + unified portal - commits 2e97225 + 901327a)
+
+## Content protection (Private Blob + server-side access): DEC-068 continuation of DEC-053
+- VERIFIED AGAINST THE INSTALLED SDK (2.8.1, Lesson: SDK names are not contracts): handleUpload/put support access:'private'; get(urlOrPathname, {access:'private', headers}) returns {stream, headers, blob} - server-side authenticated fetch WITH Range passthrough via the headers option. NO signed URLs needed - the raw storage_key never leaves the server at all (stronger than the signed-URL plan).
+- Uploads now PRIVATE: videos/upload + files/upload onBeforeGenerateToken access:'private'; client upload() calls (app/videos + app/library) access:'private'. New uploads land private; LEGACY public blobs keep working (stream/download try direct fetch first, and on 401/403 fall back to get() private).
+- NEW app/api/files/[id]/download/route.ts: same role matrix as stream (admin/teacher-of-course/enrolled-student/guardian; null-course files blocked for learners) + Content-Disposition attachment + private get() fallback. Staff + portal library download links switched to it (raw storage_key links removed from UI entirely).
+- LOCAL LIMITATION: no BLOB token available in any reachable env ([SENSITIVE]) - local e2e covers the guard matrix (7/7 re-run green after the change); the full private upload->play flow verifies ON PROD by the owner (token exists in the serving deployment - Lesson 74).
+
+## Unified portal (Tasks 2-4): app/portal/layout.tsx + 10 pages stripped to content-only
+- Layout (client, NO components/Shell): top bar (brand from tenants.name via /api/me + learner name via /api/learner/me + bell with unread + logout) + mobile-first right drawer nav (desktop rail) with ALL 10 sections (home/courses/exams/assignments/results/library/videos/attendance/notifications/redeem) incl. unread badge. Auth stays in middleware - the layout is chrome only.
+- PortalVideoPlayer component: internal modal (no new tab, no session loss) - watermark name+email+date, controlsList nodownload noplaybackrate, disablePictureInPicture, context-menu blocked. Used by /portal/videos AND /portal/library.
+- Portal smoke 12/12 (test-portal-smoke.mjs): all 10 pages 200 + layout chrome for khaled; guardian /portal 200. Exam-taking page left as-is (its own sticky timer header works inside the layout chrome).
+- Lesson 125: when a wrapper/layout is introduced, strip the children's own chrome in the SAME commit - half-migrated pages render double headers and the owner sees a broken UI even when every page "works".
