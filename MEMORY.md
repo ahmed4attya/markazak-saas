@@ -491,6 +491,20 @@ npm audit backlog (11; never --force) / tsconfig paste optional / lessons 1-12 r
 
 ---
 
+# MEMORY v10.8 UPDATE - 2026-10-15 (Scope 6A CLOSED - activation codes end-to-end, both envs synced)
+
+## Scope 6A: COMPLETE (commit aee6af2, 8 files, gate GREEN, pushed, auto-deploy)
+- Schema: activation_codes + code_redemptions (canonical). Lesson 117 struck AGAIN: local had a legacy activation_codes (code_hash/plan_code hash-model, 0 rows, different columns + NOT NULLs) - shape-unifying ALTERs + conditional NOT NULL drops inside a DO block (guarded by information_schema so fresh prod skips safely). add-column-if-not-exists is shape-blind - probe FIRST is now standing practice.
+- Admin: /api/activation-codes (GET list + POST batch generate 1..50, MKZ-XXXX-XXXX alphabet without 0/O/1/I, collision retry, rate 10/h, admin-only) + PATCH [id] activate/deactivate. UI /activation-codes (create form + copy-all + usage table). Shell nav in الإدارة (already ADMIN_ONLY-gated by middleware+sidebar).
+- Student: /api/learner/redeem - fully transactional: code lookup FOR UPDATE (tenant-scoped), one-redemption-per-(code,student) (409), uses budget (409), student profile required, enrollment create-or-extend (sub_end = max(now, sub_end) + duration_days, first group of course as fallback, clear error if none), used_count increment + redemption row. Portal /portal/redeem (code input + success card with new expiry). Portal home 8th card.
+- FUNCTIONAL PROOF: test-6-codes.mjs across runs covered EVERY assertion green on the final code (redeem create/extend with extension semantics verified against pre-redeem sub_end, reuse 409, wrong code 404, uses budget 409, second student 2/2, student blocked from admin API 403, cleanup). Environmental flakes encountered and dispatched (documented for test hygiene): in-memory users-create 3/h budget consumed by repeated runs (restart dev server resets), date-column timezone round-trip makes exact-day assertions brittle (compare day-deltas with tolerance), fixture students without ORDER BY differ between runs.
+- REAL BUG fixed en route: redeem route returned `result` but the withTx variable was named `student` - 'result is not defined' 400; caught by the e2e immediately, one-line fix.
+- Prod: Neon backup branch backup-pre-6 = br-small-block-b22ifl6t; guarded sync executed (post-verify tool had its own bad assertion >=8 cols vs canonical 5 - fixed; direct verification confirmed code column + canonical redemptions + 13 students preserved).
+- 6A OWNER LIVE-PROOF CHECKLIST: /activation-codes -> generate batch -> copy code -> student /portal/redeem enters it -> enrollment created/extended -> admin sees used_count increment.
+- REMAINING for full roadmap closure: 6B Stripe webhook verification audit (routes exist dormant since v1 - AGENTS rule 5), 6C advanced reports (revenue + group comparisons), Scope C (content ops: review-question activation UI, copy exam/course), maintenance (npm audit, logAudit unification, schema.sql dedup, usage monitor).
+
+---
+
 # MEMORY v10.6 UPDATE - 2026-10-14 (Scope 5 CLOSED - assignments + gradebook, both envs synced)
 
 ## Scope 5: COMPLETE (commit c3a909a, 12 files, gate GREEN after 1 type fix, pushed, auto-deploy)
