@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Search, RefreshCw, Save, X } from "lucide-react";
+import { Plus, Search, RefreshCw, Save, X, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DataTable from "@/components/DataTable";
 
@@ -25,6 +25,8 @@ type CrudPageProps = {
   columns: Column[];
   fields: Field[];
   empty?: string;
+  rowActions?: (row: any) => { label: string; onClick: () => void }[];
+  deleteDialog?: (row: any) => { notice?: string; checkboxLabel?: string; checkboxParam?: string } | null;
 };
 
 export default function CrudPage({
@@ -34,6 +36,8 @@ export default function CrudPage({
   columns,
   fields,
   empty = "لا توجد بيانات",
+  rowActions,
+  deleteDialog,
 }: CrudPageProps) {
   const [rows, setRows] = useState<any[]>([]);
   const [q, setQ] = useState("");
@@ -44,6 +48,8 @@ export default function CrudPage({
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [delRow, setDelRow] = useState<any>(null);
+  const [delChecked, setDelChecked] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -140,17 +146,34 @@ export default function CrudPage({
   async function remove(row: any) {
     if (!row?.id || deleting) return;
 
+    if (deleteDialog) {
+      const spec = deleteDialog(row);
+      if (spec) {
+        setDelRow(row);
+        setDelChecked(false);
+        setError("");
+        return;
+      }
+    }
+
     const name = row.name || row.student_no || title;
 
     if (!window.confirm(`هل تريد حذف ${name}؟`)) {
       return;
     }
 
+    await doDelete(row, false);
+  }
+
+  async function doDelete(row: any, withCheckboxParam: boolean) {
     setDeleting(row.id);
     setError("");
 
     try {
-      const response = await fetch(`${endpoint}/${row.id}`, {
+      const spec = deleteDialog?.(row);
+      const param = spec?.checkboxParam;
+      const useParam = withCheckboxParam && param;
+      const response = await fetch(`${endpoint}/${row.id}${useParam ? `?${param}=1` : ""}`, {
         method: "DELETE",
       });
 
@@ -161,6 +184,7 @@ export default function CrudPage({
         return;
       }
 
+      setDelRow(null);
       await load();
     } catch {
       setError("تعذر الاتصال بالخادم");
@@ -225,6 +249,11 @@ export default function CrudPage({
         onAdd={openCreate}
         onEdit={openEdit}
         onDelete={remove}
+        extraActions={
+          rowActions
+            ? (row) => rowActions(row).map((a) => ({ ...a, onClick: () => { a.onClick(); } }))
+            : undefined
+        }
         renderCell={(value, column) => {
           if (column?.key === "status") {
             return <Badge value={value} />;
@@ -243,6 +272,66 @@ export default function CrudPage({
       {rows.length === 0 && !loading && !error && (
         <div className="text-center text-sm text-slate-400 py-4">{empty}</div>
       )}
+
+      <AnimatePresence>
+        {delRow && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setDelRow(null)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200"
+            >
+              <div className="p-6 space-y-4">
+                <h2 className="text-lg font-extrabold text-slate-800">
+                  تأكيد حذف {delRow.name || delRow.student_no || title}
+                </h2>
+                {deleteDialog?.(delRow)?.notice && (
+                  <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-3 leading-6">
+                    {deleteDialog(delRow)?.notice}
+                  </p>
+                )}
+                {deleteDialog?.(delRow)?.checkboxLabel && (
+                  <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={delChecked}
+                      onChange={(e) => setDelChecked(e.target.checked)}
+                      className="w-4 h-4"
+                    />
+                    {deleteDialog(delRow)?.checkboxLabel}
+                  </label>
+                )}
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setDelRow(null)}
+                    className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    type="button"
+                    disabled={deleting === delRow.id}
+                    onClick={() => void doDelete(delRow, delChecked)}
+                    className="flex items-center gap-2 px-6 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-all disabled:opacity-50"
+                  >
+                    <Trash2 size={15} />
+                    {deleting === delRow.id ? "جارٍ الحذف..." : "تأكيد الحذف"}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {modal && (

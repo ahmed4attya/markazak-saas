@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query, safeError } from '@/lib/db';
-import { getSession } from '@/lib/auth';
+import { getSession, isAdmin } from '@/lib/auth';
 
 type Context = {
   params: Promise<{ id: string }>;
@@ -130,6 +130,13 @@ export async function DELETE(
     return NextResponse.json(
       { error: 'غير مصرح' },
       { status: 401 }
+    );
+  }
+
+  if (!isAdmin(s.role)) {
+    return NextResponse.json(
+      { error: 'الإزالة للإدارة فقط' },
+      { status: 403 }
     );
   }
 

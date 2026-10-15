@@ -1,3 +1,5 @@
+"use client";
+
 import Shell from "@/components/Shell";
 import CrudPage from "@/components/CrudPage";
 import PageStatsCards from "@/components/PageStatsCards";
@@ -66,6 +68,15 @@ export default function Students() {
                 ],
               },
             ]}
+            deleteDialog={(row) => ({
+              notice:
+                "تنبيه: الحذف يزيل تسجيلات الطالب في المجموعات (enrollments) ولا يمكن التراجع." +
+                (row.user_id || row.guardian_user_id ? " الطالب مرتبط بحساب دخول." : ""),
+              checkboxLabel: row.user_id || row.guardian_user_id
+                ? "حذف حساب الدخول المرتبط أيضاً (لن يستطيع الدخول بعد الآن)"
+                : undefined,
+              checkboxParam: row.user_id || row.guardian_user_id ? "deleteUser" : undefined,
+            })}
           />
         </div>
       </div>

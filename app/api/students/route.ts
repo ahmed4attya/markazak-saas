@@ -12,7 +12,7 @@ export async function GET(req:Request){
   const type=(u.searchParams.get('type')||'').toLowerCase();
 
   const r=await query(
-    'select id,student_no,name,phone,email,identity_no,status,type,created_at from students where tenant_id=$1 and (name ilike $2 or student_no ilike $2 or phone ilike $2)'+(type==='center'||type==='online'?' and type=$3':'')+' order by created_at desc limit 500',
+    'select id,student_no,name,phone,email,identity_no,status,type,user_id,guardian_user_id,created_at from students where tenant_id=$1 and (name ilike $2 or student_no ilike $2 or phone ilike $2)'+(type==='center'||type==='online'?' and type=$3':'')+' order by created_at desc limit 500',
     (type==='center'||type==='online')?[s.tenantId,`%${q}%`,type]:[s.tenantId,`%${q}%`]
   );
 

@@ -22,6 +22,13 @@ export async function PATCH(
     );
   }
 
+  if (!isAdmin(s.role)) {
+    return NextResponse.json(
+      { error: 'الصلاحية دي للإدارة بس' },
+      { status: 403 }
+    );
+  }
+
   try {
     const { id } = await context.params;
     const body = await req.json();
@@ -125,12 +132,13 @@ export async function DELETE(
 
   try {
     const { id } = await context.params;
+    const deleteUser = new URL(req.url).searchParams.get('deleteUser') === '1';
 
     const r = await query(
       `delete from students
        where id=$1
        and tenant_id=$2
-       returning id`,
+       returning id, user_id, guardian_user_id`,
       [id, s.tenantId]
     );
 
@@ -141,17 +149,29 @@ export async function DELETE(
       );
     }
 
+    let deletedUser = false;
+    const linkedUserId = r.rows[0].user_id || r.rows[0].guardian_user_id;
+    if (deleteUser && linkedUserId) {
+      const u = await query(
+        'delete from users where id=$1 and tenant_id=$2 returning id',
+        [linkedUserId, s.tenantId]
+      );
+      deletedUser = u.rows.length > 0;
+    }
+
     await logAudit({
       tenantId: s.tenantId,
       userId: s.userId,
       action: 'student.delete',
       entity: 'student',
       entityId: r.rows[0].id,
+      metadata: deleteUser ? { linkedUserDeleted: deletedUser } : undefined,
     });
 
     return NextResponse.json({
       ok: true,
-      id: r.rows[0].id
+      id: r.rows[0].id,
+      linkedUserDeleted: deletedUser,
     });
   } catch (e: any) {
     return NextResponse.json(

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query, safeError } from '@/lib/db';
-import { getSession } from '@/lib/auth';
+import { getSession, isAdmin } from '@/lib/auth';
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -8,16 +8,34 @@ const UUID_RE =
 const AR_S1_MIX_WARNING = 'تنبيه: نوع الطالب لا يطابق نمط المجموعة';
 const AR_S1_PERIOD_INVALID = 'فترة الاشتراك غير صالحة';
 
-export async function GET() {
+export async function GET(req:Request){
   const s = await getSession();
-
-  if (!s) {
-    return NextResponse.json(
-      { error: 'غير مصرح' },
-      { status: 401 }
-    );
+  if (!s) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+  const { searchParams } = new URL(req.url);
+  const groupId = (searchParams.get('groupId') || '').trim();
+  if (groupId) {
+    if (!UUID_RE.test(groupId)) return NextResponse.json({ error: 'معرف المجموعة غير صالح' }, { status: 400 });
+    const group = (await query('select id, course_id, name from groups where id=$1 and tenant_id=$2', [groupId, s.tenantId])).rows[0] as any;
+    if (!group) return NextResponse.json({ error: 'المجموعة غير موجودة' }, { status: 404 });
+    if (s.role === 'teacher') {
+      const mine = (await query('select 1 from course_teachers where course_id=$1 and teacher_user_id=$2', [group.course_id, s.userId])).rows;
+      if (!mine.length) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+    }
+    const current = (await query(
+      `select st.id, st.student_no, st.name, st.type, e.id as enrollment_id
+       from enrollments e join students st on st.id = e.student_id
+       where e.group_id = $1 and e.tenant_id = $2 order by st.name`,
+      [groupId, s.tenantId]
+    )).rows;
+    const available = (await query(
+      `select st.id, st.student_no, st.name, st.type from students st
+       where st.tenant_id = $1 and st.status = 'active'
+         and st.id not in (select student_id from enrollments where group_id = $2 and tenant_id = $1)
+       order by st.name`,
+      [s.tenantId, groupId]
+    )).rows;
+    return NextResponse.json({ groupId, course_id: group.course_id, group_name: group.name, current, available });
   }
-
   try {
     const result = await query(
       'select e.*, st.name as student_name, st.student_no, g.name as group_name, c.name as course_name from enrollments e left join students st on st.id = e.student_id and st.tenant_id = e.tenant_id left join groups g on g.id = e.group_id and g.tenant_id = e.tenant_id left join courses c on c.id = g.course_id and c.tenant_id = g.tenant_id where e.tenant_id = $1 order by e.enrolled_at desc',
@@ -40,6 +58,13 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { error: 'غير مصرح' },
       { status: 401 }
+    );
+  }
+
+  if (!isAdmin(s.role)) {
+    return NextResponse.json(
+      { error: 'الإسناد للإدارة فقط' },
+      { status: 403 }
     );
   }
 

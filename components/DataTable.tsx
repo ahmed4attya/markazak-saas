@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { Edit3, Trash2, MoreVertical } from "lucide-react";
@@ -22,6 +22,7 @@ type DataTableProps = {
   ) => React.ReactNode;
   onEdit?: (row: Record<string, any>) => void;
   onDelete?: (row: Record<string, any>) => void;
+  extraActions?: (row: Record<string, any>) => { label: string; onClick: () => void }[];
 };
 
 export default function DataTable({
@@ -31,6 +32,7 @@ export default function DataTable({
   renderCell,
   onEdit,
   onDelete,
+  extraActions,
 }: DataTableProps) {
   const [menuRow, setMenuRow] = useState<number | null>(null);
 
@@ -102,6 +104,21 @@ export default function DataTable({
 
                         {menuRow === rowIndex && (
                           <div className="absolute left-0 top-11 z-20 min-w-32 overflow-hidden rounded-xl border border-slate-200 bg-white p-1 text-right shadow-xl">
+                            {extraActions?.(row)?.map((action) => (
+                              <button
+                                key={action.label}
+                                type="button"
+                                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50"
+                                onClick={() => {
+                                  setMenuRow(null);
+                                  action.onClick();
+                                }}
+                              >
+                                {action.label}
+                              </button>
+                            ))}
+                            {extraActions?.(row)?.length ? <div className="my-1 border-t border-slate-100" /> : null}
+
                             {onEdit && (
                               <button
                                 type="button"
