@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, GraduationCap, BookOpen, Layers, FolderOpen, CalendarCheck,
   Wallet, FileBadge, BarChart3, Brain, UserCog, Settings, LogOut, Search, MonitorPlay,
-  Bell, Building2, ChevronDown, Menu, TrendingUp, ClipboardList, CreditCard, HelpCircle, NotebookPen,
+  Bell, Building2, ChevronDown, Menu, TrendingUp, ClipboardList, CreditCard, HelpCircle, NotebookPen, KeyRound,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -46,6 +46,7 @@ const groups: NavGroup[] = [
     title: 'الإدارة',
     items: [
       ['/users', 'المستخدمون والصلاحيات', UserCog],
+      ['/activation-codes', 'أكواد التفعيل', KeyRound],
       ['/settings', 'إعدادات المركز', Settings],
       ['/plans', 'الاشتراك', CreditCard],
       ['/audit', 'سجل التدقيق', ClipboardList],

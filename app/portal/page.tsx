@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { BookOpen, Video, FolderOpen, CalendarCheck, Bell, ClipboardList, NotebookPen, TrendingUp } from 'lucide-react';
+import { BookOpen, Video, FolderOpen, CalendarCheck, Bell, ClipboardList, NotebookPen, TrendingUp, KeyRound } from 'lucide-react';
 
 export default function Portal() {
   const [me, setMe] = useState<{ name: string; role: string } | null>(null);
@@ -21,6 +21,7 @@ export default function Portal() {
     { href: '/portal/library', label: 'المكتبة', Icon: FolderOpen, color: 'text-[color:var(--success)]' },
     { href: '/portal/videos', label: 'الفيديوهات', Icon: Video, color: 'text-[color:var(--gold)]' },
     { href: '/portal/attendance', label: 'حضوري', Icon: CalendarCheck, color: 'text-[color:var(--indigo)]' },
+    { href: '/portal/redeem', label: 'تفعيل كود', Icon: KeyRound, color: 'text-[color:var(--gold)]' },
   ];
 
   return (

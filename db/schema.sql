@@ -79,3 +79,20 @@ alter table assignments add column if not exists max_score numeric(6,2) default 
 alter table submissions add column if not exists content text;
 alter table submissions add column if not exists score numeric(6,2);
 create unique index if not exists submissions_assignment_student_uq on submissions(assignment_id,student_id);
+
+-- 6: activation codes (Scope 6) - the centers' sales model: codes grant/extend course subscription
+create table if not exists activation_codes(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,course_id uuid references courses(id) on delete cascade,code varchar(40) unique not null,duration_days int not null default 30,max_uses int not null default 1,used_count int not null default 0,active boolean default true,created_by uuid references users(id) on delete set null,created_at timestamptz default now());
+create index if not exists activation_codes_tenant on activation_codes(tenant_id,active);
+create table if not exists code_redemptions(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,code_id uuid references activation_codes(id) on delete cascade,student_id uuid references students(id) on delete cascade,redeemed_at timestamptz default now(),unique(code_id,student_id));
+-- Lesson 117: legacy local activation_codes (code_hash/plan_code model, 0 rows) - shape-unifying ALTERs
+alter table activation_codes add column if not exists course_id uuid references courses(id) on delete cascade;
+alter table activation_codes add column if not exists code varchar(40);
+alter table activation_codes add column if not exists duration_days int not null default 30;
+create unique index if not exists activation_codes_code_uq on activation_codes(code);
+do $$ begin
+  if exists (select 1 from information_schema.columns where table_name='activation_codes' and column_name='code_prefix') then
+    alter table activation_codes alter column code_prefix drop not null;
+    alter table activation_codes alter column code_hash drop not null;
+    alter table activation_codes alter column plan_code drop not null;
+  end if;
+end $$;
