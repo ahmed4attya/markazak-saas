@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { ClipboardCheck, Plus, Trash2 } from 'lucide-react';
+import { ClipboardCheck, Copy, Plus, Trash2 } from 'lucide-react';
 import Shell from '@/components/Shell';
 
 type Exam = { id: string; title: string; kind: string; duration_minutes: number | null; question_count: number; course_name: string | null };
@@ -66,6 +66,18 @@ export default function ExamsPage() {
     finally { setBusy(false); }
   }
 
+  async function copyExam(id: string) {
+    setBusy(true); setError(''); setSuccess('');
+    try {
+      const response = await fetch('/api/exams/' + id + '/copy', { method: 'POST' });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.error || 'تعذر النسخ');
+      setSuccess('تم نسخ الامتحان');
+      await load();
+    } catch (e) { setError(e instanceof Error ? e.message : 'تعذر النسخ'); }
+    finally { setBusy(false); }
+  }
+
   async function removeExam(id: string) {
     if (!window.confirm('حذف الامتحان؟')) return;
     setBusy(true); setError('');
@@ -109,7 +121,7 @@ export default function ExamsPage() {
 
         <div className="panel tablePanel"><div className="tableWrap"><table className="dataTable"><thead><tr><th>الامتحان</th><th>الدورة</th><th>النوع</th><th>الأسئلة</th><th>المدة</th><th></th></tr></thead><tbody>
           {!exams.length && <tr><td className="tableEmpty" colSpan={6}>لا توجد امتحانات بعد.</td></tr>}
-          {exams.map((exam) => <tr key={exam.id}><td><span className="font-bold text-[color:var(--text)]">{exam.title}</span></td><td>{exam.course_name || '—'}</td><td>{exam.kind === 'simulation' ? 'محاكاة' : 'تدريب'}</td><td>{exam.question_count}</td><td>{exam.duration_minutes ? `${exam.duration_minutes} دقيقة` : 'بدون مؤقت'}</td><td><button className="ghost !min-h-0 py-1.5 px-3" disabled={busy} onClick={() => removeExam(exam.id)}><Trash2 size={14} /> حذف</button></td></tr>)}
+          {exams.map((exam) => <tr key={exam.id}><td><span className="font-bold text-[color:var(--text)]">{exam.title}</span></td><td>{exam.course_name || '—'}</td><td>{exam.kind === 'simulation' ? 'محاكاة' : 'تدريب'}</td><td>{exam.question_count}</td><td>{exam.duration_minutes ? `${exam.duration_minutes} دقيقة` : 'بدون مؤقت'}</td><td><div className="flex gap-1.5"><button className="ghost !min-h-0 py-1.5 px-3" disabled={busy} onClick={() => copyExam(exam.id)}><Copy size={14} /> نسخ</button><button className="ghost !min-h-0 py-1.5 px-3" disabled={busy} onClick={() => removeExam(exam.id)}><Trash2 size={14} /> حذف</button></div></td></tr>)}
         </tbody></table></div></div>
       </div>
     </Shell>

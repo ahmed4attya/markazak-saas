@@ -35,8 +35,7 @@ create table if not exists videos(id uuid primary key default gen_random_uuid(),
 create index if not exists videos_tenant_course on videos(tenant_id,course_id);
 create index if not exists videos_tenant_created on videos(tenant_id,created_at desc);
 
--- S-R: internal notifications (Scope R, DEC-060)
-create table if not exists notifications(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,user_id uuid references users(id) on delete cascade,title varchar(200),body text,type varchar(30),read_at timestamptz,created_at timestamptz default now());
+-- S-R: internal notifications index (Scope R, DEC-060) - table defined once above (first definition wins)
 create index if not exists notifications_user_read on notifications(user_id,read_at);
 
 
@@ -50,11 +49,6 @@ create table if not exists exams(id uuid primary key default gen_random_uuid(),t
 create table if not exists exam_questions(exam_id uuid references exams(id) on delete cascade,question_id uuid references questions(id) on delete cascade,position int,primary key(exam_id,question_id));
 create table if not exists attempts(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,exam_id uuid references exams(id) on delete cascade,user_id uuid references users(id) on delete set null,answers jsonb,score numeric,total int,started_at timestamptz default now(),finished_at timestamptz);
 create index if not exists attempts_exam on attempts(exam_id);
-
-
--- S1: student identity link (Scope S-1, DEC-062)
-alter table students add column if not exists user_id uuid references users(id) on delete set null;
-create unique index if not exists students_user_id_unique on students(user_id) where user_id is not null;
 
 
 -- S1: student identity link (Scope S-1, DEC-062)

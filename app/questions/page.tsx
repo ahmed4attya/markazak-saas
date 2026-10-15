@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Plus, Trash2, HelpCircle, Upload } from 'lucide-react';
 import Shell from '@/components/Shell';
 
-type Question = { id: string; course_id: string | null; domain: string; subject: string | null; topic: string | null; skill: string | null; difficulty: number; kind: string; text: string; options: string[]; correct_index: number; explanation: string | null; created_at: string };
+type Question = { id: string; course_id: string | null; domain: string; subject: string | null; topic: string | null; skill: string | null; difficulty: number; kind: string; text: string; options: string[]; correct_index: number; explanation: string | null; status?: string; created_at: string };
 type Course = { id: string; name: string };
 
 const DOMAIN_LABELS: Record<string, string> = { quant: 'قدرات كمي', verbal: 'قدرات لفظي', achievement: 'تحصيلي' };
@@ -55,6 +55,18 @@ export default function Questions() {
       if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error((j as { error?: string }).error || 'فشل الحذف'); }
       await load();
     } catch (e) { setError(e instanceof Error ? e.message : 'فشل الحذف'); }
+    finally { setBusy(false); }
+  }
+
+  async function toggleStatus(row: Question) {
+    const next = row.status === 'active' ? 'disabled' : 'active';
+    setBusy(true); setError(''); setOk('');
+    try {
+      const r = await fetch('/api/questions', { method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: row.id, status: next }) });
+      if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error || 'فشل التحديث'); }
+      setOk(next === 'active' ? 'تم تفعيل السؤال — سيظهر للطلاب' : 'تم تعطيل السؤال — لن يظهر في الامتحانات');
+      await load();
+    } catch (e) { setError(e instanceof Error ? e.message : 'فشل التحديث'); }
     finally { setBusy(false); }
   }
 
@@ -127,16 +139,17 @@ export default function Questions() {
         <div className="panel tablePanel">
           <div className="tableWrap">
             <table className="dataTable">
-              <thead><tr><th>السؤال</th><th>المجال</th><th>الموضوع</th><th>الصعوبة</th><th></th></tr></thead>
+              <thead><tr><th>السؤال</th><th>المجال</th><th>الموضوع</th><th>الصعوبة</th><th>الحالة</th><th></th></tr></thead>
               <tbody>
-                {rows.length === 0 && (<tr><td className="tableEmpty" colSpan={5}>بنك الأسئلة فارغ — أضف أول سؤال</td></tr>)}
+                {rows.length === 0 && (<tr><td className="tableEmpty" colSpan={6}>بنك الأسئلة فارغ — أضف أول سؤال</td></tr>)}
                 {rows.map((r) => (
                   <tr key={r.id}>
                     <td className="max-w-md truncate"><span className="inline-flex items-center gap-2"><HelpCircle size={15} className="text-[color:var(--blue)]" /> {r.text}</span></td>
                     <td>{DOMAIN_LABELS[r.domain] || r.domain}</td>
                     <td>{r.topic || '—'}</td>
                     <td>{'★'.repeat(r.difficulty || 3)}</td>
-                    <td><button onClick={() => onDelete(r)} disabled={busy} className="ghost !min-h-0 py-1.5 px-3"><Trash2 size={14} /> حذف</button></td>
+                    <td><span className={'badge ' + (r.status === 'active' ? 'success' : r.status === 'review' ? 'pending' : 'unpaid')}>{r.status === 'active' ? 'نشط' : r.status === 'review' ? 'مراجعة' : 'معطل'}</span></td>
+                    <td><div className="flex gap-1.5"><button onClick={() => toggleStatus(r)} disabled={busy} className="ghost !min-h-0 py-1.5 px-3">{r.status === 'active' ? 'تعطيل' : 'تفعيل'}</button><button onClick={() => onDelete(r)} disabled={busy} className="ghost !min-h-0 py-1.5 px-3"><Trash2 size={14} /> حذف</button></div></td>
                   </tr>
                 ))}
               </tbody>

@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { query, safeError } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { rateLimit } from '@/lib/rateLimit';
@@ -10,7 +10,7 @@ const DOMAINS = ['quant', 'verbal', 'achievement'];
 
 export async function GET(req: Request) {
   const s = await getSession();
-  if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   const rl = rateLimit('questions:' + s.userId, 30, 3600000);
   if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } });
   const { searchParams } = new URL(req.url);
@@ -63,6 +63,20 @@ export async function POST(req: Request) {
   } catch (e) {
     return NextResponse.json({ error: safeError(e) }, { status: 400 });
   }
+}
+
+export async function PATCH(req: Request) {
+  const s = await getSession();
+  if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  if (!isAdminRole(s.role)) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  const b = (await req.json().catch(() => ({}))) as { id?: string; status?: string };
+  const id = String(b.id || '');
+  const status = String(b.status || '');
+  if (!id || !['active', 'review', 'disabled'].includes(status)) return NextResponse.json({ error: 'bad request' }, { status: 400 });
+  const r = (await query('update questions set status=$3 where id=$1 and tenant_id=$2 returning id, status', [id, s.tenantId, status])).rows[0] as any;
+  if (!r) return NextResponse.json({ error: 'السؤال غير موجود' }, { status: 404 });
+  await logAudit({ tenantId: s.tenantId, userId: s.userId, action: 'question.status', entity: 'question', entityId: id, metadata: { status } });
+  return NextResponse.json(r);
 }
 
 export async function DELETE(req: Request) {
