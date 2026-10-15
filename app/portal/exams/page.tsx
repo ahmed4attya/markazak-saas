@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, ClipboardList } from 'lucide-react';
+import { ClipboardList } from 'lucide-react';
 
 type ERow = {
   id: string;
@@ -27,12 +27,8 @@ export default function PortalExams() {
   }, []);
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[color:var(--bg)] text-[color:var(--text)] font-['IBM_Plex_Sans_Arabic']">
-      <header className="h-14 flex items-center px-4 border-b border-[color:var(--border)] bg-[color:var(--surface)]">
-        <Link href="/portal" className="flex items-center gap-2 text-[color:var(--muted)] hover:text-[color:var(--gold)]"><ArrowRight size={18} /> رجوع</Link>
-        <h1 className="font-extrabold mr-4">امتحاناتي</h1>
-      </header>
-      <main className="p-4 lg:p-8 max-w-3xl mx-auto space-y-3">
+    <main className="p-4 lg:p-8 max-w-3xl mx-auto space-y-3 pt-6">
+      <h1 className="text-xl font-extrabold mb-1">امتحاناتي</h1>
         {error && <div className="error">{error}</div>}
         {rows.length === 0 && <div className="bento-card p-8 text-center text-[color:var(--muted)]">لا توجد امتحانات متاحة بعد</div>}
         {rows.map((e) => (
@@ -57,6 +53,5 @@ export default function PortalExams() {
           </div>
         ))}
       </main>
-    </div>
   );
 }
