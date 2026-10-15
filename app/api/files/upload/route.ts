@@ -22,6 +22,7 @@ export async function POST(req: Request) {
         return {
           allowedContentTypes: ALLOWED_CONTENT_TYPES,
           maximumSizeInBytes: MAX_FILE_BYTES,
+          access: 'private',
           tokenPayload: JSON.stringify({ tenantId: s.tenantId, userId } as TokenPayload),
         };
       },

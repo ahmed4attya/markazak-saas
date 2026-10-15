@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { getSession } from '@/lib/auth';
 import { safeError } from '@/lib/db'; // FIX: used in the catch block below
@@ -21,6 +21,7 @@ export async function POST(req: Request) {
         return {
           allowedContentTypes: VIDEO_CONTENT_TYPES,
           maximumSizeInBytes: MAX_VIDEO_BYTES,
+          access: 'private',
           tokenPayload: JSON.stringify({ tenantId: s.tenantId, userId: s.userId } as TokenPayload),
         };
       },

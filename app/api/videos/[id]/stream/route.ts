@@ -37,6 +37,24 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   let upstream: Response;
   try {
     upstream = await fetch(row.storage_key, { headers: range ? { Range: range } : {} });
+    if (upstream.status === 401 || upstream.status === 403) {
+      // Private blob (DEC since the private-storage switch): server-side authenticated fetch.
+      // Legacy public blobs keep working through the direct path above.
+      const { get } = await import('@vercel/blob');
+      const result = await get(row.storage_key, { access: 'private', headers: range ? { range } : undefined });
+      if (!result) return NextResponse.json({ error: 'الفيديو غير موجود' }, { status: 404 });
+      const blobHeaders = result.headers;
+      const payloadHeaders = new Headers();
+      const ct2 = blobHeaders.get('content-type'); if (ct2) payloadHeaders.set('content-type', ct2);
+      const cl2 = blobHeaders.get('content-length'); if (cl2) payloadHeaders.set('content-length', cl2);
+      const cr2 = blobHeaders.get('content-range'); if (cr2) payloadHeaders.set('content-range', cr2);
+      payloadHeaders.set('accept-ranges', 'bytes');
+      payloadHeaders.set('cache-control', 'private, no-store');
+      if (!range || range.startsWith('bytes=0')) {
+        await logAudit({ tenantId: s.tenantId, userId: s.userId, action: 'video.play', entity: 'video', entityId: id });
+      }
+      return new Response(result.stream, { status: 206, headers: payloadHeaders });
+    }
   } catch {
     return NextResponse.json({ error: 'تعذر الاتصال بالتخزين' }, { status: 502 });
   }

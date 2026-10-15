@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { upload } from '@vercel/blob/client';
@@ -44,7 +44,7 @@ export default function Library() {
       if (!prep.ok) { const j = await prep.json().catch(() => ({})); throw new Error((j as { error?: string }).error || 'الملف غير مسموح'); }
       const { pathname } = (await prep.json()) as { pathname: string };
       const res = await upload(pathname, f, {
-        access: 'public',
+        access: 'private',
         handleUploadUrl: '/api/files/upload',
         clientPayload: JSON.stringify({ courseId: courseId || null }),
       });
@@ -123,7 +123,7 @@ export default function Library() {
                     <td>{new Date(r.created_at).toLocaleDateString('ar-EG')}</td>
                     <td>
                       <div className="flex items-center gap-2">
-                        <a href={r.storage_key} target="_blank" rel="noreferrer" className="ghost !min-h-0 py-1.5 px-3"><Download size={14} /> تحميل</a>
+                        <a href={'/api/files/' + r.id + '/download'} className="ghost !min-h-0 py-1.5 px-3"><Download size={14} /> تحميل</a>
                         <button onClick={() => onDelete(r)} disabled={busy} className="ghost !min-h-0 py-1.5 px-3"><Trash2 size={14} /> حذف</button>
                       </div>
                     </td>

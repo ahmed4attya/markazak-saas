@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { upload } from '@vercel/blob/client';
@@ -69,7 +69,7 @@ export default function Videos() {
       });
       if (!prep.ok) { const j = await prep.json().catch(() => ({})); throw new Error((j as { error?: string }).error || 'الملف غير مسموح'); }
       const { pathname } = (await prep.json()) as { pathname: string };
-      const res = await upload(pathname, f, { access: 'public', handleUploadUrl: '/api/videos/upload' });
+      const res = await upload(pathname, f, { access: 'private', handleUploadUrl: '/api/videos/upload' });
       const done = await fetch('/api/videos/upload-complete', {
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ url: res.url, pathname: res.pathname, title: f.name, contentType: res.contentType, sizeBytes: f.size, durationSeconds, courseId: courseId || null }),
