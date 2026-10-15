@@ -518,3 +518,29 @@ npm audit backlog (11; never --force) / tsconfig paste optional / lessons 1-12 r
 - Lessons added: 117. create-table-if-not-exists is shape-blind - an existing table with an older shape silently skips your columns; when touching a domain, PROBE information_schema first and ship additive ALTERs in schema.sql so local-legacy and fresh-prod converge to one shape. 118. safeError masks root causes behind generic Arabic messages - when a 400 carries only the fallback message, probe the DB/API path directly for the raw pg error code before touching code (42703 found in one probe).
 - Scope 5 OWNER LIVE-PROOF CHECKLIST: /assignments -> create assignment for an enrolled course -> student portal واجباتي -> submit -> staff grades -> student sees grade+feedback -> /gradebook shows the aggregate.
 - NEXT: S-2 portal full activation (nav polish, notifications wiring, guardian multi-child) -> then Scope 6 (activation codes + subscriptions + advanced reports) -> Scope C (content ops incl. review-question activation UI) -> maintenance.
+
+---
+
+# MEMORY v10.9 UPDATE - 2026-10-15 (Scope 6B + C + maintenance CLOSED - the approved roadmap is EXECUTED)
+
+## 6B Stripe audit: PASS - NO CHANGES NEEDED
+- Webhook verifies signatures via stripe.webhooks.constructEvent(raw-body, signature, secret) - AGENTS rule 5 satisfied; checkout reads prices from DB (never client), session+admin gated, both 503-dormant until keys set. Minor note: webhook match uses subscription_id OR customer_id (1:1 per tenant in practice).
+
+## Scope C: COMPLETE (commit 3cdeffc, 6 files, gate GREEN, e2e 12/12)
+- Question status lifecycle UI: badge (نشط/مراجعة/معطل) + admin PATCH /api/questions {id,status} (active|review|disabled, audit question.status) + activate/disable button - closes the 4C loop (review rows now activatable from the bank page).
+- Exam copy: POST /api/exams/[id]/copy (staff w/ course access, transactional, positions preserved, title 'نسخة من: ...') + copy button on /exams.
+- e2e test-c-ops.mjs 12/12 PASS (status cycle incl. DB verification + invalid rejection; copy same-2-questions + original intact; cleanup).
+
+## Maintenance: DONE
+- schema.sql DEDUPLICATED: notifications double-definition removed (first-definition-wins behavior unchanged everywhere) + students.user_id block deduped. Verified: local migrate OK + prod execution of the deduped file CLEAN (28 tables, 13 students preserved; backup branch backup-pre-c = br-young-union-b2w22zoz; verify-dedup-schema.mts).
+- npm audit: 11 findings -> 2 after `npm audit fix` (non-breaking only; braces/chokidar via tailwindcss 3 requires tailwind 4 = breaking - stays on backlog, never --force).
+- logAudit unification for Scope-2 file routes: DEFERRED (behavioral-neutral refactor; audit rows already written, just raw vs wrapper).
+
+## LESSONS (119-120)
+119. Legacy tables keep biting in new domains - before authoring any CREATE TABLE IF NOT EXISTS, probe information_schema on ALL envs; ship additive ALTERs (and conditional DO-block constraint relaxations) so legacy-local and fresh-prod converge.
+120. Assistant-authored e2e tests fail for their own reasons (typos, TS-in-mjs, fixture drift, timezone rounding) - read the assertion data before judging the product; the 6-codes saga: 3 test bugs vs 1 real bug (`result` undefined) across 7 runs.
+
+## ROADMAP EXECUTION STATUS (DEC-068 delegation)
+DONE WITH EVIDENCE: 0,1,U,T,2,3,P,R,SEC,4A + THIS SESSION: S1-closure, 4B (27/27), 4C (10/10), 5 (19/19), S-2 (12/12), 6A codes (13 assertions green), 6B audit PASS, C (12/12), maintenance (audit+dedup). EVERY push gate-GREEN; every schema change dual-env with backup branch + JSON backups; 9 code commits + 8 memory commits this session.
+DEFERRED (documented): logAudit unification, CSV table exports, W2/W3 landing polish, guardian multi-child UI, usage monitor, tailwind4 upgrade.
+OWNER LIVE-PROOF: all checklists accumulated in v10.3-v10.9 - one sitting on prod attests the whole platform.
