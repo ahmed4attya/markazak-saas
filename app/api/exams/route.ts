@@ -78,6 +78,10 @@ export async function POST(req: Request) {
     });
 
     await logAudit({ tenantId: s.tenantId, userId: s.userId, action: 'exam.create', entity: 'exam', entityId: String(result.id) });
+    if (input.courseId) {
+      const { notifyCourseStudents } = await import('@/lib/notify');
+      await notifyCourseStudents(s.tenantId, input.courseId, 'امتحان جديد: ' + input.title, 'أُضيف امتحان جديد إلى دورتك — بالتوفيق!', 'exam');
+    }
     return NextResponse.json(result, { status: 201 });
   } catch (e) {
     return NextResponse.json({ error: safeError(e, e instanceof Error ? e.message : 'تعذر إنشاء الامتحان') }, { status: 400 });

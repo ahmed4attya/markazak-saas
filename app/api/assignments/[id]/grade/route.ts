@@ -50,6 +50,13 @@ export async function POST(req: Request, context: Context) {
     });
 
     await logAudit({ tenantId: s.tenantId, userId: s.userId, action: 'submission.grade', entity: 'assignment', entityId: id, metadata: { studentId, score } });
+    {
+      const st = (await query('select user_id, name from students where id=$1 and tenant_id=$2', [studentId, s.tenantId])).rows[0] as any;
+      if (st?.user_id) {
+        const { notifyUsers } = await import('@/lib/notify');
+        await notifyUsers(s.tenantId, [String(st.user_id)], 'تم تصحيح واجبك: ' + a.title, 'الدرجة: ' + score + ' من ' + maxScore + (b.feedback ? ' — ' + b.feedback : ''), 'grade');
+      }
+    }
     return NextResponse.json(result);
   } catch (e) {
     return NextResponse.json({ error: safeError(e, 'تعذر حفظ الدرجة') }, { status: 400 });

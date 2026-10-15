@@ -64,6 +64,11 @@ export async function POST(req: Request) {
     entityId: String(attempt.exam_id),
     metadata: { score, total: qs.length },
   });
+  {
+    const { notifyUsers } = await import('@/lib/notify');
+    const percent = qs.length ? Math.round((score / qs.length) * 100) : 0;
+    await notifyUsers(s.tenantId, [s.userId], 'نتيجة امتحانك: ' + attempt.exam_title, 'النتيجة: ' + score + ' من ' + qs.length + ' (' + percent + '%)', 'exam');
+  }
 
   return NextResponse.json({
     attemptId,

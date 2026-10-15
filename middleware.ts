@@ -13,7 +13,7 @@ export async function middleware(req:NextRequest){
     const method=req.method.toUpperCase();
     const isApi=path.startsWith('/api/');
     const isLearner=role==='student'||role==='guardian';
-    const learnerAllowed=path.startsWith('/portal')||path.startsWith('/api/learner/')||(role==='student'&&path.startsWith('/api/attempts'))||(role==='student'&&method==='GET'&&path.startsWith('/api/assignments'));
+    const learnerAllowed=path.startsWith('/portal')||path.startsWith('/api/learner/')||path==='/api/me'||(role==='student'&&path.startsWith('/api/attempts'))||(role==='student'&&method==='GET'&&path.startsWith('/api/assignments'));
     const teacherAdminOnly=['/finance','/users','/settings','/plans','/activation-codes','/audit','/api/invoices','/api/payments','/api/users','/api/settings','/api/plans','/api/activation-codes','/api/audit'];
     const teacherMutationBlocked=['/api/students','/api/teachers','/api/courses','/api/groups','/api/classrooms','/api/enrollments'];
     const hasPrefix=(items:string[])=>items.some((item)=>path===item||path.startsWith(item+'/'));

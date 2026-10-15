@@ -55,6 +55,10 @@ export async function POST(req: Request) {
       [s.tenantId, courseId, groupId, title, b.description || null, dueDate, maxScore, s.userId]
     )).rows[0];
     await logAudit({ tenantId: s.tenantId, userId: s.userId, action: 'assignment.create', entity: 'assignment', entityId: String(ins.id) });
+    {
+      const { notifyCourseStudents } = await import('@/lib/notify');
+      await notifyCourseStudents(s.tenantId, courseId, 'واجب جديد: ' + title, 'أُضيف واجب جديد إلى دورتك' + (dueDate ? ' — التسليم ' + dueDate : '') + '.', 'assignment');
+    }
     return NextResponse.json(ins, { status: 201 });
   } catch (e) {
     return NextResponse.json({ error: safeError(e, 'تعذر إنشاء الواجب') }, { status: 400 });

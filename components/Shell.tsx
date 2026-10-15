@@ -75,10 +75,11 @@ export default function Shell({
   const [qcOpen, setQcOpen] = useState(false);
   const [dateStr, setDateStr] = useState('');
   const [role, setRole] = useState('');
+  const [tenantName, setTenantName] = useState('سنتر الخوارزمي');
 
   useEffect(() => {
     setDateStr(new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' }));
-    fetch('/api/me').then((r) => (r.ok ? r.json() : null)).then((d) => { if (d && d.role) setRole(String(d.role)); }).catch(() => {});
+    fetch('/api/me').then((r) => (r.ok ? r.json() : null)).then((d) => { if (d && d.role) setRole(String(d.role)); if (d && d.tenantName) setTenantName(String(d.tenantName)); }).catch(() => {});
   }, []);
 
   async function logout() {
@@ -116,7 +117,7 @@ export default function Shell({
               خ
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-bold text-[color:var(--text)] leading-tight">سنتر الخوارزمي</span>
+              <span className="text-lg font-bold text-[color:var(--text)] leading-tight">{tenantName}</span>
               <span className="text-[11px] text-[color:var(--muted)] font-medium uppercase tracking-wider">Al-Khwarizmi Center</span>
             </div>
           </div>
@@ -124,7 +125,7 @@ export default function Shell({
           <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-[color:var(--surface-2)] border border-[color:var(--border)] text-[color:var(--text-soft)] text-xs font-medium mb-2 cursor-pointer hover:bg-[color:var(--surface-3)] transition-colors">
             <div className="flex items-center gap-2">
               <Building2 size={16} className="text-[color:var(--muted-dim)]" />
-              <span>سنتر الخوارزمي</span>
+              <span>{tenantName}</span>
             </div>
             <ChevronDown size={14} />
           </div>
@@ -214,8 +215,8 @@ export default function Shell({
             </button>
             <div className="flex items-center gap-3 pl-2">
               <div className="hidden sm:flex flex-col items-end">
-                <span className="text-xs font-bold text-[color:var(--text-soft)]">مدير النظام</span>
-                <span className="text-[11px] text-[color:var(--muted)]">سنتر الخوارزمي</span>
+                <span className="text-xs font-bold text-[color:var(--text-soft)]">{role === 'student' ? 'طالب' : role === 'guardian' ? 'ولي أمر' : role === 'teacher' ? 'مدرب' : 'مدير النظام'}</span>
+                <span className="text-[11px] text-[color:var(--muted)]">{tenantName}</span>
               </div>
               <div className="w-9 h-9 rounded-full bg-[color:var(--gold)] text-[#0b0f17] flex items-center justify-center font-bold text-sm shadow-sm">خ</div>
             </div>
