@@ -1,11 +1,11 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, GraduationCap, BookOpen, Layers, FolderOpen, CalendarCheck,
   Wallet, FileBadge, BarChart3, Brain, UserCog, Settings, LogOut, Search, MonitorPlay,
-  Bell, Building2, ChevronDown, Menu, TrendingUp, ClipboardList, CreditCard, HelpCircle,
+  Bell, Building2, ChevronDown, Menu, TrendingUp, ClipboardList, CreditCard, HelpCircle, NotebookPen,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,6 +28,8 @@ const groups: NavGroup[] = [
       ['/library', 'مكتبة الملفات', FolderOpen],
       ['/videos', 'مكتبة الفيديو', MonitorPlay],
       ['/questions', 'بنك الأسئلة', HelpCircle],
+      ['/assignments', 'الواجبات', NotebookPen],
+      ['/gradebook', 'سجل الدرجات', ClipboardList],
       ['/finance', 'الفواتير والمدفوعات', Wallet],
       ['/certificates', 'الشهادات', FileBadge],
     ],

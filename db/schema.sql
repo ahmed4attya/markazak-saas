@@ -64,3 +64,18 @@ create unique index if not exists students_user_id_unique on students(user_id) w
 -- 4C: question import QA status (active | review | disabled) - figure-suspect imports land as review
 alter table questions add column if not exists status varchar(20) not null default 'active';
 create index if not exists questions_tenant_status on questions(tenant_id,status);
+
+-- 5: assignments + submissions (Scope 5)
+-- NOTE: legacy local-DB tables with an older shape (due_at/points/answer_text/grade) exist -
+-- create-table-if-not-exists is SHAPE-BLIND, so these ALTERs unify the canonical shape (Lesson 117).
+create table if not exists assignments(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,course_id uuid references courses(id) on delete cascade,group_id uuid references groups(id) on delete set null,title varchar(255) not null,description text,due_date date,max_score numeric(6,2) default 100,created_by uuid references users(id) on delete set null,created_at timestamptz default now());
+create index if not exists assignments_tenant_course on assignments(tenant_id,course_id);
+create table if not exists submissions(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references tenants(id) on delete cascade,assignment_id uuid references assignments(id) on delete cascade,student_id uuid references students(id) on delete cascade,content text,submitted_at timestamptz default now(),score numeric(6,2),feedback text,graded_at timestamptz,graded_by uuid references users(id) on delete set null,unique(assignment_id,student_id));
+create index if not exists submissions_assignment on submissions(assignment_id);
+create index if not exists submissions_tenant_student on submissions(tenant_id,student_id);
+alter table assignments add column if not exists description text;
+alter table assignments add column if not exists due_date date;
+alter table assignments add column if not exists max_score numeric(6,2) default 100;
+alter table submissions add column if not exists content text;
+alter table submissions add column if not exists score numeric(6,2);
+create unique index if not exists submissions_assignment_student_uq on submissions(assignment_id,student_id);

@@ -1,4 +1,4 @@
-﻿import {NextRequest,NextResponse} from 'next/server'
+import {NextRequest,NextResponse} from 'next/server'
 import {jwtVerify} from 'jose'
 function resolveAuthSecret(){const s=process.env.AUTH_SECRET;if(s&&s.length>=32)return s;if(process.env.NODE_ENV==='production')throw new Error('AUTH_SECRET missing or under 32 chars. Set a strong random value (32+ chars) in environment variables before production.');return s||'dev-only-insecure-secret-change-me-before-prod'}
 const secret=new TextEncoder().encode(resolveAuthSecret())
@@ -30,4 +30,4 @@ export async function middleware(req:NextRequest){
     return res;
   }catch{if(path.startsWith('/api/'))return NextResponse.json({error:'unauthorized'},{status:401});return NextResponse.redirect(new URL('/login',req.url))}
 }
-export const config={matcher:['/dashboard/:path*','/students/:path*','/teachers/:path*','/courses/:path*','/groups/:path*','/attendance/:path*','/finance/:path*','/certificates/:path*','/reports/:path*','/ai/:path*','/users/:path*','/plans/:path*','/activation-codes/:path*','/settings/:path*','/questions/:path*','/exams/:path*','/lessons/:path*','/portal/:path*','/api/:path*']}
+export const config={matcher:['/dashboard/:path*','/students/:path*','/teachers/:path*','/courses/:path*','/groups/:path*','/attendance/:path*','/finance/:path*','/certificates/:path*','/reports/:path*','/ai/:path*','/users/:path*','/plans/:path*','/activation-codes/:path*','/settings/:path*','/questions/:path*','/exams/:path*','/lessons/:path*','/assignments/:path*','/gradebook/:path*','/portal/:path*','/api/:path*']}
