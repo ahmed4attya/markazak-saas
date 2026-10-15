@@ -472,7 +472,22 @@ npm audit backlog (11; never --force) / tsconfig paste optional / lessons 1-12 r
 - Gate caught C2BB («) in new page = Lesson 101 family; swapped to ASCII parens (721 files audit clean after).
 - Lessons: 115. Windows job_kill does NOT kill the process tree - orphaned next dev keeps the port; kill via Get-NetTCPConnection LocalPort -> OwningProcess -> Stop-Process, then verify port free. (hit twice this session) 116. Test fixtures with "corrupted" rows must be corrupted in the FIELD THAT MATTERS - adding a text prefix accidentally healed the row; assert the reject reason, not just counts.
 - 4C OWNER LIVE-PROOF CHECKLIST: /questions/import -> paste sample or upload CSV -> report shows imported/review/rejected -> review rows absent from student exam payloads.
-- NEXT: Scope 5 (assignments + submissions tables + gradebook) per approved roadmap; then S-2 portal full activation.
+- NEXT: S-2 portal full activation (nav polish, notifications wiring, guardian multi-child) -> then Scope 6 (activation codes + subscriptions + advanced reports) -> Scope C (content ops incl. review-question activation UI) -> maintenance.
+
+---
+
+# MEMORY v10.7 UPDATE - 2026-10-14 (Scope S-2 CLOSED - portal activated + notifications live, e2e 12/12)
+
+## Scope S-2: COMPLETE (commit cdb79a4, 10 files, gate GREEN, pushed, auto-deploy)
+- CRITICAL REGRESSION FIXED: /api/me had LOST the role field in the unrecorded S1-agent work - Shell's role-aware nav (isAdminRole) was silently dead for ADMINs (ADMIN_ONLY items hidden). Restored role + added tenantName (per-center branding: Shell sidebar + header brand now dynamic from tenants.name, role-aware header label). The portal never calls /api/me (separate learner namespace) which is why nobody noticed.
+- Portal: /portal/results (نتائجي - attempts with color-coded percentages; guardian sees children's) + 7th home card.
+- Notifications NOW REAL (were a dead table): lib/notify.ts (best-effort, never breaks the action) wired at 4 events: exam created -> enrolled students; assignment created -> enrolled students; exam submitted -> score to the student; submission graded -> score+feedback to the student's linked user. Rate: notification inserts capped 100/recipients.
+- Middleware (protected minimal touch): learnerAllowed += path==='/api/me' (own-session data only) - it returned 403 forbidden for students/guardians before.
+- FUNCTIONAL PROOF: tools/session-S1/test-s2-flow.mjs 12/12 PASS (me role+tenantName both roles, assignment-create notification REACHED student, grade notification REACHED student, attempts endpoint, cleanup). Test bugs en route: password mismatch create/login (mine), TS annotations in .mjs (mine), admin role expectation.
+- No schema change. detect (DEC-035) N/A - auth-gated surface only (Lesson 73).
+- S-2 OWNER LIVE-PROOF CHECKLIST: login as admin -> sidebar shows الواجبات + سجل الدرجات with brand name from DB -> student portal واجباتي/نتائجي -> create+grade an assignment -> student bell shows the two notifications.
+- Guardian multi-child management: still one-child-at-creation (documented); read APIs already support many children.
+- NEXT: Scope 6 (activation codes + Stripe subscriptions + advanced reports) -> Scope C (content ops: review-question activation, copy exam/course) -> maintenance (npm audit, logAudit unification, schema.sql dedup, usage monitor).
 
 ---
 
