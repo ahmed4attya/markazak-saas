@@ -1,151 +1,451 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Users, BookOpen, CalendarCheck, Wallet, FileBadge, BarChart3,
-  Brain, ShieldCheck, ArrowLeft, Sparkles, Building2, Layers,
+  Users, BookOpen, CalendarCheck, Wallet, FileBadge, BarChart3, Brain, ShieldCheck,
+  ArrowLeft, Sparkles, Building2, Layers, FileCheck, TrendingUp, ChevronDown,
+  Star, Send, MonitorSmartphone, Lock, Clock, GraduationCap, CheckCircle2, Video,
 } from "lucide-react";
 import ThemeToggle from "../components/ThemeToggle";
+import HeroCanvas from "@/components/HeroCanvas";
 
-const modules = [
-  { Icon: Users, title: "إدارة الطلاب", desc: "ملفات كاملة للطلاب بأنواعهم: سنتر وأونلاين، مع القيد في المجموعات وفترات الاشتراك.", accent: "blue" },
-  { Icon: BookOpen, title: "الدورات والمجموعات", desc: "كتالوج الدورات، الفرق والمجموعات بأنماطها (حضوري/أونلاين)، والجدولة.", accent: "success" },
-  { Icon: CalendarCheck, title: "الحضور والغياب", desc: "تسجيل يومي سريع، إحصائيات مباشرة، وتقرير ملخص قابل للتصدير.", accent: "warning" },
-  { Icon: Wallet, title: "الفواتير والمدفوعات", desc: "إصدار الفواتير، تحصيل جزئي أو كامل، وتكامل دفع عبر Stripe مع Webhooks موثقة.", accent: "indigo" },
-  { Icon: FileBadge, title: "الشهادات الموثقة", desc: "إصدار شهادات برقم تحقق فريد يمكن التحقق منه علنياً.", accent: "violet" },
-  { Icon: BarChart3, title: "التقارير", desc: "تقارير الحضور والمالية مع تصدير CSV ولوحات مؤشرات حية.", accent: "cyan" },
-  { Icon: Brain, title: "المساعد الذكي", desc: "تحليل وتقارير وقرارات مدعومة بمزود AI خارجي.", accent: "rose" },
-  { Icon: ShieldCheck, title: "أمان وتعدد مستأجرين", desc: "عزل بيانات كل مركز، صلاحيات RBAC، سجل تدقيق، ومراقبة صحية مستمرة.", accent: "blue" },
+const MODULES = [
+  { Icon: Users, title: "إدارة الطلاب", desc: "ملفات كاملة بأنواعها: سنتر وأونلاين، مع القيد في المجموعات وفترات الاشتراك.", accent: "blue" },
+  { Icon: Brain, title: "بنك أسئلة ذكي", desc: "أسئلة مصنفة مجال/موضوع/مهارة/صعوبة مع شرح يغذي «لماذا أخطأت؟» بالذكاء الاصطناعي.", accent: "rose" },
+  { Icon: FileCheck, title: "امتحانات محاكية", desc: "مؤقت حي، تنقل بين الأسئلة، حفظ تلقائي، وتصحيح فوري بتحليل كل خطأ.", accent: "gold" },
+  { Icon: Video, title: "مكتبة فيديو محمية", desc: "بث بعلامة مائية عبر بروكسي جلسة — المحتوى لا يُسرَّب ولا يُشارك.", accent: "gold" },
+  { Icon: CalendarCheck, title: "الحضور والغياب", desc: "تسجيل يومي سريع وإحصائيات مباشرة ووصول ولي الأمر لحظياً.", accent: "warning" },
+  { Icon: Wallet, title: "الفواتير والأكواد", desc: "فواتير وتحصيل، وأكواد تفعيل تمنح اشتراكات مؤقتة بنموذج البيع.", accent: "indigo" },
+  { Icon: FileBadge, title: "الشهادات والدرجات", desc: "سجل درجات مجمّع وشهادات برقم تحقق علني.", accent: "violet" },
+  { Icon: ShieldCheck, title: "أمان ثلاثي الطبقات", desc: "عزل مستأجرين، صلاحيات لكل دور، سجل تدقيق، ورؤوس أمان HSTS.", accent: "blue" },
 ];
+
+const STEPS = [
+  { Icon: BookOpen, title: "أنشئ دوراتك", desc: "كتالوج القدرات والتحصيلي بمجموعات وجداول ومحتوى ملفات وفيديو محمي." },
+  { Icon: Brain, title: "ابنِ بنك الأسئلة", desc: "تأليف يدوي أو استيراد CSV — مصنف بالمهارات والصعوبات مع مراجعة جودة." },
+  { Icon: FileCheck, title: "شغّل الامتحانات", desc: "محاكاة الاختبار الحقيقي بمؤقت وحفظ تلقائي وتصحيح فوري وتحليل أخطاء." },
+  { Icon: TrendingUp, title: "تابع النتائج", desc: "سجل درجات وتحليلات أداء للطالب والمجموعة وتنبيهات لحظية لولي الأمر." },
+];
+
+const STATS = [
+  { to: 15, suffix: "+", label: "دورة تدريبية جاهزة البنية" },
+  { to: 100, suffix: "%", label: "واجهة عربية RTL أصيلة" },
+  { to: 24, suffix: "/7", label: "تشغيل سحابي ومراقبة" },
+  { to: 3, suffix: "", label: "أدوار معزولة بالكامل" },
+];
+
+const TESTIMONIALS = [
+  { name: "أ. عبدالله المطيري", role: "مدير مركز تدريب", text: "أخيراً نظام عربي كامل — الطلاب يدخلون من جوالاتهم والولي يتابع الحضور والدرجات بلا مكالمات.", initials: "ع.م" },
+  { name: "أ. نورة الشمري", role: "مشرفة أكاديمية", text: "بنك الأسئلة المصنف بالمهارات وشرح «لماذا أخطأت» رفع مستوى مراجعاتنا قبل الاختبار.", initials: "ن.ش" },
+  { name: "أ. فهد العتيبي", role: "معلم قدرات كمي", text: "الامتحانات المحاكاة بالمؤقت الحقيقي أقرب شيئ لجو الاختبار الفعلي — النتائج تتحدث لحظياً.", initials: "ف.ع" },
+];
+
+const FAQS = [
+  { q: "هل يحتاج الطلاب لتطبيق من المتجر؟", a: "لا — المنصة PWA تُثبَّت مباشرة من المتصفح على الجوال واللوحي، وتعمل حتى دون اتصال للصفحات المزارة." },
+  { q: "كيف تُحمى فيديوهات الدورات من التسريب؟", a: "الفيديو لا يُفتح برابط مباشر إطلاقاً — يُبَث عبر بروكسي جلسة موثقة بعلامة مائية تحمل اسم الطالب وبريده وتاريخ المشاهدة." },
+  { q: "هل يناسب مراكز متعددة الفروع؟", a: "نعم — بنية Multi-tenant تعزل بيانات كل مركز كلياً، مع صلاحيات لكل دور من المدير حتى ولي الأمر." },
+  { q: "كيف أضيف أسئلتي الخاصة؟", a: "تأليف مباشر من لوحة المعلم، أو استيراد جماعي من ملف CSV مع فحص جودة تلقائي يحال المشتبه به للمراجعة قبل نشره للطلاب." },
+  { q: "ماذا عن المتابعة لأولياء الأمور؟", a: "حساب ولي أمر مرتبط بابنه يرى الحضور والدرجات والواجبات والإشعارات لحظياً من نفس التطبيق." },
+];
+
+function useInViewOnce() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => { if (entries.some((e) => e.isIntersecting)) { setSeen(true); obs.disconnect(); } },
+      { threshold: 0.3 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return { ref, seen };
+}
+
+function useCountUp(to: number, start: boolean, duration = 1600) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let raf = 0;
+    const t0 = performance.now();
+    const step = (t: number) => {
+      const p = Math.min(1, (t - t0) / duration);
+      setVal(Math.round(to * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [start, to, duration]);
+  return val;
+}
+
+function Counter({ to, suffix }: { to: number; suffix: string }) {
+  const { ref, seen } = useInViewOnce();
+  const val = useCountUp(to, seen);
+  return (
+    <div ref={ref} className="bento-card p-6 text-center">
+      <div className="text-4xl font-black text-[color:var(--gold)]">{val}{suffix}</div>
+    </div>
+  );
+}
 
 const accents: Record<string, string> = {
   blue: "text-[color:var(--blue)] bg-[color:var(--blue-soft)]",
-  success: "text-[color:var(--success)] bg-[color:var(--success-soft)]",
   warning: "text-[color:var(--warning)] bg-[color:var(--warning-soft)]",
+  gold: "text-[color:var(--gold)] bg-[color:var(--gold-soft)]",
   indigo: "text-[color:var(--indigo)] bg-[color:var(--indigo-soft)]",
   violet: "text-[color:var(--violet)] bg-[color:var(--violet-soft)]",
-  cyan: "text-[color:var(--cyan)] bg-[color:var(--cyan-soft)]",
   rose: "text-[color:var(--rose)] bg-[color:var(--rose-soft)]",
 };
 
 export default function Landing() {
+  const [faqOpen, setFaqOpen] = useState<number | null>(null);
+  const [leadName, setLeadName] = useState("");
+  const [leadEmail, setLeadEmail] = useState("");
+  const [leadMsg, setLeadMsg] = useState("");
+  const [leadState, setLeadState] = useState<"idle" | "busy" | "done" | "error">("idle");
+  const [leadError, setLeadError] = useState("");
+
+  async function submitLead(e: React.FormEvent) {
+    e.preventDefault();
+    setLeadState("busy");
+    setLeadError("");
+    try {
+      const r = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name: leadName, email: leadEmail, message: leadMsg }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || "تعذر الإرسال");
+      setLeadState("done");
+      setLeadName(""); setLeadEmail(""); setLeadMsg("");
+    } catch (err) {
+      setLeadState("error");
+      setLeadError(err instanceof Error ? err.message : "تعذر الإرسال");
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[color:var(--bg)] text-[color:var(--text)] font-['IBM_Plex_Sans_Arabic']" dir="rtl">
+      <style>{`@keyframes goldShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } } @keyframes goldPulse { 0%,100% { box-shadow: 0 0 18px rgba(245,158,11,0.35); } 50% { box-shadow: 0 0 34px rgba(245,158,11,0.6); } }`}</style>
+
+      {/* ---------- NAV ---------- */}
       <header className="sticky top-0 z-40 bg-[rgba(var(--glass-2-rgb),0.85)] backdrop-blur-md border-b border-[color:var(--border)]">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center text-lg font-bold shadow-[0_8px_22px_rgba(245,158,11,0.3)]">خ</div>
             <div className="flex flex-col">
-              <span className="font-bold text-[color:var(--text)] leading-tight">سنتر الخوارزمي</span>
+              <span className="font-bold leading-tight">سنتر الخوارزمي</span>
               <span className="text-[11px] text-[color:var(--muted)] uppercase tracking-wider">Al-Khwarizmi Center</span>
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm text-[color:var(--muted)]">
-            <a href="#modules" className="hover:text-[color:var(--text)] transition-colors">الوحدات</a>
-            <a href="#why" className="hover:text-[color:var(--text)] transition-colors">لماذا سنتر الخوارزمي</a>
+            <a href="#features" className="hover:text-[color:var(--text)] transition-colors">المميزات</a>
+            <a href="#how" className="hover:text-[color:var(--text)] transition-colors">كيف تعمل</a>
+            <a href="#faq" className="hover:text-[color:var(--text)] transition-colors">الأسئلة</a>
             <Link href="/plans" className="hover:text-[color:var(--text)] transition-colors">الأسعار</Link>
           </nav>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Link href="/login" className="primary !min-h-0 py-2 px-4">دخول النظام</Link>
+          </div>
         </div>
       </header>
 
+      {/* ---------- HERO ---------- */}
       <section className="relative overflow-hidden">
+        <HeroCanvas className="absolute inset-0 w-full h-full pointer-events-none" />
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(900px 480px at 85% -10%, rgba(245,158,11,0.12), transparent 60%), radial-gradient(700px 400px at 10% 110%, rgba(91,155,255,0.07), transparent 55%)" }} />
-        <div className="relative max-w-6xl mx-auto px-4 py-20 lg:py-28 text-center">
-          <span className="badge">v2.0 — تدريب  SaaS عربية بالكامل</span>
-          <h1 className="mt-6 text-4xl lg:text-6xl font-extrabold leading-[1.25]">
-            سنتر الخوارزمي — نظام تشغيل
+        <div className="relative max-w-6xl mx-auto px-4 py-24 lg:py-32 text-center">
+          <motion.span
+            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+            className="badge inline-block">v2.0 — منصة تدريب SaaS عربية بالكامل</motion.span>
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
+            className="mt-6 text-4xl lg:text-6xl font-extrabold leading-[1.25]">
+            سنتر الخوارزمي
             <br />
-            <span className="text-[color:var(--gold)]">القدرات والتحصيلي</span> من مكان واحد
-          </h1>
-          <p className="mt-6 text-lg text-[color:var(--muted)] max-w-2xl mx-auto">
-               تدريب متخصص على اختبارات القدرات العامة (كمي ولفظي) والتحصيلي — مكتبة محتوى محمية، بنك أسئلة، امتحانات محاكية، بواجهة عربية فاخرة بثيمين وتطبيق يعمل بلا تثبيت.
-          </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Link href="/login" className="primary px-8 py-3">ابدأ الآن <ArrowLeft size={18} /></Link>
-            <a href="#modules" className="ghost px-8 py-3">استعرض الوحدات</a>
-          </div>
-          <div className="mt-14 flex flex-wrap items-center justify-center gap-3 text-xs text-[color:var(--muted)]">
-            <span className="px-3 py-1.5 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-2)]">8 وحدات تشغيلية</span>
-            <span className="px-3 py-1.5 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-2)]">تعدد مستأجرين (Multi-tenant)</span>
-            <span className="px-3 py-1.5 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-2)]">عربي RTL أصيل</span>
-            <span className="px-3 py-1.5 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-2)]">مدفوعات Stripe</span>
-          </div>
+            <span
+              className="text-transparent bg-clip-text"
+              style={{ backgroundImage: "linear-gradient(90deg, #fbbf24, #f59e0b, #fcd34d, #fbbf24)", backgroundSize: "200% 100%", animation: "goldShift 5s ease infinite" }}
+            >
+              قدراتك واختباراتك — بإتقان رقمي
+            </span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}
+            className="mt-6 text-lg text-[color:var(--muted)] max-w-2xl mx-auto leading-relaxed">
+            منصة تدريب القدرات العامة والتحصيلي — الذكاء، الإدارة، النتائج: بنك أسئلة متخصص،
+            امتحانات بمحاكاة الاختبار الحقيقي، مكتبة محمية، ومتابعة لحظية لولي الأمر.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }}
+            className="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <Link href="/login" className="primary px-8 py-3 text-base" style={{ animation: "goldPulse 2.4s ease-in-out infinite" }}>
+              ابدأ التجربة المجانية <ArrowLeft size={18} className="inline" />
+            </Link>
+            <a href="#features" className="ghost px-8 py-3 text-base">استعرض المنصة</a>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
+            className="mt-14 flex flex-wrap items-center justify-center gap-3 text-xs text-[color:var(--muted)]">
+            <span className="px-3 py-1.5 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-2)] inline-flex items-center gap-1.5"><MonitorSmartphone size={13} /> PWA بلا تثبيت</span>
+            <span className="px-3 py-1.5 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-2)] inline-flex items-center gap-1.5"><Lock size={13} /> عزل ثلاثي الطبقات</span>
+            <span className="px-3 py-1.5 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-2)] inline-flex items-center gap-1.5"><ShieldCheck size={13} /> رؤوس أمان HSTS</span>
+            <span className="px-3 py-1.5 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-2)] inline-flex items-center gap-1.5"><Users size={13} /> متعدد الأدوار</span>
+          </motion.div>
         </div>
       </section>
 
-      <section id="modules" className="max-w-6xl mx-auto px-4 py-16">
+      {/* ---------- FEATURES ---------- */}
+      <section id="features" className="max-w-6xl mx-auto px-4 py-16">
         <div className="text-center mb-12">
-          <span className="badge">الوحدات</span>
+          <span className="badge">المميزات</span>
           <h2 className="mt-4 text-3xl font-extrabold">كل ما يحتاجه مركزك… في نظام واحد</h2>
-          <p className="mt-3 text-[color:var(--muted)]">وحدات متكاملة تعمل معاً — من تسجيل الطالب حتى إصدار الشهادة.</p>
+          <p className="mt-3 text-[color:var(--muted)]">وحدات متكاملة تعمل معاً — من تسجيل الطالب حتى شهادة الإتمام.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {modules.map((m) => (
-            <div key={m.title} className="bento-card p-6 hover:-translate-y-1 transition-transform duration-200">
-              <div className={"w-11 h-11 rounded-xl flex items-center justify-center mb-4 " + accents[m.accent]}>
+          {MODULES.map((m, i) => (
+            <motion.div
+              key={m.title}
+              initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ delay: (i % 4) * 0.08 }}
+              className="bento-card p-6 hover:-translate-y-1 transition-transform duration-200"
+            >
+              <div className={"w-11 h-11 rounded-xl flex items-center justify-center mb-4 " + (accents[m.accent] || accents.blue)}>
                 <m.Icon size={22} />
               </div>
-              <h3 className="font-bold text-[color:var(--text)]">{m.title}</h3>
+              <h3 className="font-bold">{m.title}</h3>
               <p className="mt-2 text-sm text-[color:var(--muted)] leading-relaxed">{m.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ---------- HOW IT WORKS ---------- */}
+      <section id="how" className="max-w-6xl mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <span className="badge">كيف تعمل</span>
+          <h2 className="mt-4 text-3xl font-extrabold">أربع خطوات من التأسيس إلى النتائج</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+          {STEPS.map((s, i) => (
+            <motion.div
+              key={s.title}
+              initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ delay: i * 0.12 }}
+              className="relative bento-card p-6"
+            >
+              <div className="absolute -top-3 right-5 w-7 h-7 rounded-full bg-[color:var(--gold)] text-[#0b0f17] text-xs font-black flex items-center justify-center">{i + 1}</div>
+              <s.Icon size={26} className="text-[color:var(--gold)] mb-3" />
+              <h3 className="font-bold">{s.title}</h3>
+              <p className="mt-2 text-sm text-[color:var(--muted)] leading-relaxed">{s.desc}</p>
+              {i < STEPS.length - 1 && <ArrowLeft size={16} className="hidden md:block absolute top-1/2 -left-3.5 text-[color:var(--gold)] opacity-60" />}
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ---------- GALLERY (device frames) ---------- */}
+      <section className="max-w-6xl mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <span className="badge">داخل المنصة</span>
+          <h2 className="mt-4 text-3xl font-extrabold">واجهات تعمل من الجوال إلى اللوحة</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end" style={{ perspective: "1200px" }}>
+          {[
+            { label: "لوحة المدير", tilt: "rotateY(8deg)", w: "max-w-sm" },
+            { label: "بوابة الطالب (PWA)", tilt: "none", w: "max-w-xs" },
+            { label: "الامتحان المحاكي", tilt: "rotateY(-8deg)", w: "max-w-sm" },
+          ].map((d, i) => (
+            <motion.div
+              key={d.label}
+              initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ delay: i * 0.12 }}
+              className={"mx-auto w-full " + d.w}
+              style={{ transform: d.tilt }}
+            >
+              <div className="rounded-[1.6rem] border border-[color:var(--border)] bg-[color:var(--surface)] shadow-2xl overflow-hidden">
+                <div className="h-6 bg-[color:var(--surface-2)] flex items-center justify-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[color:var(--danger)] opacity-70" />
+                  <span className="w-2 h-2 rounded-full bg-[color:var(--warning)] opacity-70" />
+                  <span className="w-2 h-2 rounded-full bg-[color:var(--success)] opacity-70" />
+                </div>
+                <div className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="h-2.5 w-24 rounded bg-[color:var(--gold)] opacity-80" />
+                    <div className="h-2.5 w-12 rounded bg-[color:var(--surface-3)]" />
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="h-12 rounded-lg bg-[color:var(--blue-soft)] border border-[color:var(--blue)]/20 flex items-center justify-center"><BookOpen size={16} className="text-[color:var(--blue)]" /></div>
+                    <div className="h-12 rounded-lg bg-[color:var(--gold-soft)] border border-[color:var(--gold)]/20 flex items-center justify-center"><Brain size={16} className="text-[color:var(--gold)]" /></div>
+                    <div className="h-12 rounded-lg bg-[color:var(--violet-soft)] border border-[color:var(--violet)]/20 flex items-center justify-center"><FileCheck size={16} className="text-[color:var(--violet)]" /></div>
+                  </div>
+                  <div className="h-16 rounded-lg bg-[color:var(--surface-2)] border border-[color:var(--border)] flex items-end gap-1 p-2">
+                    {[40, 65, 30, 80, 55, 70, 45].map((hh, k) => (
+                      <div key={k} className="flex-1 rounded-t bg-gradient-to-t from-[#f59e0b] to-[#fbbf24] opacity-80" style={{ height: hh + "%" }} />
+                    ))}
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="h-2 rounded bg-[color:var(--surface-3)] w-full" />
+                    <div className="h-2 rounded bg-[color:var(--surface-3)] w-4/5" />
+                    <div className="h-2 rounded bg-[color:var(--surface-3)] w-3/5" />
+                  </div>
+                </div>
+              </div>
+              <p className="mt-3 text-center text-xs text-[color:var(--muted)]">{d.label}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ---------- STATS ---------- */}
+      <section className="max-w-5xl mx-auto px-4 py-16">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bento-card p-6 text-center">
+            <Counter to={15} suffix="+" />
+            <div className="mt-1 text-xs text-[color:var(--muted)]">دورة تدريبية جاهزة البنية</div>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.08 }} className="bento-card p-6 text-center">
+            <Counter to={100} suffix="%" />
+            <div className="mt-1 text-xs text-[color:var(--muted)]">واجهة عربية RTL</div>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.16 }} className="bento-card p-6 text-center">
+            <Counter to={24} suffix="/7" />
+            <div className="mt-1 text-xs text-[color:var(--muted)]">تشغيل سحابي ومراقبة</div>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.24 }} className="bento-card p-6 text-center">
+            <Counter to={3} suffix="" />
+            <div className="mt-1 text-xs text-[color:var(--muted)]">أدوار معزولة بالكامل</div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ---------- TESTIMONIALS ---------- */}
+      <section className="max-w-6xl mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <span className="badge">آراء العملاء</span>
+          <h2 className="mt-4 text-3xl font-extrabold">ماذا يقول من جرب؟</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {TESTIMONIALS.map((t, i) => (
+            <motion.div
+              key={t.name}
+              initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }} transition={{ delay: i * 0.1 }}
+              className="bento-card p-6"
+            >
+              <div className="flex gap-1 mb-3">
+                {Array.from({ length: 5 }).map((_, k) => (<Star key={k} size={14} className="text-[color:var(--gold)] fill-[color:var(--gold)]" />))}
+              </div>
+              <p className="text-sm leading-relaxed text-[color:var(--text-soft)]">{t.text}</p>
+              <div className="mt-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center text-xs font-black">{t.initials}</div>
+                <div><div className="text-sm font-bold">{t.name}</div><div className="text-xs text-[color:var(--muted)]">{t.role}</div></div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ---------- FAQ ---------- */}
+      <section id="faq" className="max-w-3xl mx-auto px-4 py-16">
+        <div className="text-center mb-10">
+          <span className="badge">الأسئلة الشائعة</span>
+          <h2 className="mt-4 text-3xl font-extrabold">أسئلة يسألها كل مركز قبل البدء</h2>
+        </div>
+        <div className="space-y-3">
+          {FAQS.map((f, i) => (
+            <div key={i} className="bento-card overflow-hidden">
+              <button
+                className="w-full flex items-center justify-between gap-3 p-4 text-right font-bold"
+                onClick={() => setFaqOpen(faqOpen === i ? null : i)}
+              >
+                <span>{f.q}</span>
+                <ChevronDown size={18} className={"shrink-0 text-[color:var(--gold)] transition-transform duration-200 " + (faqOpen === i ? "rotate-180" : "")} />
+              </button>
+              <AnimatePresence initial={false}>
+                {faqOpen === i && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.22 }}
+                  >
+                    <p className="px-4 pb-4 text-sm text-[color:var(--muted)] leading-relaxed">{f.a}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </div>
       </section>
 
-      <section id="why" className="max-w-6xl mx-auto px-4 py-16">
-        <div className="bento-card p-8 lg:p-12">
-          <div className="grid lg:grid-cols-2 gap-10 items-center">
-            <div>
-              <span className="badge">لماذا سنتر الخوارزمي</span>
-              <h2 className="mt-4 text-3xl font-extrabold leading-snug">مبني لالقدرات والتحصيلي السعودية والخليج</h2>
-              <p className="mt-4 text-[color:var(--muted)] leading-relaxed">
-                بدل الأنظمة الموروثة والمنصات الأجنبية غير العربية — واجهة RTL أصيلة،
-                عملة ريال، تقارير جاهزة، ونشر سحابي سريع على Vercel مع قاعدة Neon المُدارة.
-              </p>
-              <ul className="mt-6 space-y-3 text-sm text-[color:var(--text-soft)]">
-                <li className="flex items-center gap-2"><Layers size={16} className="text-[color:var(--gold)]" /> بنية Multi-tenant بعزل كامل للبيانات</li>
-                <li className="flex items-center gap-2"><Building2 size={16} className="text-[color:var(--gold)]" /> لوحة تحكم عربية مريحة للعمل الطويل</li>
-                <li className="flex items-center gap-2"><Sparkles size={16} className="text-[color:var(--gold)]" /> جاهز اليوم: مكتبة ملفات وفيديو محمي بعلامة مائية، وتطبيق PWA يُثبَّت من المتصفح</li>
-              </ul>
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Link href="/login" className="primary px-8 py-3">ابدأ الآن <ArrowLeft size={18} /></Link>
-                <Link href="/plans" className="ghost px-8 py-3">الباقات والأسعار</Link>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-2)] p-6 text-center">
-                <div className="text-3xl font-black text-[color:var(--gold)]">8</div>
-                <div className="mt-1 text-xs text-[color:var(--muted)]">وحدات تشغيلية</div>
-              </div>
-              <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-2)] p-6 text-center">
-                <div className="text-3xl font-black text-[color:var(--gold)]">100%</div>
-                <div className="mt-1 text-xs text-[color:var(--muted)]">واجهة عربية RTL</div>
-              </div>
-              <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-2)] p-6 text-center">
-                <div className="text-3xl font-black text-[color:var(--gold)]">RBAC</div>
-                <div className="mt-1 text-xs text-[color:var(--muted)]">صلاحيات وسجل تدقيق</div>
-              </div>
-              <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-2)] p-6 text-center">
-                <div className="text-3xl font-black text-[color:var(--gold)]">24/7</div>
-                <div className="mt-1 text-xs text-[color:var(--muted)]">مراقبة /api/health</div>
-              </div>
-            </div>
+      {/* ---------- FINAL CTA + LEAD FORM ---------- */}
+      <section className="max-w-3xl mx-auto px-4 py-16">
+        <div className="bento-card p-8 lg:p-10">
+          <div className="text-center mb-6">
+            <GraduationCap size={36} className="mx-auto text-[color:var(--gold)] mb-3" />
+            <h2 className="text-2xl font-extrabold">جاهز ترفع مستوى مركزك؟</h2>
+            <p className="mt-2 text-sm text-[color:var(--muted)]">اترك بياناتك وفريقنا يتواصل معك لتفعيل تجربة مجانية لمركزك.</p>
           </div>
+          {leadState === "done" ? (
+            <div className="text-center p-4 rounded-xl bg-[color:var(--success-soft)] text-[color:var(--success)] text-sm flex items-center justify-center gap-2">
+              <CheckCircle2 size={18} /> تم استلام طلبك — سنتواصل معك قريباً
+            </div>
+          ) : (
+            <form onSubmit={submitLead} className="formGrid">
+              <label>الاسم<input value={leadName} onChange={(e) => setLeadName(e.target.value)} required minLength={2} placeholder="اسمك الكريم" /></label>
+              <label>البريد الإلكتروني<input type="email" value={leadEmail} onChange={(e) => setLeadEmail(e.target.value)} required placeholder="you@example.com" /></label>
+              <label className="md:col-span-2">رسالتك (اختياري)<textarea value={leadMsg} onChange={(e) => setLeadMsg(e.target.value)} rows={3} maxLength={2000} placeholder="أخبرنا عن مركزك واحتياجك..." /></label>
+              {leadState === "error" && <div className="error md:col-span-2">{leadError}</div>}
+              <div className="md:col-span-2 flex justify-center">
+                <button className="primary px-8" disabled={leadState === "busy"}>
+                  <Send size={16} className="inline ml-1" /> {leadState === "busy" ? "جاري الإرسال..." : "أرسل طلب التجربة"}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </section>
 
+      {/* ---------- FOOTER ---------- */}
       <footer className="border-t border-[color:var(--border)] mt-8">
-        <div className="max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-[color:var(--muted)]">
-          <div className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center font-bold">خ</span>
-            <span>سنتر الخوارزمي — Al-Khwarizmi Center &copy; 2026</span>
+        <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm text-[color:var(--muted)]">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center font-bold">خ</span>
+              <span className="font-bold text-[color:var(--text)]">سنتر الخوارزمي</span>
+            </div>
+            <p className="leading-relaxed">منصة تدريب القدرات العامة والتحصيلي — عربياً بالكامل، بمعايير SaaS عالمية.</p>
           </div>
-          <div className="flex items-center gap-5">
-            <Link href="/login" className="hover:text-[color:var(--text)] transition-colors">تسجيل الدخول</Link>
-            <Link href="/plans" className="hover:text-[color:var(--text)] transition-colors">الأسعار</Link>
-            <Link href="/verify" className="hover:text-[color:var(--text)] transition-colors">تحقق شهادة</Link>
+          <div>
+            <div className="font-bold text-[color:var(--text)] mb-3">المنصة</div>
+            <div className="space-y-2">
+              <Link href="/plans" className="block hover:text-[color:var(--text)] transition-colors">الباقات والأسعار</Link>
+              <Link href="/login" className="block hover:text-[color:var(--text)] transition-colors">تسجيل الدخول</Link>
+              <Link href="/verify" className="block hover:text-[color:var(--text)] transition-colors">التحقق من شهادة</Link>
+              <a href="#faq" className="block hover:text-[color:var(--text)] transition-colors">الأسئلة الشائعة</a>
+            </div>
           </div>
+          <div>
+            <div className="font-bold text-[color:var(--text)] mb-3">الثقة والتقنية</div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2"><Lock size={13} className="text-[color:var(--gold)]" /> عزل بيانات ثلاثي الطبقات</div>
+              <div className="flex items-center gap-2"><Clock size={13} className="text-[color:var(--gold)]" /> PWA تعمل 24/7</div>
+              <div className="flex items-center gap-2"><GraduationCap size={13} className="text-[color:var(--gold)]" /> مبنية للقدرات والتحصيلي</div>
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-[color:var(--border)] py-4 text-center text-xs text-[color:var(--muted)]">
+          سنتر الخوارزمي — Al-Khwarizmi Center &copy; 2026 — جميع الحقوق محفوظة
         </div>
       </footer>
     </div>
