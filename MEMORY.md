@@ -639,6 +639,21 @@ OWNER LIVE-PROOF: all checklists accumulated in v10.3-v10.9 - one sitting on pro
 
 ---
 
+# MEMORY v11.5 UPDATE - 2026-10-15 (MISSION V-S1 CLOSED: daily training pulse - commit 850f821 + batch pre-commit a035d94-era chain context)
+
+## V-S1: COMPLETE (gate GREEN after guillemet fix, e2e 12/12 test-vs1-training.mjs, pushed)
+- NEW /api/learner/training: GET ?count&domain&difficulty -> random ACTIVE bank questions WITHOUT answers + lazy per-tenant training exam (title 'التدريب اليومي', course_id null -> invisible to امتحاناتي) + open attempt reuse; POST {attemptId, questionId, chosen} -> verdict + explanation (answers merged into attempts.answers.c jsonb); POST {finish:true} -> server-scored from stored answers + best previous score. Student-only (teacher 403 verified).
+- NEW components/QuestionCard.tsx (shared): context chips (domain/skill/difficulty), letter circles أ-د with ✓/✗ states, result banner, slot for MistakeTutor + next button.
+- NEW components/MistakeTutor.tsx: gold 3-section breakdown (سبب/الإجابة الصحيحة/قاعدة سريعة) + Volume2 via Web-Speech speechSynthesis (ar-SA) - server TTS NOT needed (documented; /api/tts from spec not built).
+- NEW app/portal/training/page.tsx: progress bar h-2, question counter, floating Flag/Bookmark placeholders (قريباً), full flow, final Trophy/AlertCircle screen with best score.
+- Portal layout NAV += التدريب (Zap) + صندوق أخطائي (Wrench, page = V-S2 next).
+- Gate ABORTED CORRECTLY on RED (guillemets in MistakeTutor) - exit-code check worked (Lesson 126 applied); fixed and re-pushed (850f821).
+- e2e 12/12: 10 random questions answers-hidden, verdicts consistent, server-scored finish, double-finish 404, teacher 403, page renders.
+- TELEGRAM: no bot token/chat id exists in any reachable env (names probed: DATABASE_URL/AUTH_SECRET/VERCEL_OIDC_TOKEN only) - notifier utility deferred until owner provides TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID via env; reports delivered in-session meanwhile.
+- Remaining in this mission: V-S2 mistakes box + API, V-S3 exams page rewrite, V-S4 layout polish, portal redesign A-G items (courses/[id] detail page, library tabs, attendance ring, notifications polish).
+
+---
+
 # MEMORY v11.2 UPDATE - 2026-10-15 (Scope V2 CLOSED - premium dashboard + collapsible Shell, commit 9be0d95)
 
 ## V2: COMPLETE (gate GREEN, e2e 12/12 test-v2-dashboard.mjs, pushed, auto-deploy)
