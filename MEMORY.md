@@ -561,6 +561,18 @@ OWNER LIVE-PROOF: all checklists accumulated in v10.3-v10.9 - one sitting on pro
 
 ---
 
+# MEMORY v11.1 UPDATE - 2026-10-15 (Scope V1 CLOSED - professional landing + leads, local + prod)
+
+## Scope V1: COMPLETE (commits a0047c4 + 008fc3e, gate GREEN final, e2e 12/12 test-v1-landing.mjs)
+- app/page.tsx REWRITTEN as client component: HeroCanvas particle network (components/HeroCanvas.tsx - zero-dep canvas, gold/blue, DPR-aware, cleanup), animated gold-gradient hero (background-clip text + goldShift keyframes inline), pulsing CTA, trust chips, 4-step how-it-works (stagger reveal), device-frame gallery (CSS perspective), IntersectionObserver count-up stats (zero framer-API risk), 3 testimonials, FAQ accordion (AnimatePresence), lead form -> /api/leads, enhanced footer (/login /plans /verify preserved + ThemeToggle preserved).
+- /api/leads: public POST (name/email/message, IP rate limit 5/h, validation) storing to NEW leads table (platform-level, no tenant) + admin-only GET. S-V1 migration in schema.sql - applied LOCAL + PROD (verify-dedup-schema: 29 tables, 2 students preserved; backup branch backup-pre-v1 = br-wispy-frog-b2agt7yh; leads columns verified on prod).
+- middleware: /api/leads added to public-path bypass (POST public by design; GET self-guards admin) - protected touch justified by the mission spec.
+- Violation corrected: first push went through a RED gate - the gate+commit+push were CHAINED in one command and a Select-Object filter hid the FAIL (guillemets in landing text, Lesson 101 family). Fixed same-session: guillemets -> ASCII parens, re-gate GREEN, fix pushed (008fc3e).
+- Lesson 126: NEVER chain gate+commit+push in one shell command - check the gate's $LASTEXITCODE and ABORT on non-zero before any commit; output filters hide verdicts (extends 60/64).
+- Lesson 127: framer-motion usage on landing kept to universal APIs (motion.div whileInView/stagger/AnimatePresence); counters built with IntersectionObserver+rAF (zero version risk).
+
+---
+
 # MEMORY v12 UPDATE - 2026-10-15 (MISSION: video-proxy roles + dialog CRUD + assignments - 4 tasks closed, commits 8b79403 + d8ed400)
 
 ## Task 1 (video proxy roles): ROOT CAUSE = middleware, not the route
