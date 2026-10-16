@@ -641,6 +641,15 @@ OWNER LIVE-PROOF: all checklists accumulated in v10.3-v10.9 - one sitting on pro
 
 # MEMORY v11.5 UPDATE - 2026-10-15 (MISSION V-S1 CLOSED: daily training pulse - commit 850f821 + batch pre-commit a035d94-era chain context)
 
+## ADDENDUM (same session, Scope V-S2/V-S3/V-S4 + Telegram CLOSED - commits 7160747-era chain)
+- V-S2 mistakes box: /api/learner/mistakes (GET aggregates wrong answers across FINISHED attempts per question with wrongCount + lastCorrect derivation - 'أتممتها' is DERIVED stateless; re-solve POST returns verdict+explanation, correct_index never leaves the server in the list). Portal /portal/mistakes: counters (active/done), skill+repeat filters, pagination 10/page, per-card re-solve, batch resolve-all mode, Trophy empty state. e2e 11/11 (test-vs2-mistakes.mjs): wrongCount=2 across two finished attempts, done derivation, leak check, teacher 403.
+- V-S3: /portal/exams rebuilt (gradient hero + Target chip, status circles done/available, gated start links; guardian = متابعة فقط). Bridge to the 4B taking screen preserved (/portal/exams/[id]).
+- V-S4: portal layout reworked - mobile horizontal icon nav (5 primary: home/training/courses/exams/mistakes) with GOLD DOT under the active icon; desktop header (gold brand + لوحة الطالب + bell dropdown + red labeled خروج); side rail intact (all 12 sections).
+- Telegram: lib/telegram-notify.ts (no-op without TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID, 10s timeout, silent failures) wired to /api/leads (new lead -> instant owner notification). Owner must add the two env vars (local .env.local + Vercel) to activate - names verified absent from every reachable env.
+- Gate incidents this batch (all caught, none shipped): _history undeclared property (tsc), null lastAt sort (tsc), mistakes page forgotten from whitelist (hygiene) - the ABORT pattern (Lesson 126) prevented every one from reaching main.
+- Lesson 133: whitelist drift happens when NEW files are created mid-batch - stage the full file list RIGHT BEFORE the gate, and let hygiene RED remind you of anything missed (it caught app/portal/mistakes/).
+- Lesson 134: 42P18-style param errors and tsc narrowing errors in aggregations are caught fastest by asserting against a REAL seeded scenario (two finished attempts with known outcomes) rather than synthetic unit expectations.
+
 ## V-S1: COMPLETE (gate GREEN after guillemet fix, e2e 12/12 test-vs1-training.mjs, pushed)
 - NEW /api/learner/training: GET ?count&domain&difficulty -> random ACTIVE bank questions WITHOUT answers + lazy per-tenant training exam (title 'التدريب اليومي', course_id null -> invisible to امتحاناتي) + open attempt reuse; POST {attemptId, questionId, chosen} -> verdict + explanation (answers merged into attempts.answers.c jsonb); POST {finish:true} -> server-scored from stored answers + best previous score. Student-only (teacher 403 verified).
 - NEW components/QuestionCard.tsx (shared): context chips (domain/skill/difficulty), letter circles أ-د with ✓/✗ states, result banner, slot for MistakeTutor + next button.
@@ -650,7 +659,7 @@ OWNER LIVE-PROOF: all checklists accumulated in v10.3-v10.9 - one sitting on pro
 - Gate ABORTED CORRECTLY on RED (guillemets in MistakeTutor) - exit-code check worked (Lesson 126 applied); fixed and re-pushed (850f821).
 - e2e 12/12: 10 random questions answers-hidden, verdicts consistent, server-scored finish, double-finish 404, teacher 403, page renders.
 - TELEGRAM: no bot token/chat id exists in any reachable env (names probed: DATABASE_URL/AUTH_SECRET/VERCEL_OIDC_TOKEN only) - notifier utility deferred until owner provides TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID via env; reports delivered in-session meanwhile.
-- Remaining in this mission: V-S2 mistakes box + API, V-S3 exams page rewrite, V-S4 layout polish, portal redesign A-G items (courses/[id] detail page, library tabs, attendance ring, notifications polish).
+- Remaining in this mission: ~~V-S2 mistakes box + API~~ DONE (see ADDENDUM above) ~~V-S3 exams page rewrite~~ DONE ~~V-S4 layout polish~~ DONE. STILL OPEN: portal redesign A-G items (courses/[id] detail page, library tabs UI, attendance ring grid on /portal/attendance, notifications page polish, guardian child-tab switcher on home).
 
 ---
 
