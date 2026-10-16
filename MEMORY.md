@@ -624,6 +624,21 @@ OWNER LIVE-PROOF: all checklists accumulated in v10.3-v10.9 - one sitting on pro
 
 ---
 
+# MEMORY v11.4 UPDATE - 2026-10-15 (Scope V4 + V5 CLOSED - UX + polish, commits d8aee3f + ee12f92)
+
+## V4: portal UX (gate GREEN, commit d8aee3f)
+- Portal layout auto-breadcrumb from the pathname->NAV map (الرئيسية / section) - zero per-page edits.
+- Bell = dropdown popover (last 5 + view-all link, closes on navigation) instead of a separate page hop.
+- Esc closes PortalVideoPlayer + CrudPage dialogs (keydown listeners). Portal logout already labeled (V2).
+## V5: polish (gate GREEN, commit ee12f92)
+- react-hot-toast 2.6.1: Toaster mounted ONCE in protected app/layout.tsx (RTL top-left, Night Luxe styled: surface/text/border vars). CrudPage save/delete inline messages replaced by toasts (modal-internal validation errors stay inline by design). Portal assignment submit success toast.
+- globals.css additive block (end): body theme-switch fade, button primary/ghost active-scale, bento-card/panel transitions - no identity colors touched.
+- MICRO-DEFERRED: full icon-size sweep (16/18/20/24) - cosmetic, low-value-per-risk now; framer parallax hero (V1 kept Canvas instead).
+## Lessons (133): V-stages were gated per-stage exactly as demanded - the RED-gate chain incident (126) did NOT recur once $LASTEXITCODE checks were adopted.
+## V OWNER LIVE-TEST LIST: landing (canvas hero/gradient/FAQ/lead form), dashboard (sparklines/3 charts/skeletons/greeting/collapse), portal (rings/points/player-resume/internal player/bell dropdown/breadcrumbs/toasts), theme toggle fade.
+
+---
+
 # MEMORY v11.2 UPDATE - 2026-10-15 (Scope V2 CLOSED - premium dashboard + collapsible Shell, commit 9be0d95)
 
 ## V2: COMPLETE (gate GREEN, e2e 12/12 test-v2-dashboard.mjs, pushed, auto-deploy)
