@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Search, RefreshCw, Save, X, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import toast from "react-hot-toast";
 import DataTable from "@/components/DataTable";
 
 export type Field = {
@@ -139,9 +140,11 @@ export default function CrudPage({
 
       if (!response.ok) {
         setError(data?.error || "تعذر حفظ البيانات");
+        toast.error(data?.error || "تعذر حفظ البيانات");
         return;
       }
 
+      toast.success(editingId ? "تم حفظ التعديلات" : "تم الحفظ بنجاح");
       setModal(false);
       setForm({});
       setEditingId(null);
@@ -192,9 +195,11 @@ export default function CrudPage({
 
       if (!response.ok) {
         setError(data?.error || "تعذر الحذف");
+        toast.error(data?.error || "تعذر الحذف");
         return;
       }
 
+      toast.success("تم الحذف");
       setDelRow(null);
       await load();
     } catch {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { NotebookPen, Send } from 'lucide-react';
 
 type ARow = {
@@ -44,6 +45,7 @@ export default function PortalAssignments() {
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error || 'تعذر التسليم');
+      toast.success('تم تسليم الواجب — بانتظار التصحيح');
       setRows((p) => p.map((x) => x.id === a.id ? { ...x, my_content: content, my_submitted_at: new Date().toISOString(), my_score: null, my_feedback: null, my_graded_at: null } : x));
       setDrafts((p) => ({ ...p, [a.id]: '' }));
     } catch (e) { setError(e instanceof Error ? e.message : 'تعذر التسليم'); }

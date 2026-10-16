@@ -1,4 +1,4 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -1321,4 +1321,25 @@ html[data-theme='light'] {
   --state-warning-text-2: #74500a;
   --state-info-text: #0e7f96;
   --state-blue-text-2: #1d54b8;
+}
+
+/* V5: theme switch fade + micro-interactions (additive block, no identity change) */
+body {
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+button.primary,
+button.ghost,
+a.primary,
+a.ghost {
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+}
+button.primary:active,
+button.ghost:active,
+a.primary:active,
+a.ghost:active {
+  transform: scale(0.97);
+}
+.bento-card,
+.panel {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.35s ease;
 }
