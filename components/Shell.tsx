@@ -74,15 +74,24 @@ export default function Shell({
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [qcOpen, setQcOpen] = useState(false);
   const [dateStr, setDateStr] = useState('');
   const [role, setRole] = useState('');
   const [tenantName, setTenantName] = useState('سنتر الخوارزمي');
 
   useEffect(() => {
+    setCollapsed(localStorage.getItem('mkz-sidebar-collapsed') === '1');
     setDateStr(new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' }));
     fetch('/api/me').then((r) => (r.ok ? r.json() : null)).then((d) => { if (d && d.role) setRole(String(d.role)); if (d && d.tenantName) setTenantName(String(d.tenantName)); }).catch(() => {});
   }, []);
+
+  function toggleCollapsed() {
+    setCollapsed((v) => {
+      localStorage.setItem('mkz-sidebar-collapsed', v ? '0' : '1');
+      return !v;
+    });
+  }
 
   async function logout() {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -94,7 +103,7 @@ export default function Shell({
   const visibleGroups = groups
     .map((g) => ({
       ...g,
-            items: g.items.filter((item) => {
+      items: g.items.filter((item) => {
         const href = item[0];
         if (isAdmin) return true;
         if (role === 'teacher') {
@@ -109,22 +118,31 @@ export default function Shell({
     <div className="flex min-h-screen bg-[color:var(--bg)] text-[color:var(--text)] font-['IBM_Plex_Sans_Arabic']" dir="rtl">
       <aside
         className={cn(
-          'fixed inset-y-0 right-0 z-50 w-72 bg-[color:var(--surface)] border-l border-[color:var(--border)] transition-transform duration-300 ease-in-out',
+          'fixed inset-y-0 right-0 z-50 bg-[color:var(--surface)] border-l border-[color:var(--border)] transition-all duration-300 ease-in-out',
+          collapsed ? 'w-72 lg:w-20' : 'w-72',
           open ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
         )}
       >
         <div className="flex flex-col h-full p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center text-xl font-bold shadow-[0_10px_26px_rgba(245,158,11,0.3)]">
+            <div className="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center text-xl font-bold shadow-[0_10px_26px_rgba(245,158,11,0.3)]">
               خ
             </div>
-            <div className="flex flex-col">
-              <span className="text-lg font-bold text-[color:var(--text)] leading-tight">{tenantName}</span>
+            <div className={cn('flex flex-col min-w-0', collapsed && 'lg:hidden')}>
+              <span className="text-lg font-bold text-[color:var(--text)] leading-tight truncate">{tenantName}</span>
               <span className="text-[11px] text-[color:var(--muted)] font-medium uppercase tracking-wider">Al-Khwarizmi Center</span>
             </div>
+            <button
+              onClick={toggleCollapsed}
+              className="hidden lg:flex mr-auto w-7 h-7 shrink-0 items-center justify-center rounded-lg text-[color:var(--muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--text)] transition-colors"
+              title={collapsed ? 'توسيع القائمة' : 'طي القائمة'}
+              aria-label={collapsed ? 'توسيع القائمة' : 'طي القائمة'}
+            >
+              <ChevronDown size={15} className={cn('transition-transform duration-300', collapsed ? '-rotate-90' : 'rotate-90')} />
+            </button>
           </div>
 
-          <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-[color:var(--surface-2)] border border-[color:var(--border)] text-[color:var(--text-soft)] text-xs font-medium mb-2 cursor-pointer hover:bg-[color:var(--surface-3)] transition-colors">
+          <div className={cn('flex items-center justify-between gap-2 p-2.5 rounded-xl bg-[color:var(--surface-2)] border border-[color:var(--border)] text-[color:var(--text-soft)] text-xs font-medium mb-2 cursor-pointer hover:bg-[color:var(--surface-3)] transition-colors', collapsed && 'lg:hidden')}>
             <div className="flex items-center gap-2">
               <Building2 size={16} className="text-[color:var(--muted-dim)]" />
               <span>{tenantName}</span>
@@ -132,7 +150,7 @@ export default function Shell({
             <ChevronDown size={14} />
           </div>
 
-          <div className="flex items-center gap-2 p-2 rounded-xl bg-[color:var(--gold-soft)] border border-[color:var(--gold-border)] text-[color:var(--gold)] text-[11px] font-bold mb-4">
+          <div className={cn('flex items-center gap-2 p-2 rounded-xl bg-[color:var(--gold-soft)] border border-[color:var(--gold-border)] text-[color:var(--gold)] text-[11px] font-bold mb-4', collapsed && 'lg:hidden')}>
             <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--gold)]" />
             <span>اشتراك نشط — خطة الاحترافية</span>
           </div>
@@ -142,19 +160,19 @@ export default function Shell({
               <div key={g.title}>
                 {g.title === 'التواصل السريع' ? (
                   isAdmin && (
-                    <button onClick={() => setQcOpen(true)} className="w-full text-right text-[11px] font-bold text-[color:var(--muted-dim)] uppercase tracking-widest mb-2 px-3 hover:text-[color:var(--gold)] transition-colors cursor-pointer">{g.title}</button>
+                    <button onClick={() => setQcOpen(true)} className={cn('w-full text-right text-[11px] font-bold text-[color:var(--muted-dim)] uppercase tracking-widest mb-2 px-3 hover:text-[color:var(--gold)] transition-colors cursor-pointer', collapsed && 'lg:hidden')}>{g.title}</button>
                   )
                 ) : (
-                  <p className="text-[11px] font-bold text-[color:var(--muted-dim)] uppercase tracking-widest mb-2 px-3">{g.title}</p>
+                  <p className={cn('text-[11px] font-bold text-[color:var(--muted-dim)] uppercase tracking-widest mb-2 px-3', collapsed && 'lg:hidden')}>{g.title}</p>
                 )}
                 <nav className="space-y-1">
                   {g.items.map((item: NavItem) => {
-         const href = item[0]; const label = item[1]; const Icon = item[2];
+                    const href = item[0]; const label = item[1]; const Icon = item[2];
                     if (href.startsWith('soon:')) {
                       return (
                         <div key={href} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[color:var(--muted-dim)] cursor-default">
                           <Icon size={18} />
-                          <span>{label}</span>
+                          <span className={cn(collapsed && 'lg:hidden')}>{label}</span>
                           <span className="mr-auto text-[11px] px-1.5 py-0.5 rounded-md bg-[color:var(--surface-3)] text-[color:var(--muted)]">قريباً</span>
                         </div>
                       );
@@ -165,15 +183,23 @@ export default function Shell({
                         key={href}
                         href={href}
                         onClick={() => setOpen(false)}
+                        title={collapsed ? label : undefined}
                         className={cn(
-                          'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group',
+                          'relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group',
                           isActive
-                            ? 'bg-[color:var(--gold-soft)] text-[color:var(--gold)] shadow-sm'
+                            ? 'text-[color:var(--gold)]'
                             : 'text-[color:var(--muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--text)]'
                         )}
                       >
-                        <Icon size={18} className={cn(isActive ? 'text-[color:var(--gold)]' : 'text-[color:var(--muted)] group-hover:text-[color:var(--text)]')} />
-                        <span>{label}</span>
+                        {isActive && (
+                          <motion.span
+                            layoutId="mkz-nav-pill"
+                            transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                            className="absolute inset-0 rounded-lg bg-[color:var(--gold-soft)] shadow-sm"
+                          />
+                        )}
+                        <Icon size={18} className={cn('relative z-10 shrink-0 transition-transform duration-200 group-hover:scale-110', isActive ? 'text-[color:var(--gold)]' : 'text-[color:var(--muted)] group-hover:text-[color:var(--text)]')} />
+                        <span className={cn('relative z-10 whitespace-nowrap', collapsed && 'lg:hidden')}>{label}</span>
                       </Link>
                     );
                   })}
@@ -182,10 +208,19 @@ export default function Shell({
             ))}
           </div>
 
+          <button
+            onClick={toggleCollapsed}
+            className={cn('hidden lg:flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-[color:var(--muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--text)] transition-colors w-full', collapsed && 'justify-center')}
+            title={collapsed ? 'توسيع القائمة' : 'طي القائمة'}
+          >
+            <ChevronDown size={15} className={cn('transition-transform duration-300', collapsed ? '-rotate-90' : 'rotate-90')} />
+            <span className={cn(collapsed && 'lg:hidden')}>طي القائمة</span>
+          </button>
+
         </div>
       </aside>
 
-      <main className="flex-1 lg:mr-72 min-h-screen flex flex-col min-w-0 overflow-x-clip">
+      <main className={cn('flex-1 min-h-screen flex flex-col min-w-0 overflow-x-clip transition-[margin] duration-300', collapsed ? 'lg:mr-20' : 'lg:mr-72')}>
         <header className="h-16 bg-[rgba(var(--glass-rgb),0.85)] backdrop-blur-md border-b border-[color:var(--border)] sticky top-0 z-40 px-4 lg:px-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button onClick={() => setOpen(true)} className="lg:hidden p-2 text-[color:var(--muted)] hover:bg-[color:var(--surface-2)] rounded-lg transition-colors">
@@ -210,10 +245,11 @@ export default function Shell({
             <div className="h-8 w-[1px] bg-[color:var(--border-strong)] mx-1"></div>
             <button
               onClick={logout}
+              className="flex items-center gap-1.5 p-2 text-[color:var(--muted)] hover:text-[color:var(--danger)] hover:bg-[color:var(--danger-soft)] rounded-full transition-colors"
               title="تسجيل الخروج"
-              className="p-2 text-[color:var(--muted)] hover:text-[color:var(--danger)] hover:bg-[color:var(--danger-soft)] rounded-full transition-colors"
             >
               <LogOut size={18} />
+              <span className="hidden xl:inline text-xs font-medium">خروج</span>
             </button>
             <div className="flex items-center gap-3 pl-2">
               <div className="hidden sm:flex flex-col items-end">
