@@ -98,6 +98,13 @@ export async function POST(req: Request) {
       ]
     );
 
+    // V3 gamification: +5 points per present record (best-effort, never breaks the action)
+    if (body.status === 'present') {
+      try {
+        await query('update students set points = points + 5 where id=$1 and tenant_id=$2', [body.student_id, s.tenantId]);
+      } catch { /* best-effort */ }
+    }
+
     return NextResponse.json(result.rows[0], { status: 201 });
   } catch (e: any) {
     if (e.code === '23505') {

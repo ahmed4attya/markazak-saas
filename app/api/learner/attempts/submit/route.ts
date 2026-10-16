@@ -68,6 +68,12 @@ export async function POST(req: Request) {
     const { notifyUsers } = await import('@/lib/notify');
     const percent = qs.length ? Math.round((score / qs.length) * 100) : 0;
     await notifyUsers(s.tenantId, [s.userId], 'نتيجة امتحانك: ' + attempt.exam_title, 'النتيجة: ' + score + ' من ' + qs.length + ' (' + percent + '%)', 'exam');
+    // V3 gamification: +20 points for a passing attempt (>=50%) - best-effort
+    if (percent >= 50) {
+      try {
+        await query('update students set points = points + 20 where user_id=$1 and tenant_id=$2', [s.userId, s.tenantId]);
+      } catch { /* best-effort */ }
+    }
   }
 
   return NextResponse.json({

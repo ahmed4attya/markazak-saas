@@ -93,3 +93,6 @@ end $$;
 
 -- V1: platform-level sales leads from the public landing (marketing layer, no tenant scope)
 create table if not exists leads(id uuid primary key default gen_random_uuid(),name varchar(160) not null,email varchar(255) not null,message text,created_at timestamptz default now());
+
+-- V3: gamification points for students (attendance +5, exam pass +20, course completion +50 later)
+alter table students add column if not exists points int not null default 0;

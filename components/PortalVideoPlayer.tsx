@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 
 function Watermark({ text }: { text: string }) {
@@ -15,12 +15,31 @@ function Watermark({ text }: { text: string }) {
 
 export default function PortalVideoPlayer({ videoId, title, onClose }: { videoId: string; title: string; onClose: () => void }) {
   const [wm, setWm] = useState("سنتر الخوارزمي");
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     fetch("/api/me").then((r) => (r.ok ? r.json() : null)).then((d) => {
       if (d?.name) setWm(d.name + " — " + (d.email || "") + " — " + new Date().toLocaleDateString("ar-EG"));
     }).catch(() => {});
   }, []);
+
+  // V3: resume from the last saved position (localStorage per video)
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const key = "mkz-vidpos-" + videoId;
+    const saved = Number(localStorage.getItem(key) || 0);
+    if (saved > 5) {
+      const apply = () => { try { v.currentTime = saved; } catch { /* not ready */ } };
+      v.addEventListener("loadedmetadata", apply, { once: true });
+    }
+  }, [videoId]);
+
+  function savePosition() {
+    const v = videoRef.current;
+    if (!v || v.currentTime < 5) return;
+    try { localStorage.setItem("mkz-vidpos-" + videoId, String(Math.floor(v.currentTime))); } catch { /* ignore */ }
+  }
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -34,12 +53,15 @@ export default function PortalVideoPlayer({ videoId, title, onClose }: { videoId
         </div>
         <div style={{ position: "relative", background: "#000" }}>
           <video
+            ref={videoRef}
             src={"/api/videos/" + videoId + "/stream"}
             controls
             autoPlay
             controlsList="nodownload noplaybackrate"
             disablePictureInPicture
             onContextMenu={(e) => e.preventDefault()}
+            onTimeUpdate={savePosition}
+            onEnded={() => { try { localStorage.removeItem("mkz-vidpos-" + videoId); } catch { /* ignore */ } }}
             style={{ width: "100%", maxHeight: "70vh", display: "block" }}
           />
           <Watermark text={wm} />
