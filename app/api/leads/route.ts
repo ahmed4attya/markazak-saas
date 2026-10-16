@@ -22,6 +22,11 @@ export async function POST(req: Request) {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return NextResponse.json({ error: 'البريد الإلكتروني غير صالح' }, { status: 400 });
     if (message.length > 2000) return NextResponse.json({ error: 'الرسالة أطول من الحد (2000 حرف)' }, { status: 400 });
     await query('insert into leads(name,email,message) values($1,$2,$3)', [name, email, message || null]);
+    // V-mission: instant owner notification (Telegram) - best-effort, never breaks the capture
+    {
+      const { telegramNotify } = await import('@/lib/telegram-notify');
+      await telegramNotify('<b>عميل محتمل جديد</b>\nالاسم: ' + name.replace(/</g, '<') + '\nالبريد: ' + email.replace(/</g, '<') + (message ? '\nالرسالة: ' + message.replace(/</g, '<').slice(0, 500) : ''));
+    }
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (e) {
     return NextResponse.json({ error: safeError(e, 'تعذر إرسال الطلب') }, { status: 400 });
