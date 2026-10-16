@@ -605,3 +605,15 @@ OWNER LIVE-PROOF: all checklists accumulated in v10.3-v10.9 - one sitting on pro
 - PortalVideoPlayer component: internal modal (no new tab, no session loss) - watermark name+email+date, controlsList nodownload noplaybackrate, disablePictureInPicture, context-menu blocked. Used by /portal/videos AND /portal/library.
 - Portal smoke 12/12 (test-portal-smoke.mjs): all 10 pages 200 + layout chrome for khaled; guardian /portal 200. Exam-taking page left as-is (its own sticky timer header works inside the layout chrome).
 - Lesson 125: when a wrapper/layout is introduced, strip the children's own chrome in the SAME commit - half-migrated pages render double headers and the owner sees a broken UI even when every page "works".
+
+---
+
+# MEMORY v11.2 UPDATE - 2026-10-15 (Scope V2 CLOSED - premium dashboard + collapsible Shell, commit 9be0d95)
+
+## V2: COMPLETE (gate GREEN, e2e 12/12 test-v2-dashboard.mjs, pushed, auto-deploy)
+- recharts 3.10.1 installed (owner-permitted). /api/dashboard EXTENDED additively: series{months[12], attendance[12] (count per month), revenue[12] (payments sum), students/teachers/courses/groups[12] (CUMULATIVE counts)} - months gap-filled JS-side (Lesson: SQL group-by returns sparse months; fill to exactly 12 for stable charts).
+- Dashboard page: stat cards + Spark (Recharts LineChart h-40, no axes), trend arrow on revenue (this-month vs last-month % - REAL data from series, not fabricated weekly), charts row (attendance LineChart, collection PieChart donut from client-side invoice counts, revenue BarChart) with ResponsiveContainer, skeleton loaders (animate-pulse) for cards + charts, dynamic greeting (صباح/مساء الخير + admin name from /api/me).
+- Shell: collapsible (localStorage mkz-sidebar-collapsed, w-72 <-> lg:w-20, main lg:mr-72 <-> lg:mr-20, labels/icons/chips hidden when collapsed with title tooltips), sliding active pill (motion layoutId="mkz-nav-pill" spring), icon hover scale-110, exit button + text label.
+- Lesson 129: chart time-series must be gap-filled to a FIXED length client/server-side - sparse SQL group-by months make chart x-axes misalign across categories.
+- Lesson 130: Recharts 3.x basic charts (Line/Bar/Pie + ResponsiveContainer) are React-19 compatible - same component API as 2.x.
+- V2 OWNER LIVE-TEST: /dashboard as admin - sparklines in the 4 cards, 3 charts render, greeting shows your name, sidebar collapses (persists on reload), active nav pill slides.
