@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   BookOpen, Video, FolderOpen, CalendarCheck, ClipboardList, NotebookPen, TrendingUp, KeyRound,
@@ -44,11 +44,19 @@ export default function Portal() {
   const [me, setMe] = useState<{ name: string; role: string; points?: number; level?: string } | null>(null);
   const [progress, setProgress] = useState<PRow[]>([]);
   const [playing, setPlaying] = useState<{ id: string; title: string } | null>(null);
+  const [childTab, setChildTab] = useState("الكل");
 
   useEffect(() => {
     fetch("/api/learner/me").then((r) => (r.ok ? r.json() : null)).then((d) => { if (d) setMe(d); }).catch(() => {});
     fetch("/api/learner/progress").then((r) => (r.ok ? r.json() : [])).then((d) => { if (Array.isArray(d)) setProgress(d); }).catch(() => {});
   }, []);
+
+  // V-mission: guardian child tab switcher (الكل + every child name found in progress)
+  const children = useMemo(
+    () => [...new Set(progress.map((p) => p.studentName).filter(Boolean) as string[])],
+    [progress]
+  );
+  const visibleProgress = childTab === "الكل" ? progress : progress.filter((p) => p.studentName === childTab);
 
   const points = me?.role === "student" ? me?.points || 0 : null;
   const level = me?.level || "مبتدئ";
@@ -73,11 +81,29 @@ export default function Portal() {
 
       <section>
         <h2 className="font-extrabold mb-3 flex items-center gap-2">تقدمك في الدورات</h2>
+        {me?.role === "guardian" && children.length > 1 && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {["الكل", ...children].map((c) => (
+              <button
+                key={c}
+                onClick={() => setChildTab(c)}
+                className={
+                  "rounded-full px-3 py-1 text-xs font-bold transition-colors " +
+                  (childTab === c
+                    ? "bg-[color:var(--gold)] text-[#0b0f17]"
+                    : "border border-[color:var(--border)] text-[color:var(--muted)] hover:border-[color:var(--gold-border)]")
+                }
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
         {progress.length === 0 && (
           <div className="bento-card p-6 text-center text-[color:var(--muted)]">لا دورات مسجلة بعد — فعّل كوداً أو تواصل مع الإدارة</div>
         )}
         <div className="space-y-3">
-          {progress.map((p) => (
+          {visibleProgress.map((p) => (
             <div key={p.courseId + (p.studentName || "")} className="bento-card p-4 flex items-center gap-4">
               <Ring pct={p.pct} label={p.courseName} />
               <div className="flex-1 min-w-0">

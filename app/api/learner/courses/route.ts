@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 
@@ -8,7 +8,9 @@ export async function GET() {
   if (s.role !== 'student' && s.role !== 'guardian') return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   if (s.role === 'student') {
     const rows = (await query(
-      `select c.id, c.name, c.category, c.status from enrollments e
+      `select c.id, c.name, c.category, c.status,
+              coalesce((select string_agg(u.name, '، ') from course_teachers ct join users u on u.id = ct.teacher_user_id where ct.course_id = c.id), '') as teacher_names
+       from enrollments e
        join groups g on g.id = e.group_id join courses c on c.id = g.course_id
        join students st on st.id = e.student_id
        where st.user_id = $1 and e.tenant_id = $2 and e.status = 'active'
