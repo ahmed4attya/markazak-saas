@@ -25,6 +25,8 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [bellOpen, setBellOpen] = useState(false);
+  const [bellRows, setBellRows] = useState<Array<{ id: string; title: string; created_at: string }>>([]);
   const [name, setName] = useState("");
   const [tenantName, setTenantName] = useState("سنتر الخوارزمي");
   const [unread, setUnread] = useState(0);
@@ -35,8 +37,15 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
       if (d?.role === "guardian") setName("ولي أمر");
     }).catch(() => {});
     fetch("/api/me").then((r) => (r.ok ? r.json() : null)).then((d) => { if (d?.tenantName) setTenantName(d.tenantName); }).catch(() => {});
-    fetch("/api/learner/notifications").then((r) => (r.ok ? r.json() : null)).then((d) => { if (d) setUnread(d.unread || 0); }).catch(() => {});
+    fetch("/api/learner/notifications").then((r) => (r.ok ? r.json() : null)).then((d) => {
+      if (d) { setUnread(d.unread || 0); setBellRows((d.rows || []).slice(0, 5)); }
+    }).catch(() => {});
   }, []);
+
+  // close the bell dropdown on navigation
+  useEffect(() => { setBellOpen(false); }, [pathname]);
+
+  const crumb = pathname === "/portal" ? null : (NAV.find((n) => n.href === pathname)?.label || null);
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -114,13 +123,41 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
           </button>
           <span className="text-sm font-bold lg:hidden">{tenantName}</span>
           <div className="flex items-center gap-3">
-            <Link href="/portal/notifications" className="relative p-2 text-[color:var(--muted)] hover:bg-[color:var(--surface-2)] rounded-full">
-              <Bell size={19} />
-              {unread > 0 && <span className="absolute top-0 right-0 min-w-5 h-5 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{unread}</span>}
-            </Link>
+            <div className="relative">
+              <button
+                className="relative p-2 text-[color:var(--muted)] hover:bg-[color:var(--surface-2)] rounded-full"
+                onClick={() => setBellOpen((v) => !v)}
+                aria-label="الإشعارات"
+              >
+                <Bell size={19} />
+                {unread > 0 && <span className="absolute top-0 right-0 min-w-5 h-5 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{unread}</span>}
+              </button>
+              {bellOpen && (
+                <div className="absolute left-0 top-11 z-50 w-80 rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] shadow-2xl overflow-hidden">
+                  <div className="px-4 py-2.5 border-b border-[color:var(--border)] text-xs font-bold text-[color:var(--muted)]">آخر الإشعارات</div>
+                  <div className="max-h-64 overflow-y-auto">
+                    {bellRows.length === 0 && <p className="p-4 text-xs text-[color:var(--muted)]">لا إشعارات بعد</p>}
+                    {bellRows.map((n) => (
+                      <div key={n.id} className="px-4 py-2.5 border-b border-[color:var(--border)] last:border-0">
+                        <b className="text-xs block">{n.title}</b>
+                        <span className="text-[10px] text-[color:var(--muted-dim)]">{new Date(n.created_at).toLocaleString("ar-EG")}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Link href="/portal/notifications" onClick={() => setBellOpen(false)} className="block px-4 py-2.5 text-xs font-bold text-[color:var(--gold)] hover:bg-[color:var(--surface-2)] text-center">عرض الكل</Link>
+                </div>
+              )}
+            </div>
             <span className="hidden sm:block text-xs text-[color:var(--muted)] max-w-48 truncate">{name}</span>
           </div>
         </header>
+        {crumb && (
+          <nav className="px-4 lg:px-8 pt-4 text-xs text-[color:var(--muted)]" aria-label="مسار التنقل">
+            <Link href="/portal" className="hover:text-[color:var(--gold)]">الرئيسية</Link>
+            <span className="mx-1.5">/</span>
+            <span className="text-[color:var(--text)] font-bold">{crumb}</span>
+          </nav>
+        )}
         {children}
       </div>
     </div>

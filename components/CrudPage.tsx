@@ -51,6 +51,17 @@ export default function CrudPage({
   const [delRow, setDelRow] = useState<any>(null);
   const [delChecked, setDelChecked] = useState(false);
 
+  // V4: Esc closes the open dialogs
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (delRow) setDelRow(null);
+      else if (modal) setModal(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [delRow, modal]);
+
   async function load() {
     setLoading(true);
     setError("");

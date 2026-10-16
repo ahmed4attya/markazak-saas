@@ -35,6 +35,13 @@ export default function PortalVideoPlayer({ videoId, title, onClose }: { videoId
     }
   }, [videoId]);
 
+  // V4: Esc closes the player
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   function savePosition() {
     const v = videoRef.current;
     if (!v || v.currentTime < 5) return;
