@@ -608,6 +608,22 @@ OWNER LIVE-PROOF: all checklists accumulated in v10.3-v10.9 - one sitting on pro
 
 ---
 
+# MEMORY v11.3 UPDATE - 2026-10-15 (Scope V3 CLOSED - gamification + progress rings, commit 08b2df8)
+
+## V3: COMPLETE (gate GREEN, e2e 9/9 test-v3-points.mjs, pushed; prod synced backup-pre-v3 = br-odd-union-b278wy02, students.points live both envs)
+- S-V3 migration: students.points int not null default 0 (additive). LOCAL + PROD applied (identity verified, 13 questions preserved on prod).
+- Points hooks (best-effort try/catch - never break the action): attendance POST present -> +5; attempts/submit percent>=50 -> +20. Course-completion +50 DEFERRED (no completion mechanic exists yet - documented).
+- /api/learner/me: +points +level (مبتدئ 0-99 / نشط 100-299 / متفوق 300+). NOTE: this route was REWRITTEN by the S1-agent era to a name/role(+guardian children) shape - the V3 edit preserved that behavior and added points on top (Lesson 18: read-before-assume saved the guardian naming).
+- NEW /api/learner/progress: per enrolled course {courseId, courseName, [studentName], total, done, pct, lastVideo} - total = assignments+exams of the course; done = student submissions + finished attempts; lastVideo = latest course video for continue-watching.
+- Portal home rebuilt: animated SVG progress rings per course (color by pct), points/level badge (Flame icon), continue-watching buttons (open the internal player), quick sections grid.
+- PortalVideoPlayer: position RESUME from localStorage (mkz-vidpos-<id>, restore on loadedmetadata, save throttled on timeupdate, cleared on ended).
+- Lesson 131: joining the same table alias twice via a composed fragment ('studentJoin' + main join) = 42712 duplicate alias - compose WHERE filters separately from JOINs.
+- Lesson 132: 42P18 undetermined parameter = a passed param the SQL never references (or type-inference failure) - count params vs SQL refs, and cast every param explicitly ($1::uuid, $3::uuid[]) in multi-subquery templates.
+- Deferred with reason: PDF certificate (jsPDF has no Arabic bidi/shaping without embedding a ~500KB font; plus course-completion is undefined) - revisit when completion mechanic lands.
+- V3 OWNER LIVE-TEST: record present attendance -> student sees +5; student passes an exam -> +20 + level; portal home shows rings + points badge; player resumes where stopped.
+
+---
+
 # MEMORY v11.2 UPDATE - 2026-10-15 (Scope V2 CLOSED - premium dashboard + collapsible Shell, commit 9be0d95)
 
 ## V2: COMPLETE (gate GREEN, e2e 12/12 test-v2-dashboard.mjs, pushed, auto-deploy)
