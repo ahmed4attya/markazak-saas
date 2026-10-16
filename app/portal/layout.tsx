@@ -5,15 +5,17 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   BookOpen, Video, FolderOpen, CalendarCheck, Bell, ClipboardList,
-  NotebookPen, TrendingUp, KeyRound, Home, LogOut, Menu, X,
+  NotebookPen, TrendingUp, KeyRound, Home, LogOut, Menu, X, Zap, Wrench,
 } from "lucide-react";
 
 const NAV = [
   { href: "/portal", label: "الرئيسية", Icon: Home },
+  { href: "/portal/training", label: "التدريب", Icon: Zap },
   { href: "/portal/courses", label: "دوراتي", Icon: BookOpen },
   { href: "/portal/exams", label: "امتحاناتي", Icon: ClipboardList },
   { href: "/portal/assignments", label: "واجباتي", Icon: NotebookPen },
   { href: "/portal/results", label: "نتائجي", Icon: TrendingUp },
+  { href: "/portal/mistakes", label: "صندوق أخطائي", Icon: Wrench },
   { href: "/portal/library", label: "المكتبة", Icon: FolderOpen },
   { href: "/portal/videos", label: "الفيديوهات", Icon: Video },
   { href: "/portal/attendance", label: "حضوري", Icon: CalendarCheck },
