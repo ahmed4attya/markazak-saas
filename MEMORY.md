@@ -650,6 +650,19 @@ OWNER LIVE-PROOF: all checklists accumulated in v10.3-v10.9 - one sitting on pro
 - Lesson 133: whitelist drift happens when NEW files are created mid-batch - stage the full file list RIGHT BEFORE the gate, and let hygiene RED remind you of anything missed (it caught app/portal/mistakes/).
 - Lesson 134: 42P18-style param errors and tsc narrowing errors in aggregations are caught fastest by asserting against a REAL seeded scenario (two finished attempts with known outcomes) rather than synthetic unit expectations.
 
+## ADDENDUM 2 (Scope V-S2/S3/S4 + Telegram CLOSED - commits 7160747-era chain) - e2e confirmations re-run after the A-G batch: V-S2 11/11, V-S1 12/12, V-S3/S4 10/10 ALL GREEN.
+
+# MEMORY v11.6 UPDATE - 2026-10-15 (MISSION A-G COMPLETE: portal redesign details - commit d4603d2, gate GREEN, 3 suites re-verified 10/10 + 11/11 + 12/12)
+
+## A-G items DELIVERED
+- /portal/courses/[id] (NEW detail page): course hero (name/category/teacher names via learner/courses teacher_names aggregation) + course-scoped videos (internal player) + files (signed download) + exams (gated start) + assignments; entry links 'ادخل الدورة' from courses cards; courseId filter added to learner/videos + learner/files (additive ?courseId, uuid-validated); learner/courses +teacher_names.
+- Library tab bar (الفيديوهات | الملفات pill tabs) replacing stacked sections.
+- Attendance: SVG ring (rate colored) + 4-stat grid + records list (guardian sees child names).
+- Guardian child-tab switcher on portal home (الكل + per-child progress filtering from progress.studentName).
+- Telegram probe re-run: still no TELEGRAM_* vars in any reachable env - lib/telegram-notify.ts stands ready (wired to leads).
+- MEMORY organization note: v11.5 heading and its ADDENDUM got reordered during an edit (addendum above heading) - content complete and correct, order cosmetic only (fix at next memory revision).
+## Lesson 135: guard tests must match SSR state - client-fetch pages render their LOADING state in SSR HTML (assert the shell, not post-hydration content).
+
 ## V-S1: COMPLETE (gate GREEN after guillemet fix, e2e 12/12 test-vs1-training.mjs, pushed)
 - NEW /api/learner/training: GET ?count&domain&difficulty -> random ACTIVE bank questions WITHOUT answers + lazy per-tenant training exam (title 'التدريب اليومي', course_id null -> invisible to امتحاناتي) + open attempt reuse; POST {attemptId, questionId, chosen} -> verdict + explanation (answers merged into attempts.answers.c jsonb); POST {finish:true} -> server-scored from stored answers + best previous score. Student-only (teacher 403 verified).
 - NEW components/QuestionCard.tsx (shared): context chips (domain/skill/difficulty), letter circles أ-د with ✓/✗ states, result banner, slot for MistakeTutor + next button.
