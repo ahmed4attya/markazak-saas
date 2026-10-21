@@ -1,4 +1,4 @@
-// Logic mirror of lib/guard.ts
+// Logic mirror of lib/guard.ts and config/access.ts
 const PAGE_ACCESS = [
     { path: '/login', public: true, roles: [] },
     { path: '/verify', public: true, roles: [] },
@@ -18,20 +18,24 @@ const API_ACCESS = [
 
 async function guard(path, role, tenantId) {
     if (!role || !tenantId) return { allowed: false, status: 401 };
+    
     const pageRoute = PAGE_ACCESS.find(p => path === p.path);
     if (pageRoute) {
         if (pageRoute.public) return { allowed: true, status: 200 };
         if (!pageRoute.roles.includes(role)) return { allowed: false, status: 404 };
         return { allowed: true, status: 200 };
     }
+
     const apiRoute = API_ACCESS.find(a => path === a.path);
     if (apiRoute) {
         if (apiRoute.public) return { allowed: true, status: 200 };
         if (!apiRoute.roles.includes(role)) return { allowed: false, status: 403 };
         return { allowed: true, status: 200 };
     }
+
     const protectedPrefixes = ["/dashboard", "/students", "/teachers", "/courses", "/groups", "/attendance", "/finance", "/certificates", "/reports", "/ai", "/users", "/plans", "/activation-codes", "/settings", "/questions", "/exams", "/lessons", "/portal", "/api"];
     if (protectedPrefixes.some(prefix => path.startsWith(prefix))) return { allowed: false, status: 403 };
+    
     return { allowed: true, status: 200 };
 }
 
@@ -55,4 +59,5 @@ async function run() {
         console.log(`${t.path} [${t.role}] -> ${status} (Expected: ${t.expected}) ${status === t.expected ? '✅' : '❌'}`);
     }
 }
+
 run();
