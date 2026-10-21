@@ -1,12 +1,16 @@
 services:
   db:
-    image: postgres:17-alpine
+    image: postgres:16-alpine
+    container_name: markazak-saas-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: training_center
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    ports: ["5432:5432"]
-    volumes: ["training_pg:/var/lib/postgresql/data"]
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 volumes:
-  training_pg:
+  pgdata:

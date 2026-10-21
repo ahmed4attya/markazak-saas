@@ -2,7 +2,12 @@ const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 
 async function verify() {
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    const url = process.env.PROD_DATABASE_URL;
+    if (!url) {
+        console.error('ERROR: PROD_DATABASE_URL is missing. Fail-closed.');
+        process.exit(1);
+    }
+    const pool = new Pool({ connectionString: url });
     const accounts = [
         { email: 'mohammed@alkhwarizmi.sa', pwd: 'Rotated_Mhmd_2026_S3cr3t!' },
         { email: 'sara@alkhwarizmi.sa', pwd: 'Rotated_Sara_2026_S3cr3t!' },
@@ -22,7 +27,7 @@ async function verify() {
             console.log(`${acc.email.split("@")[0]}***@... -> ${match ? 'PASS' : 'FAIL'}`);
         }
     } catch (e) {
-        console.error('VERIFY_ERROR', e.message);
+        console.error('VERIFY_ERROR', e.//password_hash);
     } finally {
         await pool.end();
     }
