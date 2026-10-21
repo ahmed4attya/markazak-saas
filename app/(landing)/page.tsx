@@ -1,125 +1,168 @@
 "use client";
-import { motion, MotionConfig } from 'framer-motion';
-import { Tajawal } from 'next/font/google';
-import { CheckCircle, BookOpen, ShieldCheck, Zap, ArrowRight, Star } from 'lucide-react';
-import { NumberTicker } from '@number-flow/react';
-import LandingNav from '@/components/landing/Navbar';
-import AnimatedGradientText from '@/components/magicui/animated-gradient-text';
-import Spotlight from '@/components/magicui/spotlight';
-import ShimmerButton from '@/components/magicui/shimmer-button';
+
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Tajawal } from 'next/font/google';
+import { 
+  ArrowRight, 
+  CheckCircle2, 
+  BookOpen, 
+  ShieldCheck, 
+  Zap, 
+  Star, 
+  ChevronRight, 
+  Smartphone,
+  Users,
+  LayoutDashboard
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const tajawal = Tajawal({ subsets: ['arabic'], weight: ['400', '700', '900'] });
 
-const fadeIn = {
-  initial: { opacity: 0, y: 20 },
+const fadeInUp = {
+  initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 }
+  transition: { duration: 0.8, ease: [0.6, 0.05, -0.01, 1.0] }
 };
 
 export default function LandingPage() {
-  return (
-    <div className={`min-h-screen bg-slate-50 text-slate-900 ${tajawal.className}`} dir="rtl">
-      <MotionConfig reducedMotion="user">
-        <LandingNav />
+  const [scrolled, setScrolled] = useState(false);
 
-        <section className="relative overflow-hidden pt-20 pb-32">
-          <Spotlight />
-          <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <div className={`min-h-screen bg-[#020617] text-slate-200 ${tajawal.className}`} dir="rtl">
+      <nav className={cn(
+        "fixed top-0 w-full z-50 transition-all duration-300 px-6 py-4",
+        scrolled ? "bg-slate-900/80 backdrop-blur-lg border-b border-slate-800" : "bg-transparent"
+      )}>
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2 group cursor-pointer">
+            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">ق</div>
+            <span className="text-2xl font-black tracking-tight text-white">مركز <span className="text-blue-500">قدرات</span></span>
+          </div>
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium">
+            <Link href="#features" className="text-slate-400 hover:text-white transition-colors">المميزات</Link>
+            <Link href="#how-it-works" className="text-slate-400 hover:text-white transition-colors">كيف نعمل</Link>
+            <Link href="#pricing" className="text-slate-400 hover:text-white transition-colors">الأسعار</Link>
+            <Link href="/login" className="bg-blue-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/25">دخول الطلاب</Link>
+          </div>
+        </div>
+      </nav>
+
+      <section className="relative pt-32 pb-20 overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10">
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-600/20 rounded-full blur-[120px]" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+          <div className="text-right">
             <motion.div 
-              initial="initial" animate="animate" variants={fadeIn}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm font-bold mb-8 border border-blue-100"
+              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 text-blue-400 text-sm font-bold mb-6 border border-blue-500/20"
             >
-              <Star size={14} className="fill-blue-600" />
-              <span>المنصة الأولى في المملكة للتحضير للقدرات والتحصيلي</span>
+              <Star size={14} className="fill-blue-400" />
+              <span>المنصة الرائدة في المملكة للقدرات والتحصيلي</span>
             </motion.div>
             
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-8 leading-[1.1]">
+            <motion.h1 
+              initial="initial" animate="animate" variants={fadeIn}
+              className="text-5xl lg:text-7xl font-black tracking-tighter text-white mb-8 leading-[1.1]"
+            >
               طريقك المضمون للتفوق في <br />
-              <AnimatedGradientText className="text-5xl md:text-7xl">اختبارات القدرات والتحصيلي</AnimatedGradientText>
-            </h1>
+              <span className="text-transparent bg-clip-text bg-gradient-to-l from-blue-400 via-indigo-400 to-blue-600">اختبارات القدرات والتحصيلي</span>
+            </motion.h1>
 
             <motion.p 
               initial="initial" animate="animate" variants={fadeIn}
-              className="text-lg md:text-xl text-slate-600 mb-12 max-w-3xl mx-auto leading-relaxed"
+              className="text-lg md:text-xl text-slate-400 mb-12 max-w-2xl leading-relaxed"
             >
-              نقدم لك تجربة تعليمية ذكية تعتمد على تحليل نقاط ضعفك، بنوك أسئلة محدثة، ومتابعة لحظية تضمن وصولك لأعلى الدرجات.
+              نقدم تجربة تعليمية ذكية تعتمد على تحليل نقاط ضعفك، بنوك أسئلة محدثة، ومتابعة لحظية تضمن وصولك للدرجة الكاملة بإذن الله.
             </motion.p>
 
             <motion.div 
               initial="initial" animate="animate" variants={fadeIn}
-              className="flex flex-col sm:flex-row justify-center gap-4"
+              className="flex flex-wrap gap-4"
             >
-              <Link href="/register" className="group bg-blue-600 text-white px la-10 py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 flex items-center justify-center gap-2">
+              <Link href="/register" className="group bg-blue-600 text-white px la-10 py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 transition-all shadow-2xl shadow-blue-600/20 flex items-center gap-2">
                 ابدأ رحلتك الآن
                 <ArrowRight size={20} className="group-hover:-translate-x-1 transition-transform" />
               </Link>
-              <Link href="/about" className="bg-white text-slate-900 border border-slate-200 px la-10 py-4 rounded-2xl font-bold text-lg hover:bg-slate-50 transition-all">
+              <Link href="/about" className="bg-slate-800/50 text-white border border-slate-700 px la-10 py-4 rounded-2xl font-bold text-lg hover:bg-slate-800 transition-all backdrop-blur-sm">
                 اكتشف المزيد
               </Link>
             </motion.div>
-
-            <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 border-t border-slate-200 pt-12">
-              {[
-                { label: 'مركز', value: 120 },
-                { label: 'طالب', value: 15000 },
-                { label: 'سؤال', value: 50000 },
-                { label: 'اختبار هذا الأسبوع', value: 1200 },
-              ].map((stat, i) => (
-                <div key={i} className="flex flex-col items-center">
-                  <NumberTicker value={stat.value} className="text-4xl font-black text-blue-600" />
-                  <span className="text-slate-500 text-sm font-medium">{stat.label}</span>
-                </div>
-              ))}
-            </div>
           </div>
-        </section>
 
-        <section id="features" className="py-24 bg-white">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">لماذا تختار منصتنا؟</h2>
-              <p className="text-slate-600 max-w-2xl mx-auto">نوفر لك كل الأدوات التي تحتاجها للتفوق، في مكان واحد وبأحدث التقنيات التعليمية.</p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                { icon: <Zap className="text-blue-600" />, title: 'تعلم ذكي', desc: 'نظام يحلل أداءك ويركز على الأسئلة التي تخطئ فيها لضمان أسرع تقدم.' },
-                { icon: <BookOpen className="text-blue-600" />, title: 'بنوك محدثة', desc: 'أحدث تسريبات وأسئلة السنوات السابقة مصنفة ومحلولة بدقة عالية.' },
-                { icon: <ShieldCheck className="text-blue-600" />, title: 'متابعة دقيقة', desc: 'تقارير تفصيلية لمستواك تطلعك على نقاط القوة والضعف بشكل لحظي.' },
-              ].map((feat, i) => (
-                <motion.div 
-                  key={i}
-                  whileHover={{ y: -10 }}
-                  className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-all group"
-                >
-                  <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                    {feat.icon}
+          <div className="relative">
+            <motion.div 
+              initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }}
+              className="relative z-10 bg-slate-900 border border-slate-800 rounded-[2.5rem] p-4 shadow-2xl shadow-blue-500/10"
+            >
+              <div className="bg-slate-950 rounded-[2rem] overflow-hidden border border-slate-800 aspect-[9/16] max-w-sm mx-auto relative">
+                <div className="p-6 space-y-6">
+                  <div className="flex justify-between items-center">
+                    <div className="w-10 h-10 rounded-full bg-blue-600" />
+                    <div className="w-20 h-4 bg-slate-800 rounded-full" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-3">{feat.title}</h3>
-                  <p className="text-slate-600 leading-relaxed">{feat.desc}</p>
-                </motion.div>
-              ))}
-            </div>
+                  <div className="space-y-2">
+                    <div className="h-6 w-3/4 bg-slate-800 rounded-lg" />
+                    <div className="h-4 w-1/2 bg-slate-800 rounded-lg opacity-50" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="h-24 bg-blue-600/20 border border-blue-500/30 rounded-2xl p-4">
+                      <div className="h-4 w-1/2 bg-blue-400 rounded-full mb-2" />
+                      <div className="h-8 w-full bg-blue-600 rounded-lg" />
+                    </div>
+                    <div className="h-24 bg-slate-800 border border-slate-700 rounded-2xl p-4">
+                      <div className="h-4 w-1/2 bg-slate-600 rounded-full mb-2" />
+                      <div className="h-8 w-full bg-slate-700 rounded-lg" />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    {[1,2,3].map(i => (
+                      <div key={i} className="h-16 bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-slate-800" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-3 w-full bg-slate-800 rounded-full" />
+                          <div className="h-2 w-2/3 bg-slate-800 rounded-full" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+            <motion.div 
+              animate={{ y: [0, -20, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-10 -right-10 bg-white text-slate-900 p-4 rounded-2xl shadow-2xl z-20 flex items-center gap-3 border border-slate-100"
+            >
+              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white"><CheckCircle2 size={16} /></div>
+              <span className="font-bold text-sm">تم إتقان 15 سؤالاً اليوم!</span>
+            </motion.div>
+            <motion.div 
+              animate={{ y: [0, 20, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -bottom-6 -left-10 bg-blue-600 text-white p-4 rounded-2xl shadow-2xl z-20 flex items-center gap-3"
+            >
+              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center"><Zap size={16} /></div>
+              <span className="font-bold text-sm">تطور المستوى: +12%</span>
+            </motion.div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="py-20 bg-blue-600 text-white text-center">
-          <div className="max-w-4xl mx-auto px-6">
-            <h2 className="text-4xl font-bold mb-6">هل أنت مستعد لتحقيق درجتك المستهدفة؟</h2>
-            <p className="text-blue-100 text-lg mb la-10">انضم إلى آلاف الطلاب الذين حققوا أحلامهم التعليمية من خلال منصتنا.</p>
-            <Link href="/register" className="bg-white text-blue-600 px la-10 py-4 rounded-2xl font-bold text-lg hover:bg-blue-50 transition-all inline-block shadow-xl">
-              اشترك الآن وابدأ التفوق
-            </Link>
-          </div>
-        </section>
-
-        <footer className="py-12 border-t border-slate-200 bg-white">
-          <div className="max-w-7xl mx-auto px-6 text-center text-slate-500 text-sm">
-            © {new Date().getFullYear()} مركز قدرات. جميع الحقوق محفوظة.
-          </div>
-        </footer>
-      </MotionConfig>
+      <footer className="py-12 border-t border-slate-800 bg-slate-950">
+        <div className="max-w-7xl mx-auto px-6 text-center text-slate-500 text-sm">
+          © {new Date().getFullYear()} مركز قدرات. جميع الحقوق محفوظة.
+        </div>
+      </footer>
     </div>
   );
 }
