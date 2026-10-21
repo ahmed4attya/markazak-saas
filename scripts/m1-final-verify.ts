@@ -1,5 +1,5 @@
-import { guard } from "./lib/guard";
-import { PAGE_ACCESS, API_ACCESS } from "./config/access";
+import { guard } from "../lib/guard";
+import { PAGE_ACCESS, API_ACCESS } from "../config/access";
 
 async function run() {
     const tests = [
