@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { getSession, isAdmin } from '@/lib/auth';
 import { rateLimit } from '@/lib/rateLimit';
@@ -171,8 +171,8 @@ export async function POST(req: Request) {
       { status: 403 }
     );
   }
-  const rl = rateLimit('ai:' + s.userId, 10, 600000);
-  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } });
+  const rl = await rateLimit('ai:' + s.userId, 10, 600000);
+  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.retryAfterMs ?? 0) / 1000)) } });
 
 
   try {
@@ -192,7 +192,7 @@ export async function POST(req: Request) {
       process.env.AI_API_URL &&
       process.env.AI_API_KEY
     ) {
-      const response = await fetch(process.env.AI_API_URL, {
+      const response = await fetch(process.env.AI_API_URL, { signal: AbortSignal.timeout(15000), 
         method: 'POST',
         headers: {
           'content-type': 'application/json',
@@ -253,3 +253,7 @@ export async function POST(req: Request) {
     );
   }
 }
+
+
+
+

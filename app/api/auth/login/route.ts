@@ -1,4 +1,4 @@
-﻿import {NextResponse} from 'next/server';
+import {NextResponse} from 'next/server';
 import {query} from '@/lib/db';
 import {signSession} from '@/lib/auth';
 import {rateLimit} from '@/lib/rateLimit';
@@ -10,9 +10,9 @@ export async function POST(req:Request){
     const b=await req.json();
     const emailForLimit=String(b?.email||'').toLowerCase().trim();
     const limitKey=`login:${ip}:${emailForLimit}`;
-    const rl=rateLimit(limitKey,5,15*60*1000);
+    const rl = await rateLimit(limitKey,5,15*60*1000);
     if(!rl.allowed){
-      return NextResponse.json({error:'محاولات كتيرة، حاول بعد شوية'},{status:429,headers:{'Retry-After':String(Math.ceil(rl.retryAfterMs/1000))}});
+      return NextResponse.json({error:'محاولات كتيرة، حاول بعد شوية'},{status:429,headers:{'Retry-After':String(Math.ceil((rl.retryAfterMs ?? 0)/1000))}});
     }
     const x=z.object({email:z.string().email(),password:z.string().min(1)}).parse(b);
     const r=await query<any>('select id,tenant_id,email,name,password_hash,role,active from users where lower(email)=lower($1) limit 1',[x.email]);
@@ -26,3 +26,6 @@ export async function POST(req:Request){
     return NextResponse.json({error:'تعذر تسجيل الدخول'},{status:400})
   }
 }
+
+
+

@@ -6,11 +6,11 @@ import { rateLimit } from '@/lib/rateLimit';
 // Public lead capture from the landing contact form (platform-level, no tenant).
 export async function POST(req: Request) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-  const rl = rateLimit('leads:' + ip, 5, 3600000);
+  const rl = await rateLimit('leads:' + ip, 5, 3600000);
   if (!rl.allowed) {
     return NextResponse.json(
       { error: 'محاولات كثيرة — حاول لاحقاً' },
-      { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } }
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.retryAfterMs ?? 0) / 1000)) } }
     );
   }
   try {
@@ -41,3 +41,6 @@ export async function GET() {
   const rows = (await query('select id, name, email, message, created_at from leads order by created_at desc limit 200')).rows;
   return NextResponse.json(rows);
 }
+
+
+

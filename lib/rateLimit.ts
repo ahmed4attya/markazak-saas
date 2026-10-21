@@ -1,36 +1,81 @@
-// In-memory rate limiter. Works per server process — fine for a single-instance
-// deployment (matches this project's docker-compose setup). If this app is ever
-// scaled to multiple instances, replace this with a shared store (e.g. Redis).
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
-type Bucket = { count: number; resetAt: number };
+export type RateLimitResult = {
+  success: boolean;
+  limit: number;
+  reset: number;
+  remaining: number;
+  allowed?: boolean;
+  retryAfterMs?: number;
+};
 
-const buckets = new Map<string, Bucket>();
-
-// Periodically drop expired buckets so this Map doesn't grow forever.
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, bucket] of buckets) {
-    if (bucket.resetAt < now) buckets.delete(key);
+class MemoryLimiter {
+  private limits = new Map<string, { count: number; reset: number }>();
+  async limit(id: string, limit: number, windowMs: number): Promise<RateLimitResult> {
+    const now = Date.now();
+    const record = this.limits.get(id) || { count: 0, reset: now + windowMs };
+    if (now > record.reset) {
+      this.limits.set(id, { count: 1, reset: now + windowMs });
+      return { success: true, limit, reset: record.reset, remaining: limit - 1, allowed: true, retryAfterMs: 0 };
+    }
+    if (record.count >= limit) return { success: false, limit, reset: record.reset, remaining: 0, allowed: false, retryAfterMs: record.reset - now };
+    record.count++;
+    this.limits.set(id, record);
+    return { success: true, limit, reset: record.reset, remaining: limit - record.count, allowed: true, retryAfterMs: 0 };
   }
-}, 5 * 60 * 1000).unref?.();
-
-export function rateLimit(
-  key: string,
-  limit: number,
-  windowMs: number
-): { allowed: boolean; remaining: number; retryAfterMs: number } {
-  const now = Date.now();
-  const bucket = buckets.get(key);
-
-  if (!bucket || bucket.resetAt < now) {
-    buckets.set(key, { count: 1, resetAt: now + windowMs });
-    return { allowed: true, remaining: limit - 1, retryAfterMs: 0 };
-  }
-
-  if (bucket.count >= limit) {
-    return { allowed: false, remaining: 0, retryAfterMs: bucket.resetAt - now };
-  }
-
-  bucket.count++;
-  return { allowed: true, remaining: limit - bucket.count, retryAfterMs: 0 };
 }
+
+const memoryLimiter = new MemoryLimiter();
+
+export async function checkRateLimit(
+  identifier: string, 
+  optionsOrLimit?: any, 
+  windowMs?: any, // Changed to any to avoid Duration type conflict
+  isAuthRoute?: boolean
+): Promise<RateLimitResult> {
+  let limit = 10;
+  let winMs = 60000;
+
+  if (typeof optionsOrLimit === 'object' && optionsOrLimit !== null) {
+    limit = optionsOrLimit.limit ?? 10;
+    winMs = optionsOrLimit.windowMs ?? 60000;
+  } else if (typeof optionsOrLimit === 'number') {
+    limit = optionsOrLimit;
+    winMs = windowMs ?? 60000;
+  }
+
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const isProd = process.env.NODE_ENV === 'production';
+
+  if (!url || !token) {
+    if (isProd && isAuthRoute) {
+      return { success: false, limit: 0, reset: Infinity, remaining: 0, allowed: false, retryAfterMs: Infinity };
+    }
+    return await memoryLimiter.limit(identifier, limit, winMs);
+  }
+
+  try {
+    const redis = new Redis({ url, token });
+    const ratelimit = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(limit, `${Math.max(1, Math.ceil(winMs / 1000))} s`),
+    });
+    const res = await ratelimit.limit(identifier);
+    return { 
+      success: res.success, 
+      limit: res.limit, 
+      reset: res.reset, 
+      remaining: res.remaining,
+      allowed: res.success,
+      retryAfterMs: res.reset - Date.now()
+    };
+  } catch (e) {
+    console.error("[RateLimit] Transient Redis error, failing open:", e);
+    return { success: true, limit, reset: 0, remaining: 1, allowed: true, retryAfterMs: 0 };
+  }
+}
+
+export { checkRateLimit as rateLimit };
+

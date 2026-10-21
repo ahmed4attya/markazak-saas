@@ -7,27 +7,26 @@ export async function middleware(req:NextRequest){
   if(path.startsWith('/api/auth/')||path==='/api/certificates/verify'||path==='/login'||path==='/verify'||path.startsWith('/_next')||path==='/favicon.ico'||path==='/api/health'||path==='/api/leads')return NextResponse.next();
   const token=req.cookies.get('session')?.value;
   if(!token){if(path.startsWith('/api/'))return NextResponse.json({error:'unauthorized'},{status:401});return NextResponse.redirect(new URL('/login',req.url))}
+  const isApi = path.startsWith('/api/');
   try{
     const verified=await jwtVerify(token,secret);
     const role=String(verified.payload.role||'');
     const method=req.method.toUpperCase();
-    const isApi=path.startsWith('/api/');
     const isLearner=role==='student'||role==='guardian';
     const learnerAllowed=path.startsWith('/portal')||path.startsWith('/api/learner/')||path==='/api/me'||(role==='student'&&path.startsWith('/api/attempts'))||(role==='student'&&method==='GET'&&path.startsWith('/api/assignments'))||(method==='GET'&&path.startsWith('/api/videos/')&&path.endsWith('/stream'));
     const teacherAdminOnly=['/finance','/users','/settings','/plans','/activation-codes','/audit','/certificates','/ai','/api/invoices','/api/payments','/api/users','/api/settings','/api/plans','/api/activation-codes','/api/audit','/api/certificates','/api/ai'];
     const teacherMutationBlocked=['/api/students','/api/teachers','/api/courses','/api/groups','/api/classrooms','/api/enrollments'];
     const hasPrefix=(items:string[])=>items.some((item)=>path===item||path.startsWith(item+'/'));
     const teacherAdminReport=role==='teacher'&&((path==='/reports')||(path.startsWith('/reports/')&&!path.startsWith('/reports/learning'))||(path==='/api/reports')||(path.startsWith('/api/reports/')&&!path.startsWith('/api/reports/learning')));
-    if(isLearner&&!learnerAllowed){if(isApi)return NextResponse.json({error:'forbidden'},{status:403});return NextResponse.redirect(new URL('/portal',req.url))}
-    if((role==='teacher'&&hasPrefix(teacherAdminOnly))||teacherAdminReport){if(isApi)return NextResponse.json({error:'forbidden'},{status:403});return NextResponse.redirect(new URL('/dashboard',req.url))}
-    if(role==='teacher'&&method!=='GET'&&hasPrefix(teacherMutationBlocked))return NextResponse.json({error:'forbidden'},{status:403});
-    const res=NextResponse.next();
-    res.headers.set('X-Frame-Options','DENY');
-    res.headers.set('X-Content-Type-Options','nosniff');
-    res.headers.set('Referrer-Policy','strict-origin-when-cross-origin');
-    res.headers.set('Permissions-Policy','camera=(), microphone=(), geolocation=()');
-    res.headers.set('Strict-Transport-Security','max-age=63072000; includeSubDomains; preload');
-    return res;
-  }catch{if(path.startsWith('/api/'))return NextResponse.json({error:'unauthorized'},{status:401});return NextResponse.redirect(new URL('/login',req.url))}
+    if(isApi){
+      if(isLearner&&!learnerAllowed)return NextResponse.json({error:'forbidden'},{status:403});
+      if(role==='teacher'&&hasPrefix(teacherAdminOnly)&&!teacherAdminReport)return NextResponse.json({error:'forbidden'},{status:403});
+      if(role==='teacher'&&hasPrefix(teacherMutationBlocked)&&method!=='GET')return NextResponse.json({error:'forbidden'},{status:403});
+    }else{
+      if(isLearner&&!path.startsWith('/portal'))return NextResponse.redirect(new URL('/portal',req.url));
+      if(role==='teacher'&&hasPrefix(teacherAdminOnly)&&!teacherAdminReport)return NextResponse.redirect(new URL('/dashboard',req.url));
+    }
+    return NextResponse.next();
+  }catch(e){if(isApi)return NextResponse.json({error:'unauthorized'},{status:401});return NextResponse.redirect(new URL('/login',req.url))}
 }
-export const config={matcher:['/dashboard/:path*','/students/:path*','/teachers/:path*','/courses/:path*','/groups/:path*','/attendance/:path*','/finance/:path*','/certificates/:path*','/reports/:path*','/ai/:path*','/users/:path*','/plans/:path*','/activation-codes/:path*','/settings/:path*','/questions/:path*','/exams/:path*','/lessons/:path*','/assignments/:path*','/gradebook/:path*','/portal/:path*','/api/:path*']}
+export const config={matcher:['/((?!api/auth|api/certificates/verify|login|verify|_next|favicon.ico|api/health|api/leads).*)']};

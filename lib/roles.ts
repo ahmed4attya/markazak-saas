@@ -1,4 +1,4 @@
-﻿// lib/roles.ts - CLIENT-SAFE role helpers. No server imports allowed here.
-export function isAdminRole(role: string): boolean {
-  return role === 'owner' || role === 'manager' || role === 'admin';
-}
+export const ROLE_VALUES = ['owner', 'manager', 'admin', 'teacher', 'student', 'guardian', 'staff'] as const;
+export type AccessRole = typeof ROLE_VALUES[number];
+export const isAdminRole = (role: string) => ['owner', 'manager', 'admin'].includes(role);
+export const isAccessRole = (v: string): v is AccessRole => ROLE_VALUES.includes(v as any);

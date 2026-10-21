@@ -36,8 +36,8 @@ type Detail = { line: number; status: 'imported' | 'review' | 'rejected'; reason
 export async function POST(req: Request) {
   const s = await getSession();
   if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-  const rl = rateLimit('qimport:' + s.userId, 5, 3600000);
-  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } });
+  const rl = await rateLimit('qimport:' + s.userId, 5, 3600000);
+  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.retryAfterMs ?? 0) / 1000)) } });
 
   try {
     const b = (await req.json()) as { csv?: string; courseId?: string | null; defaultDomain?: string };
@@ -127,3 +127,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: safeError(e, 'تعذر الاستيراد') }, { status: 400 });
   }
 }
+
+
+

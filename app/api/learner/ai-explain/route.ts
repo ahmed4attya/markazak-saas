@@ -9,8 +9,8 @@ export async function POST(req: Request) {
   const s = await getSession();
   if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   if (s.role !== 'student' && s.role !== 'guardian') return NextResponse.json({ error: 'forbidden' }, { status: 403 });
-  const rl = rateLimit('ai-explain:' + s.userId, 20, 3600000);
-  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } });
+  const rl = await rateLimit('ai-explain:' + s.userId, 20, 3600000);
+  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.retryAfterMs ?? 0) / 1000)) } });
 
   const b = (await req.json().catch(() => ({}))) as { attemptId?: string; questionId?: string };
   const attemptId = String(b.attemptId || '');
@@ -86,3 +86,6 @@ export async function POST(req: Request) {
     : 'الإجابة الصحيحة هي: ' + letter(correctIdx) + ') ' + (opts[correctIdx] ?? '') + ' — راجع الموضوع ثم أعد المحاولة.';
   return NextResponse.json({ answer: internal, source: 'internal' });
 }
+
+
+

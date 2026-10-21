@@ -18,8 +18,8 @@ export async function GET() {
       { status: 403 }
     );
   }
-  const rl = rateLimit('reports:' + session.userId, 10, 600000);
-  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } });
+  const rl = await rateLimit('reports:' + session.userId, 10, 600000);
+  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.retryAfterMs ?? 0) / 1000)) } });
 
 
   try {
@@ -353,3 +353,6 @@ export async function GET() {
     );
   }
 }
+
+
+

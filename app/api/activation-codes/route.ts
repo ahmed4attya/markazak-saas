@@ -33,8 +33,8 @@ export async function POST(req: Request) {
   const s = await getSession();
   if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   if (!isAdmin(s.role)) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
-  const rl = rateLimit('codes-create:' + s.userId, 10, 3600000);
-  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } });
+  const rl = await rateLimit('codes-create:' + s.userId, 10, 3600000);
+  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.retryAfterMs ?? 0) / 1000)) } });
 
   try {
     const b = (await req.json()) as { courseId?: string; durationDays?: number; maxUses?: number; count?: number };
@@ -70,3 +70,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: safeError(e, 'تعذر توليد الأكواد') }, { status: 400 });
   }
 }
+
+
+

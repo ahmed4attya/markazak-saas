@@ -11,8 +11,8 @@ const DOMAINS = ['quant', 'verbal', 'achievement'];
 export async function GET(req: Request) {
   const s = await getSession();
   if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-  const rl = rateLimit('questions:' + s.userId, 30, 3600000);
-  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } });
+  const rl = await rateLimit('questions:' + s.userId, 30, 3600000);
+  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.retryAfterMs ?? 0) / 1000)) } });
   const { searchParams } = new URL(req.url);
   const domain = (searchParams.get('domain') || '').trim();
   const courseId = (searchParams.get('courseId') || '').trim();
@@ -96,3 +96,6 @@ export async function DELETE(req: Request) {
   await logAudit({ tenantId: s.tenantId, userId: s.userId, action: 'question.delete', entity: 'question', entityId: id });
   return NextResponse.json({ ok: true });
 }
+
+
+

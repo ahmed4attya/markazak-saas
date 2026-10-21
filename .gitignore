@@ -45,3 +45,7 @@ tools/session-*/
 .neon
 .neon-target
 .env.vercel-prod
+
+test-results/
+tests/m1-security.spec.ts
+test-results/

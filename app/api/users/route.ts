@@ -52,8 +52,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'الصلاحية دي للإدارة بس' }, { status: 403 });
   }
 
-  const rl = rateLimit('users-create:' + s.userId, 3, 3600000);
-  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } });
+  const rl = await rateLimit('users-create:' + s.userId, 3, 3600000);
+  if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.retryAfterMs ?? 0) / 1000)) } });
 
   const body = await req.json();
 
@@ -204,3 +204,6 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: safeError(e, 'تعذر تحديث المستخدم') }, { status: 400 });
   }
 }
+
+
+
