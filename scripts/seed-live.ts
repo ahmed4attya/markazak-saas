@@ -29,11 +29,11 @@ const NEEDLE = 'الخوارزمي';
 const TENANT_NAME = 'سنتر الخوارزمي / Al-Khwarizmi Center';
 const OWNER_NAME = 'مدير المركز';
 
-const TEACHER1 = { name: 'أ. محمد أحمد', email: 'mohammed@alkhwarizmi.sa', password: 'Mhmd@2026', specialty: 'رياضيات — قدرات كمي' };
-const TEACHER2 = { name: 'أ. سارة عبدالله', email: 'sara@alkhwarizmi.sa', password: 'Sara@2026', specialty: 'لغة عربية — قدرات لفظي' };
-const GUARDIAN = { name: 'أبو خالد', email: 'abukhalid@alkhwarizmi.sa', password: 'AbuKhalid@2026' };
-const STUDENT1 = { name: 'خالد فهد', email: 'khaled@alkhwarizmi.sa', password: 'Khaled@2026', type: 'center', no: 'ALKH-1001', note: 'الصف: ثانوي' };
-const STUDENT2 = { name: 'عمر سعيد', email: 'omar@alkhwarizmi.sa', password: 'Omar@2026', type: 'online', no: 'ALKH-1002', note: 'الصف: ثانوي' };
+const TEACHER1 = { name: 'أ. محمد أحمد', email: 'mohammed@alkhwarizmi.sa', password: process.env.SEED_PWD_T1, specialty: 'رياضيات — قدرات كمي' };
+const TEACHER2 = { name: 'أ. سارة عبدالله', email: 'sara@alkhwarizmi.sa', password: process.env.SEED_PWD_T2, specialty: 'لغة عربية — قدرات لفظي' };
+const GUARDIAN = { name: 'أبو خالد', email: 'abukhalid@alkhwarizmi.sa', password: process.env.SEED_PWD_G1 };
+const STUDENT1 = { name: 'خالد فهد', email: 'khaled@alkhwarizmi.sa', password: process.env.SEED_PWD_S1, type: 'center', no: 'ALKH-1001', note: 'الصف: ثانوي' };
+const STUDENT2 = { name: 'عمر سعيد', email: 'omar@alkhwarizmi.sa', password: process.env.SEED_PWD_S2, type: 'online', no: 'ALKH-1002', note: 'الصف: ثانوي' };
 
 const COURSES = [
   { name: 'قدرات كمي — دورة شاملة', code: 'QNT-101', category: 'قدرات كمي', group: 'مجموعة كمي أ' },
@@ -317,3 +317,5 @@ async function main() {
 }
 
 main().catch((e) => { console.error('ABORT:', e instanceof Error ? e.message : e); process.exit(1); });
+
+
