@@ -95,8 +95,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'bad request' }, { status: 400 });
     }
     const q = (await query(
-      'select id, correct_index, explanation, options from questions where id=$1 and tenant_id=$2',
-      [questionId, s.tenantId]
+      "select q.id, q.correct_index, q.explanation, q.options from questions q where q.id=$1 and q.tenant_id=$2 and exists (select 1 from attempts a where a.user_id=$3 and a.tenant_id=$2 and a.finished_at is not null and a.answers->'c' ? $4)",
+      [questionId, s.tenantId, s.userId, questionId]
     )).rows[0] as any;
     if (!q) return NextResponse.json({ error: 'السؤال غير موجود' }, { status: 404 });
     const opts = Array.isArray(q.options) ? q.options.map(String) : [];
