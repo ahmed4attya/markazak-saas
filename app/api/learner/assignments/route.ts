@@ -26,7 +26,7 @@ export async function GET() {
     return NextResponse.json(rows);
   }
   const rows = (await query(
-    `select distinct a.id, a.title, a.description, a.due_date, a.max_score, c.name as course_name,
+    `select distinct a.id, a.title, a.description, a.due_date, a.max_score, a.created_at, c.name as course_name,
             st.name as student_name,
             sub.score, sub.graded_at
      from assignments a

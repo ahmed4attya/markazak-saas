@@ -26,7 +26,7 @@ export async function GET() {
     return NextResponse.json(rows);
   }
   const rows = (await query(
-    `select distinct e.id, e.title, e.kind, e.duration_minutes, c.name as course_name, st.name as student_name,
+    `select distinct e.id, e.title, e.kind, e.duration_minutes, e.created_at, c.name as course_name, st.name as student_name,
             (select count(*)::int from exam_questions eq2 where eq2.exam_id = e.id) as question_count
      from exams e
      join courses c on c.id = e.course_id
