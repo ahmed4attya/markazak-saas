@@ -67,12 +67,14 @@ function vOk(s) { if (s >= 200 && s < 300) return 'OK'; if (s === 403) return 'B
   for (const r of ['redeem','attempts','attempts/submit','assignments','mistakes','training','ai-explain','notifications']) { const x = await req('POST','/api/learner/'+r,{ body:{} }); rec('BL2','unauth POST /api/learner/'+r,x.status,'401',vDenied(x.status)); }
 
   const st = { cookie: sessions.student };
+  const V4 = '12345678-1234-4321-8765-123456789012';
   for (const r of ['me','courses','exams','assignments','attempts','attendance','files','videos','mistakes','notifications','progress','training']) { const x = await req('GET','/api/learner/'+r,st); rec('BL3','student GET /api/learner/'+r,x.status,'200',vOk(x.status)); }
 
   if (sessions.guardian) {
     const gu = { cookie: sessions.guardian };
     for (const r of ['me','courses','exams','assignments','attempts','attendance','files','videos','mistakes','progress']) { const x = await req('GET','/api/learner/'+r,gu); rec('BL4','guardian GET /api/learner/'+r,x.status,'200',vOk(x.status)); }
   for (const r of ['notifications','training']) { const x = await req('GET','/api/learner/'+r,gu); rec('BL4x','guardian GET /api/learner/'+r,x.status,'200|403',((x.status>=200&&x.status<300)||x.status===403)?'ok':'WARN'); }
+  const g1 = await req('POST','/api/learner/mistakes',{ ...gu, body:{ questionId: V4, chosen: 0 } }); rec('BL11','guardian POST learner/mistakes (student-only)',g1.status,'403',g1.status===403?'ok':(g1.status<300?'HARD_STOP':'WARN'));
   } else console.log('BL4 skipped: no local guardian user');
 
   if (sessions.teacher) {
@@ -88,8 +90,8 @@ function vOk(s) { if (s >= 200 && s < 300) return 'OK'; if (s === 403) return 'B
   const FU = '00000000-0000-0000-0000-000000000000';
   const s1 = await req('POST','/api/learner/attempts/submit',{ ...st, body:{ attemptId: FU, c:{} } });
   rec('BL8','student POST attempts/submit foreign-attempt',s1.status,'404',s1.status===404?'ok':(s1.status<300?'HARD_STOP':'WARN'));
-  const s2 = await req('POST','/api/learner/mistakes',{ ...st, body:{ questionId: FU } });
-  rec('BL9','student POST mistakes foreign-question',s2.status,'404/400',[404,400].includes(s2.status)?'ok':(s2.status<300?'HARD_STOP':'WARN'));
+  const s2 = await req('POST','/api/learner/mistakes',{ ...st, body:{ questionId: V4, chosen: 0 } });
+  rec('BL9','student POST mistakes unseen-question',s2.status,'404',s2.status===404?'ok':(s2.status<300?'HARD_STOP':'WARN'));
   const s3 = await req('GET','/api/learner/files?courseId='+FU,st);
   rec('BL10','student GET files?courseId=foreign',s3.status,'200-empty',s3.status===200?(Array.isArray(s3.json)&&s3.json.length===0?'ok':'WARN-ROWS'):'WARN');
 
