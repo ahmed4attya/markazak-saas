@@ -72,6 +72,7 @@ function vOk(s) { if (s >= 200 && s < 300) return 'OK'; if (s === 403) return 'B
   if (sessions.guardian) {
     const gu = { cookie: sessions.guardian };
     for (const r of ['me','courses','exams','assignments','attempts','attendance','files','videos','mistakes','progress']) { const x = await req('GET','/api/learner/'+r,gu); rec('BL4','guardian GET /api/learner/'+r,x.status,'200',vOk(x.status)); }
+  for (const r of ['notifications','training']) { const x = await req('GET','/api/learner/'+r,gu); rec('BL4x','guardian GET /api/learner/'+r,x.status,'200|403',((x.status>=200&&x.status<300)||x.status===403)?'ok':'WARN'); }
   } else console.log('BL4 skipped: no local guardian user');
 
   if (sessions.teacher) {
@@ -85,7 +86,7 @@ function vOk(s) { if (s >= 200 && s < 300) return 'OK'; if (s === 403) return 'B
   for (const p of ['/api/students','/api/users','/api/invoices','/api/audit','/api/settings']) { const x = await req('GET',p,st); rec('BL7','student GET '+p,x.status,'401/403/404',vDenied(x.status)); }
 
   const FU = '00000000-0000-0000-0000-000000000000';
-  const s1 = await req('POST','/api/learner/attempts/submit',{ ...st, body:{ attemptId: FU, answers:{ order:[], c:{} } } });
+  const s1 = await req('POST','/api/learner/attempts/submit',{ ...st, body:{ attemptId: FU, c:{} } });
   rec('BL8','student POST attempts/submit foreign-attempt',s1.status,'404',s1.status===404?'ok':(s1.status<300?'HARD_STOP':'WARN'));
   const s2 = await req('POST','/api/learner/mistakes',{ ...st, body:{ questionId: FU } });
   rec('BL9','student POST mistakes foreign-question',s2.status,'404/400',[404,400].includes(s2.status)?'ok':(s2.status<300?'HARD_STOP':'WARN'));
