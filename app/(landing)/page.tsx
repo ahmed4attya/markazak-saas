@@ -73,7 +73,7 @@ export default function LandingPage() {
             </motion.div>
             
             <motion.h1 
-              initial="initial" animate="animate" variants={fadeIn}
+              initial="initial" animate="animate" variants={fadeInUp}
               className="text-5xl lg:text-7xl font-black tracking-tighter text-white mb-8 leading-[1.1]"
             >
               طريقك المضمون للتفوق في <br />
@@ -81,14 +81,14 @@ export default function LandingPage() {
             </motion.h1>
 
             <motion.p 
-              initial="initial" animate="animate" variants={fadeIn}
+              initial="initial" animate="animate" variants={fadeInUp}
               className="text-lg md:text-xl text-slate-400 mb-12 max-w-2xl leading-relaxed"
             >
               نقدم تجربة تعليمية ذكية تعتمد على تحليل نقاط ضعفك، بنوك أسئلة محدثة، ومتابعة لحظية تضمن وصولك للدرجة الكاملة بإذن الله.
             </motion.p>
 
             <motion.div 
-              initial="initial" animate="animate" variants={fadeIn}
+              initial="initial" animate="animate" variants={fadeInUp}
               className="flex flex-wrap gap-4"
             >
               <Link href="/register" className="group bg-blue-600 text-white px la-10 py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 transition-all shadow-2xl shadow-blue-600/20 flex items-center gap-2">

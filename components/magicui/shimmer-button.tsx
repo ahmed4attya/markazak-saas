@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
-export default function ShimmerButton({ children, className = "", ...props }) {
+import type { ComponentProps, ReactNode } from "react";
+export default function ShimmerButton({ children, className = "", ...props }: { children?: ReactNode; className?: string } & ComponentProps<typeof motion.button>) {
   return (
     <motion.button 
       whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
