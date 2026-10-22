@@ -175,9 +175,15 @@ export async function POST(req: Request) {
   if (!rl.allowed) return NextResponse.json({ error: 'محاولات كثيرة — انتظر قليلا' }, { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.retryAfterMs ?? 0) / 1000)) } });
 
 
+  let body: any = null;
   try {
-    const body = await req.json();
-    const prompt = String(body.prompt || '').trim();
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'invalid JSON body' }, { status: 400 });
+  }
+
+  try {
+    const prompt = String(body?.prompt || '').trim();
 
     if (!prompt) {
       return NextResponse.json(

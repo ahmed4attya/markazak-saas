@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { getSession, isAdmin } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
@@ -32,7 +32,13 @@ export async function POST(req: Request) {
   const s = await getSession();
   if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   if (!isAdmin(s.role)) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
-  const b = (await req.json()) as { title?: string; body?: string; userId?: string; toAllAbsent?: boolean };
+  let parsed: unknown = null;
+  try {
+    parsed = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'invalid JSON body' }, { status: 400 });
+  }
+  const b = (parsed ?? {}) as { title?: string; body?: string; userId?: string; toAllAbsent?: boolean };
   const title = typeof b.title === 'string' ? b.title.slice(0, 200) : '';
   const body = typeof b.body === 'string' ? b.body.slice(0, 1000) : '';
   if (!title || !body) return NextResponse.json({ error: 'العنوان والنص مطلوبان' }, { status: 400 });
