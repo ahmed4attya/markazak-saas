@@ -15,3 +15,8 @@ M2-0: password rotation executed on Neon prod via scripts/rotate-passwords.cjs (
 S-SEC-06: live Neon DB credential exposed in chat by keys-only sanitizer against a keyless .env.prod line; remediated by neondb_owner password reset (R2, masked re-entry) BEFORE rotation; file rebuilt keyed.
 S-SEC-06a: sanitizer hardening — bare-URL detection anchored to line start; v1 over-redacted valid keyed lines (safe direction, no leak).
 NOTE: pg-connection-string warns sslmode=require aliases to verify-full today and weakens in pg v9 — revisit at M7 hygiene.
+- M2-V0-a6 (S-ENV-04): قاعدة dev المحلية كانت بلا مخطط التطبيق (users فقط، tenants=42P01) → إعادة بناء من db/schema.sql (29 جدولاً) + بذرة قانونية بحارس مضيف fail-closed (local-db-reset/seed-local-canonical).
+- M2-V0: جذع 400 في خلية S3 حُسم بالأدلة: 42P01 (لا جدول students) قبل الإصلاح، وحرف 'tenant-A' غير صالح الشكل أصلاً؛ الـcatch الشامل في route.ts fail-closed (لا كتابة، لا تسريب).
+- M2-V0: تعديل معلن #2 (موافق نصية) على المواصفة المجمدة + المرآة: S3 صارم 404 (مستأجر uuid صالح غير موجود → طالب مبذور حقيقي) + S3b ضابط إيجابي 200 — إثبات عزل SQL؛ المصفوفة الحية 12/12 (MATRIX_EXIT=0).
+- M2-V0: أدوات إثبات متتبعة جديدة (diag-schema، local-db-reset، seed-local-canonical، patch-s3/patch-s3b سجلا التعديلين المعلنين)؛ الشواهد الخام تبقى محلية غير متتبعة.
+- M2-V0-a7: tests/m1-security.spec.ts كانت متجاهَلة صراحة (.gitignore:50) وغير مُوتمة قط → force-add + حذف سطر التجاهل؛ playwright --list يجمع 0 اختبارات منها (جذر التجميع يُحدد من playwright.config لاحقاً — المصفوفة الحية تبقى الدليل المنفذ).

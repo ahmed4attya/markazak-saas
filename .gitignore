@@ -47,7 +47,6 @@ tools/session-*/
 .env.vercel-prod
 
 test-results/
-tests/m1-security.spec.ts
 test-results/
 
 .mimosa/
