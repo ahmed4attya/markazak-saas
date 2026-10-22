@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
 
-const secret = new TextEncoder().encode(process.env.AUTH_SECRET || "dev-only-insecure-secret-change-me-before-prod");
+function resolveAuthSecret(){const s=process.env.AUTH_SECRET;if(s&&s.length>=32)return s;if(process.env.NODE_ENV==='production')throw new Error('AUTH_SECRET missing or under 32 chars');return s||'dev-only-insecure-secret-change-me-before-prod'}
+const secret=new TextEncoder().encode(resolveAuthSecret())
 
 export type Session = { userId: string; tenantId: string; role: string; name: string; email: string };
 
