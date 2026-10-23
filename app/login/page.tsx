@@ -26,8 +26,12 @@ export default function Login() {
       body: JSON.stringify({ email, password }),
     });
     const j = await x.json();
-    if (x.ok) r.push("/dashboard");
-    else setErr(j.error || "خطأ");
+    if (x.ok) {
+      const role = String(j?.user?.role || "");
+      const dest =
+        role === "student" || role === "guardian" ? "/portal" : "/dashboard";
+      r.push(dest);
+    } else setErr(j.error || "خطأ");
     setLoading(false);
   }
   return (

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import NumberFlow from "@number-flow/react";
 import {
-  BookOpen, Video, FolderOpen, CalendarCheck, ClipboardList, NotebookPen, TrendingUp, KeyRound,
-  Play, Flame,
+  ClipboardList, NotebookPen, BookOpen, FolderOpen,
+  KeyRound, Zap, PlayCircle, ChevronLeft,
 } from "lucide-react";
-import PortalVideoPlayer from "@/components/PortalVideoPlayer";
 
 type PRow = {
   courseId: string;
@@ -17,143 +18,263 @@ type PRow = {
   pct: number;
   lastVideo: { id: string; title: string } | null;
 };
+type Me = {
+  name: string;
+  role?: string;
+  points?: number;
+  level?: string;
+};
 
-function Ring({ pct, label }: { pct: number; label: string }) {
-  const r = 30;
+function Ring({ pct, size = 64 }: { pct: number; size?: number }) {
+  const r = size / 2 - 5;
   const c = 2 * Math.PI * r;
-  const offset = c - (c * pct) / 100;
-  const color = pct >= 80 ? "var(--success)" : pct >= 40 ? "var(--gold)" : "var(--blue)";
+  const off = c - (c * pct) / 100;
+  const col =
+    pct >= 80 ? "var(--success)"
+    : pct >= 40 ? "var(--gold)"
+    : "var(--blue)";
   return (
-    <div className="relative w-[74px] h-[74px] shrink-0" aria-label={label + " " + pct + "%"}>
-      <svg className="w-full h-full -rotate-90" viewBox="0 0 74 74">
-        <circle cx="37" cy="37" r={r} stroke="var(--surface-3)" strokeWidth="6" fill="transparent" />
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg
+        className="w-full h-full -rotate-90"
+        viewBox={"0 0 " + size + " " + size}
+      >
         <circle
-          cx="37" cy="37" r={r} stroke={color} strokeWidth="6" fill="transparent"
+          cx={size / 2} cy={size / 2} r={r}
+          stroke="var(--surface-3)" strokeWidth="5" fill="transparent"
+        />
+        <circle
+          cx={size / 2} cy={size / 2} r={r}
+          stroke={col} strokeWidth="5" fill="transparent"
           strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={offset}
+          strokeDasharray={c} strokeDashoffset={off}
           style={{ transition: "stroke-dashoffset 1s ease" }}
         />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center text-sm font-black">{pct}%</div>
+      <span className="absolute inset-0 grid place-items-center text-xs font-black">
+        {pct}%
+      </span>
     </div>
   );
 }
 
-export default function Portal() {
-  const [me, setMe] = useState<{ name: string; role: string; points?: number; level?: string } | null>(null);
-  const [progress, setProgress] = useState<PRow[]>([]);
-  const [playing, setPlaying] = useState<{ id: string; title: string } | null>(null);
-  const [childTab, setChildTab] = useState("الكل");
+const QUICK = [
+  { href: "/portal/training", label: "تدريب سريع", Icon: Zap, tint: "var(--gold)" },
+  { href: "/portal/exams", label: "امتحاناتي", Icon: ClipboardList, tint: "var(--blue)" },
+  { href: "/portal/assignments", label: "واجباتي", Icon: NotebookPen, tint: "var(--violet)" },
+  { href: "/portal/courses", label: "دوراتي", Icon: BookOpen, tint: "var(--info)" },
+  { href: "/portal/library", label: "المكتبة", Icon: FolderOpen, tint: "var(--warning)" },
+  { href: "/portal/redeem", label: "تفعيل كود", Icon: KeyRound, tint: "var(--success)" },
+];
+
+export default function PortalHome() {
+  const [me, setMe] = useState<Me | null>(null);
+  const [rows, setRows] = useState<PRow[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/learner/me").then((r) => (r.ok ? r.json() : null)).then((d) => { if (d) setMe(d); }).catch(() => {});
-    fetch("/api/learner/progress").then((r) => (r.ok ? r.json() : [])).then((d) => { if (Array.isArray(d)) setProgress(d); }).catch(() => {});
+    Promise.all([
+      fetch("/api/learner/me").then((r) => (r.ok ? r.json() : null)),
+      fetch("/api/learner/progress").then((r) => (r.ok ? r.json() : [])),
+    ])
+      .then(([m, p]) => {
+        setMe(m);
+        setRows(Array.isArray(p) ? p : []);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  // V-mission: guardian child tab switcher (الكل + every child name found in progress)
-  const children = useMemo(
-    () => [...new Set(progress.map((p) => p.studentName).filter(Boolean) as string[])],
-    [progress]
-  );
-  const visibleProgress = childTab === "الكل" ? progress : progress.filter((p) => p.studentName === childTab);
-
-  const points = me?.role === "student" ? me?.points || 0 : null;
-  const level = me?.level || "مبتدئ";
+  const tot = rows.reduce((a, r) => a + Number(r.total || 0), 0);
+  const done = rows.reduce((a, r) => a + Number(r.done || 0), 0);
+  const pct = tot ? Math.min(100, Math.round((done / tot) * 100)) : 0;
+  const cont = rows.find((r) => r.lastVideo) || null;
+  const firstName = (me?.name || "طالبنا").split(" ")[0];
 
   return (
-    <main className="p-4 lg:p-8 max-w-4xl mx-auto pt-6 space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-extrabold mb-1">{me?.name ? `أهلاً ${me.name}` : "أهلاً بك"}</h1>
-          <p className="text-[color:var(--muted)]">{me?.role === "guardian" ? "متابعة أبنائك من مكان واحد" : "مساحة التعلم الخاصة بك"}</p>
+    <div className="space-y-5">
+      <motion.section
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        className={[
+          "rounded-3xl p-5 relative overflow-hidden",
+          "border border-[color:var(--gold-border)]",
+        ].join(" ")}
+        style={{
+          background:
+            "linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%)",
+        }}
+      >
+        <div
+          className="absolute -top-16 -left-16 w-44 h-44 rounded-full"
+          style={{
+            background: "var(--gold-soft)",
+            filter: "blur(40px)",
+          }}
+        />
+        <p className="text-xs text-[color:var(--muted)]">
+          أهلاً بك في بوابة الطالب
+        </p>
+        <div className="flex items-center gap-2 mt-1">
+          <h1 className="text-xl font-black">{firstName}</h1>
+          {me?.level && (
+            <span
+              className={[
+                "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                "border border-[color:var(--gold-border)]",
+              ].join(" ")}
+              style={{
+                background: "var(--gold-soft)",
+                color: "var(--gold)",
+              }}
+            >
+              {me.level}
+            </span>
+          )}
         </div>
-        {points !== null && (
-          <div className="bento-card px-5 py-3 flex items-center gap-3">
-            <Flame size={22} className="text-[color:var(--gold)]" />
-            <div>
-              <div className="text-xl font-black text-[color:var(--gold)]">{points} نقطة</div>
-              <div className="text-[10px] text-[color:var(--muted)]">المستوى: {level}</div>
-            </div>
+        <div className="mt-4 flex items-center gap-4">
+          <Ring pct={pct} size={78} />
+          <div>
+            <p className="text-[11px] text-[color:var(--muted)]">نقاطك</p>
+            <NumberFlow
+              value={Number(me?.points || 0)}
+              className="text-2xl font-black text-[color:var(--gold)]"
+            />
+            <p className="text-[11px] text-[color:var(--muted)] mt-1">
+              {done} من {tot} مهمة منجزة
+            </p>
           </div>
-        )}
-      </div>
+        </div>
+      </motion.section>
+
+      {cont?.lastVideo && (
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08, duration: 0.3 }}
+        >
+          <Link
+            href={"/portal/courses/" + cont.courseId}
+            className={[
+              "bento-card p-4 flex items-center gap-3",
+              "hover:border-[color:var(--gold-border)]",
+              "transition-colors",
+            ].join(" ")}
+          >
+            <span
+              className={[
+                "w-11 h-11 rounded-xl grid place-items-center",
+                "shrink-0",
+              ].join(" ")}
+              style={{
+                background: "var(--gold-soft)",
+                color: "var(--gold)",
+              }}
+            >
+              <PlayCircle size={22} />
+            </span>
+            <span className="min-w-0">
+              <b className="block text-sm truncate">
+                أكمل المشاهدة: {cont.courseName}
+              </b>
+              <small className="block text-xs text-[color:var(--muted)] truncate">
+                {cont.lastVideo.title}
+              </small>
+            </span>
+            <ChevronLeft size={18} className="text-[color:var(--muted-dim)]" />
+          </Link>
+        </motion.section>
+      )}
 
       <section>
-        <h2 className="font-extrabold mb-3 flex items-center gap-2">تقدمك في الدورات</h2>
-        {me?.role === "guardian" && children.length > 1 && (
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {["الكل", ...children].map((c) => (
-              <button
-                key={c}
-                onClick={() => setChildTab(c)}
-                className={
-                  "rounded-full px-3 py-1 text-xs font-bold transition-colors " +
-                  (childTab === c
-                    ? "bg-[color:var(--gold)] text-[#0b0f17]"
-                    : "border border-[color:var(--border)] text-[color:var(--muted)] hover:border-[color:var(--gold-border)]")
-                }
+        <div className="grid grid-cols-3 gap-2.5">
+          {QUICK.map((q, i) => {
+            const Icon = q.Icon;
+            return (
+              <motion.div
+                key={q.href}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.05, duration: 0.25 }}
               >
-                {c}
-              </button>
-            ))}
-          </div>
-        )}
-        {progress.length === 0 && (
-          <div className="bento-card p-6 text-center text-[color:var(--muted)]">لا دورات مسجلة بعد — فعّل كوداً أو تواصل مع الإدارة</div>
-        )}
-        <div className="space-y-3">
-          {visibleProgress.map((p) => (
-            <div key={p.courseId + (p.studentName || "")} className="bento-card p-4 flex items-center gap-4">
-              <Ring pct={p.pct} label={p.courseName} />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <b>{p.courseName}</b>
-                  {p.studentName && <span className="text-xs text-[color:var(--muted)]">— {p.studentName}</span>}
-                </div>
-                <p className="text-xs text-[color:var(--muted)] mt-0.5">{p.done} من {p.total} مهمة مكتملة (واجبات + امتحانات)</p>
-                {p.lastVideo && (
-                  <button
-                    onClick={() => setPlaying(p.lastVideo)}
-                    className="mt-2 primary !min-h-0 py-1.5 px-3 text-xs flex items-center gap-1"
-                  >
-                    <Play size={12} /> متابعة المشاهدة: {p.lastVideo.title}
-                  </button>
-                )}
-              </div>
-              <div className="hidden sm:flex flex-col gap-1.5 shrink-0">
-                <Link href={"/portal/exams"} className="ghost !min-h-0 py-1 px-2.5 text-[11px] flex items-center gap-1"><ClipboardList size={12} /> الامتحانات</Link>
-                <Link href={"/portal/assignments"} className="ghost !min-h-0 py-1 px-2.5 text-[11px] flex items-center gap-1"><NotebookPen size={12} /> الواجبات</Link>
-              </div>
-            </div>
-          ))}
+                <Link
+                  href={q.href}
+                  className={[
+                    "bento-card p-3 flex flex-col items-center",
+                    "justify-center gap-2 min-h-[84px]",
+                    "hover:border-[color:var(--gold-border)]",
+                    "transition-colors",
+                  ].join(" ")}
+                >
+                  <Icon size={22} style={{ color: q.tint }} />
+                  <span className="text-[11px] font-semibold">{q.label}</span>
+                </Link>
+              </motion.div>
+            );
+          })}
         </div>
       </section>
 
       <section>
-        <h2 className="font-extrabold mb-3">أقسام سريعة</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          {[
-            { href: "/portal/courses", label: "دوراتي", Icon: BookOpen, color: "text-[color:var(--blue)]" },
-            { href: "/portal/exams", label: "امتحاناتي", Icon: ClipboardList, color: "text-[color:var(--rose)]" },
-            { href: "/portal/assignments", label: "واجباتي", Icon: NotebookPen, color: "text-[color:var(--violet)]" },
-            { href: "/portal/results", label: "نتائجي", Icon: TrendingUp, color: "text-[color:var(--success)]" },
-            { href: "/portal/library", label: "المكتبة", Icon: FolderOpen, color: "text-[color:var(--success)]" },
-            { href: "/portal/videos", label: "الفيديوهات", Icon: Video, color: "text-[color:var(--gold)]" },
-            { href: "/portal/attendance", label: "حضوري", Icon: CalendarCheck, color: "text-[color:var(--indigo)]" },
-            { href: "/portal/redeem", label: "تفعيل كود", Icon: KeyRound, color: "text-[color:var(--gold)]" },
-          ].map((c) => (
-            <Link key={c.href} href={c.href} className="bento-card p-5 flex flex-col items-center gap-2.5 hover:border-[color:var(--gold-border)] transition-colors">
-              <c.Icon size={26} className={c.color} />
-              <span className="font-bold text-sm">{c.label}</span>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-sm font-bold">تقدم دوراتك</h2>
+          <Link
+            href="/portal/progress"
+            className="text-xs text-[color:var(--gold)] flex items-center gap-0.5"
+          >
+            عرض التفاصيل
+            <ChevronLeft size={14} />
+          </Link>
+        </div>
+        {loading && (
+          <p className="text-xs text-[color:var(--muted)] py-4 text-center">
+            جارٍ التحميل...
+          </p>
+        )}
+        {!loading && rows.length === 0 && (
+          <div className="bento-card p-5 text-center">
+            <p className="text-sm font-semibold mb-1">
+              لا توجد دورات مسجل بها بعد
+            </p>
+            <p className="text-xs text-[color:var(--muted)] mb-3">
+              فعّل كود اشتراك للانضمام إلى دوراتك
+            </p>
+            <Link
+              href="/portal/redeem"
+              className={[
+                "inline-block text-xs font-bold px-4 py-2.5",
+                "rounded-xl text-[#3a2b06] min-h-[44px]",
+                "leading-[44px]",
+              ].join(" ")}
+              style={{ background: "var(--gold-cta)" }}
+            >
+              تفعيل كود
+            </Link>
+          </div>
+        )}
+        <div className="space-y-2">
+          {rows.slice(0, 3).map((r) => (
+            <Link
+              key={r.courseId}
+              href={"/portal/courses/" + r.courseId}
+              className={[
+                "bento-card p-3 flex items-center gap-3",
+                "hover:border-[color:var(--gold-border)]",
+                "transition-colors",
+              ].join(" ")}
+            >
+              <Ring pct={r.pct} size={54} />
+              <span className="min-w-0">
+                <b className="block text-sm truncate">{r.courseName}</b>
+                <small className="block text-xs text-[color:var(--muted)]">
+                  {r.done} من {r.total} مهمة
+                </small>
+              </span>
             </Link>
           ))}
         </div>
       </section>
-
-      {playing && (
-        <PortalVideoPlayer videoId={playing.id} title={playing.title} onClose={() => setPlaying(null)} />
-      )}
-    </main>
+    </div>
   );
 }
