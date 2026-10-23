@@ -1,7 +1,15 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, Brain, BarChart3, LockKeyhole } from "lucide-react";
+import { motion } from "framer-motion";
+import { Brain, BarChart3, LockKeyhole } from "lucide-react";
+import Spotlight from "@/components/magicui/spotlight";
+
+const VISUAL_CARDS = [
+  { Icon: BarChart3, b: "لوحة تحكم ذكية", s: "مؤشرات التشغيل لحظة بلحظة" },
+  { Icon: Brain, b: "مساعد AI", s: "تحليل وتقارير وقرارات" },
+];
+
 export default function Login() {
   const r = useRouter();
   const [email, setEmail] = useState("");
@@ -24,11 +32,14 @@ export default function Login() {
   }
   return (
     <main className="loginPage">
-      <div className="loginVisual">
+      <motion.div className="loginVisual" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+        <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+          <Spotlight color="rgba(245,158,11,0.10)" />
+        </div>
         <div className="orb" />
-        <div className="visualInner">
+        <motion.div className="visualInner" initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12, duration: 0.55 }}>
           <div className="brand big">
-            <span>م</span>
+            <span>خ</span>
           </div>
           <h1>
             إدارة مركز التدريب
@@ -37,44 +48,31 @@ export default function Login() {
           </h1>
           <p>الطلاب، الدورات، الجداول، الحضور، المالية والشهادات.</p>
           <div className="visualCards">
-            <div>
-              <BarChart3 />
-              <b>لوحة تحكم ذكية</b>
-              <small>مؤشرات التشغيل لحظة بلحظة</small>
-            </div>
-            <div>
-              <Brain />
-              <b>مساعد AI</b>
-              <small>تحليل وتقارير وقرارات</small>
-            </div>
+            {VISUAL_CARDS.map((c, i) => (
+              <motion.div key={c.b} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 + i * 0.14 }}>
+                <c.Icon />
+                <b>{c.b}</b>
+                <small>{c.s}</small>
+              </motion.div>
+            ))}
           </div>
-        </div>
-      </div>
-      <div className="loginBox">
+        </motion.div>
+      </motion.div>
+      <motion.div className="loginBox" initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18, duration: 0.55 }}>
         <div className="loginBrand">
-          <span>م</span>
+          <span>خ</span>
           <div>
-            <b>مركزك</b>
-            <small>Training Center OS</small>
+            <b>منصة الخوارزمي</b>
+            <small>Al-Khwarizmi Platform</small>
           </div>
         </div>
         <h2>تسجيل الدخول</h2>
-        <p className="muted">أدخل بيانات حساب مركزك</p>
+        <p className="muted">أدخل بيانات حسابك في منصة الخوارزمي</p>
         <form onSubmit={submit}>
           <label>البريد الإلكتروني</label>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            required
-          />
+          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required />
           <label>كلمة المرور</label>
-          <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
-            required
-          />
+          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
           {err && <div className="error">{err}</div>}
           <button className="primary full" disabled={loading}>
             {loading ? "جارٍ الدخول..." : "دخول إلى النظام"}
@@ -83,7 +81,7 @@ export default function Login() {
         <div className="secure">
           <LockKeyhole size={15} /> اتصال آمن ومشفر
         </div>
-      </div>
+      </motion.div>
     </main>
   );
 }

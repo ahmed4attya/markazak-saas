@@ -3,13 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import NumberFlow from "@number-flow/react";
 import {
   Users, BookOpen, CalendarCheck, Wallet, FileBadge, BarChart3, Brain, ShieldCheck,
-  ArrowLeft, Sparkles, Building2, Layers, FileCheck, TrendingUp, ChevronDown,
+  ArrowLeft, FileCheck, TrendingUp, ChevronDown,
   Star, Send, MonitorSmartphone, Lock, Clock, GraduationCap, CheckCircle2, Video,
 } from "lucide-react";
 import ThemeToggle from "../components/ThemeToggle";
 import HeroCanvas from "@/components/HeroCanvas";
+import Spotlight from "../components/magicui/spotlight";
+import AnimatedGradientText from "../components/magicui/animated-gradient-text";
+import ShimmerButton from "../components/magicui/shimmer-button";
+import Marquee from "../components/magicui/marquee";
 
 const MODULES = [
   { Icon: Users, title: "إدارة الطلاب", desc: "ملفات كاملة بأنواعها: سنتر وأونلاين، مع القيد في المجموعات وفترات الاشتراك.", accent: "blue" },
@@ -66,29 +71,13 @@ function useInViewOnce() {
   return { ref, seen };
 }
 
-function useCountUp(to: number, start: boolean, duration = 1600) {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    if (!start) return;
-    let raf = 0;
-    const t0 = performance.now();
-    const step = (t: number) => {
-      const p = Math.min(1, (t - t0) / duration);
-      setVal(Math.round(to * (1 - Math.pow(1 - p, 3))));
-      if (p < 1) raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [start, to, duration]);
-  return val;
-}
-
 function Counter({ to, suffix }: { to: number; suffix: string }) {
   const { ref, seen } = useInViewOnce();
-  const val = useCountUp(to, seen);
   return (
     <div ref={ref} className="bento-card p-6 text-center">
-      <div className="text-4xl font-black text-[color:var(--gold)]">{val}{suffix}</div>
+      <div className="text-4xl font-black text-[color:var(--gold)]">
+        <NumberFlow value={seen ? to : 0} />{suffix}
+      </div>
     </div>
   );
 }
@@ -140,8 +129,8 @@ export default function Landing() {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center text-lg font-bold shadow-[0_8px_22px_rgba(245,158,11,0.3)]">خ</div>
             <div className="flex flex-col">
-              <span className="font-bold leading-tight">سنتر الخوارزمي</span>
-              <span className="text-[11px] text-[color:var(--muted)] uppercase tracking-wider">Al-Khwarizmi Center</span>
+              <span className="font-bold leading-tight">منصة الخوارزمي</span>
+              <span className="text-[11px] text-[color:var(--muted)] uppercase tracking-wider">Al-Khwarizmi Platform</span>
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm text-[color:var(--muted)]">
@@ -160,16 +149,17 @@ export default function Landing() {
       {/* ---------- HERO ---------- */}
       <section className="relative overflow-hidden">
         <HeroCanvas className="absolute inset-0 w-full h-full pointer-events-none" />
+        <Spotlight color="rgba(245,158,11,0.10)" />
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(900px 480px at 85% -10%, rgba(245,158,11,0.12), transparent 60%), radial-gradient(700px 400px at 10% 110%, rgba(91,155,255,0.07), transparent 55%)" }} />
         <div className="relative max-w-6xl mx-auto px-4 py-24 lg:py-32 text-center">
           <motion.span
             initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-            className="badge inline-block">v2.0 — منصة تدريب SaaS عربية بالكامل</motion.span>
+            className="badge inline-block"><AnimatedGradientText>v2.0 — منصة تدريب SaaS عربية بالكامل</AnimatedGradientText></motion.span>
           <motion.h1
             initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
             className="mt-6 text-4xl lg:text-6xl font-extrabold leading-[1.25]">
-            سنتر الخوارزمي
+            منصة الخوارزمي
             <br />
             <span
               className="text-transparent bg-clip-text"
@@ -311,39 +301,24 @@ export default function Landing() {
       {/* ---------- STATS ---------- */}
       <section className="max-w-5xl mx-auto px-4 py-16">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bento-card p-6 text-center">
-            <Counter to={15} suffix="+" />
-            <div className="mt-1 text-xs text-[color:var(--muted)]">دورة تدريبية جاهزة البنية</div>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.08 }} className="bento-card p-6 text-center">
-            <Counter to={100} suffix="%" />
-            <div className="mt-1 text-xs text-[color:var(--muted)]">واجهة عربية RTL</div>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.16 }} className="bento-card p-6 text-center">
-            <Counter to={24} suffix="/7" />
-            <div className="mt-1 text-xs text-[color:var(--muted)]">تشغيل سحابي ومراقبة</div>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.24 }} className="bento-card p-6 text-center">
-            <Counter to={3} suffix="" />
-            <div className="mt-1 text-xs text-[color:var(--muted)]">أدوار معزولة بالكامل</div>
-          </motion.div>
+          {STATS.map((s, i) => (
+            <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}>
+              <Counter to={s.to} suffix={s.suffix} />
+              <div className="mt-1 text-xs text-[color:var(--muted)] text-center">{s.label}</div>
+            </motion.div>
+          ))}
         </div>
       </section>
 
-      {/* ---------- TESTIMONIALS ---------- */}
-      <section className="max-w-6xl mx-auto px-4 py-16">
-        <div className="text-center mb-12">
+      {/* ---------- TESTIMONIALS (marquee) ---------- */}
+      <section className="py-16 overflow-hidden">
+        <div className="text-center mb-12 max-w-6xl mx-auto px-4">
           <span className="badge">آراء العملاء</span>
           <h2 className="mt-4 text-3xl font-extrabold">ماذا يقول من جرب؟</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {TESTIMONIALS.map((t, i) => (
-            <motion.div
-              key={t.name}
-              initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }} transition={{ delay: i * 0.1 }}
-              className="bento-card p-6"
-            >
+        <Marquee speed={45}>
+          {[...TESTIMONIALS, ...TESTIMONIALS, ...TESTIMONIALS].map((t, i) => (
+            <div key={i} dir="rtl" className="bento-card p-6 w-[320px] shrink-0">
               <div className="flex gap-1 mb-3">
                 {Array.from({ length: 5 }).map((_, k) => (<Star key={k} size={14} className="text-[color:var(--gold)] fill-[color:var(--gold)]" />))}
               </div>
@@ -352,9 +327,9 @@ export default function Landing() {
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center text-xs font-black">{t.initials}</div>
                 <div><div className="text-sm font-bold">{t.name}</div><div className="text-xs text-[color:var(--muted)]">{t.role}</div></div>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </div>
+        </Marquee>
       </section>
 
       {/* ---------- FAQ ---------- */}
@@ -407,9 +382,9 @@ export default function Landing() {
               <label className="md:col-span-2">رسالتك (اختياري)<textarea value={leadMsg} onChange={(e) => setLeadMsg(e.target.value)} rows={3} maxLength={2000} placeholder="أخبرنا عن مركزك واحتياجك..." /></label>
               {leadState === "error" && <div className="error md:col-span-2">{leadError}</div>}
               <div className="md:col-span-2 flex justify-center">
-                <button className="primary px-8" disabled={leadState === "busy"}>
+                <ShimmerButton type="submit" disabled={leadState === "busy"} className={"px-8 py-3 " + (leadState === "busy" ? "opacity-60 cursor-not-allowed" : "")}>
                   <Send size={16} className="inline ml-1" /> {leadState === "busy" ? "جاري الإرسال..." : "أرسل طلب التجربة"}
-                </button>
+                </ShimmerButton>
               </div>
             </form>
           )}
@@ -422,7 +397,7 @@ export default function Landing() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] text-[#0b0f17] flex items-center justify-center font-bold">خ</span>
-              <span className="font-bold text-[color:var(--text)]">سنتر الخوارزمي</span>
+              <span className="font-bold text-[color:var(--text)]">منصة الخوارزمي</span>
             </div>
             <p className="leading-relaxed">منصة تدريب القدرات العامة والتحصيلي — عربياً بالكامل، بمعايير SaaS عالمية.</p>
           </div>
@@ -445,7 +420,7 @@ export default function Landing() {
           </div>
         </div>
         <div className="border-t border-[color:var(--border)] py-4 text-center text-xs text-[color:var(--muted)]">
-          سنتر الخوارزمي — Al-Khwarizmi Center &copy; 2026 — جميع الحقوق محفوظة
+          منصة الخوارزمي — Al-Khwarizmi Platform &copy; 2026 — جميع الحقوق محفوظة
         </div>
       </footer>
     </div>

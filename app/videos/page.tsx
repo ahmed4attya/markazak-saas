@@ -109,7 +109,7 @@ export default function Videos() {
     const m = Math.floor(s / 60); const r = s % 60;
     return m + ':' + String(r).padStart(2, '0');
   }
-  const wmText = me ? (me.name + ' — ' + me.email + ' — ' + new Date().toLocaleDateString('ar-EG')) : 'سنتر الخوارزمي';
+  const wmText = me ? (me.name + ' — ' + me.email + ' — ' + new Date().toLocaleDateString('ar-EG')) : 'منصة الخوارزمي';
 
   return (
     <Shell title="مكتبة الفيديو" subtitle="رفع وتشغيل فيديوهات الدورات بعلامة مائية ووصول محمي">

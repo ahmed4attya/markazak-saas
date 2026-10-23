@@ -1,10 +1,10 @@
-﻿import type { MetadataRoute } from 'next';
+import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'سنتر الخوارزمي — Al-Khwarizmi Center',
-    short_name: 'سنتر الخوارزمي',
-    description: 'منصة تدريب القدرات العامة والتحصيلي — كورسات، مكتبة محتوى محمية، وامتحانات محاكية',
+    name: 'منصة الخوارزمي — Al-Khwarizmi Platform',
+    short_name: 'منصة الخوارزمي',
+    description: 'منصة الخوارزمي لتدريب القدرات العامة والتحصيلي — كورسات، مكتبة محتوى محمية، وامتحانات محاكية',
     start_url: '/',
     display: 'standalone',
     background_color: '#0b0f17',

@@ -34,7 +34,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   const [bellOpen, setBellOpen] = useState(false);
   const [bellRows, setBellRows] = useState<Array<{ id: string; title: string; created_at: string }>>([]);
   const [name, setName] = useState("");
-  const [tenantName, setTenantName] = useState("سنتر الخوارزمي");
+  const [tenantName, setTenantName] = useState("منصة الخوارزمي");
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {

@@ -65,7 +65,7 @@ export default function Shell({
   const [qcOpen, setQcOpen] = useState(false);
   const [dateStr, setDateStr] = useState('');
   const [role, setRole] = useState<AccessRole>('staff');
-  const [tenantName, setTenantName] = useState('سنتر الخوارزمي');
+  const [tenantName, setTenantName] = useState('منصة الخوارزمي');
 
   useEffect(() => {
     setCollapsed(localStorage.getItem('mkz-sidebar-collapsed') === '1');

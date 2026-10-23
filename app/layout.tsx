@@ -4,7 +4,7 @@ import PWARegister from '@/components/PWARegister';
 import { Toaster } from 'react-hot-toast';
 
 export const metadata = {
-  title: 'سنتر الخوارزمي | Al-Khwarizmi Center',
+  title: 'منصة الخوارزمي | Al-Khwarizmi Platform',
   description: 'منصة إدارة مراكز التدريب',
   manifest: '/manifest.webmanifest',
   icons: {
@@ -17,7 +17,7 @@ export const metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'سنتر الخوارزمي',
+    title: 'منصة الخوارزمي',
   },
 };
 

@@ -14,7 +14,7 @@ function Watermark({ text }: { text: string }) {
 }
 
 export default function PortalVideoPlayer({ videoId, title, onClose }: { videoId: string; title: string; onClose: () => void }) {
-  const [wm, setWm] = useState("سنتر الخوارزمي");
+  const [wm, setWm] = useState("منصة الخوارزمي");
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
