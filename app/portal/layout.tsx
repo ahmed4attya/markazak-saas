@@ -29,6 +29,7 @@ export default function PortalLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const immersive = pathname.startsWith("/portal/exams/");
   const [me, setMe] = useState<{ name: string } | null>(null);
   const [tenantName, setTenantName] = useState("منصة الخوارزمي");
   const [notes, setNotes] = useState<Note[]>([]);
@@ -67,6 +68,7 @@ export default function PortalLayout({
         "font-['IBM_Plex_Sans_Arabic']",
       ].join(" ")}
     >
+      {!immersive && (
       <header
         className={[
           "fixed top-0 inset-x-0 z-40",
@@ -181,9 +183,10 @@ export default function PortalLayout({
           )}
         </AnimatePresence>
       </header>
+      )}
 
-      <main className="pt-[78px] pb-[110px]">
-        <div className="max-w-[560px] mx-auto px-4">
+      <main className={immersive ? "" : "pt-[78px] pb-[110px]"}>
+        <div className={immersive ? "" : "max-w-[560px] mx-auto px-4"}>
           <AnimatePresence mode="wait">
             <motion.div
               key={pathname}
@@ -198,6 +201,7 @@ export default function PortalLayout({
         </div>
       </main>
 
+      {!immersive && (
       <nav
         className={[
           "fixed bottom-0 inset-x-0 z-40",
@@ -237,6 +241,7 @@ export default function PortalLayout({
           })}
         </div>
       </nav>
+      )}
     </div>
   );
 }
