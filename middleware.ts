@@ -13,7 +13,7 @@ export async function middleware(req:NextRequest){
     const role=String(verified.payload.role||'');
     const method=req.method.toUpperCase();
     const isLearner=role==='student'||role==='guardian';
-    const learnerAllowed=path.startsWith('/portal')||path.startsWith('/api/learner/')||path==='/api/me'||(role==='student'&&path.startsWith('/api/attempts'))||(role==='student'&&method==='GET'&&path.startsWith('/api/assignments'))||(method==='GET'&&path.startsWith('/api/videos/')&&path.endsWith('/stream'));
+    const learnerAllowed=path.startsWith('/portal')||path.startsWith('/api/learner/')||path==='/api/me'||(role==='student'&&path.startsWith('/api/attempts'))||(role==='student'&&method==='GET'&&path.startsWith('/api/assignments'))||(method==='GET'&&path.startsWith('/api/videos/')&&path.endsWith('/stream'))||(method==='GET'&&path.startsWith('/api/files/')&&path.endsWith('/download'));
     const teacherAdminOnly=['/finance','/users','/settings','/plans','/activation-codes','/audit','/certificates','/ai','/api/invoices','/api/payments','/api/users','/api/settings','/api/plans','/api/activation-codes','/api/audit','/api/certificates','/api/ai'];
     const teacherMutationBlocked=['/api/students','/api/teachers','/api/courses','/api/groups','/api/classrooms','/api/enrollments'];
     const hasPrefix=(items:string[])=>items.some((item)=>path===item||path.startsWith(item+'/'));
@@ -30,3 +30,4 @@ export async function middleware(req:NextRequest){
   }catch(e){if(isApi)return NextResponse.json({error:'unauthorized'},{status:401});return NextResponse.redirect(new URL('/login',req.url))}
 }
 export const config={matcher:['/((?!api/auth|api/certificates/verify|login|verify|_next|favicon.ico|api/health|api/leads).*)']};
+
