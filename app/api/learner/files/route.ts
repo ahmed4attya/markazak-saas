@@ -21,7 +21,7 @@ export async function GET(req: Request) {
        join groups g on g.course_id = c.id
        join enrollments e on e.group_id = g.id
        join students st on st.id = e.student_id
-       where st.user_id = $1 and f.tenant_id = $2${courseFilter}
+       where st.user_id = $1 and f.tenant_id = $2 and e.status = 'active'${courseFilter}
        group by f.id, c.id, c.name order by f.created_at desc limit 100`,
       params
     )).rows;
@@ -33,7 +33,7 @@ export async function GET(req: Request) {
      join groups g on g.course_id = c.id
      join enrollments e on e.group_id = g.id
      join students st on st.id = e.student_id
-     where st.guardian_user_id = $1 and f.tenant_id = $2
+     where st.guardian_user_id = $1 and f.tenant_id = $2 and e.status = 'active'
      group by f.id, st.name, c.id, c.name order by f.created_at desc limit 100`,
     [s.userId, s.tenantId]
   )).rows;
