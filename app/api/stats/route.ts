@@ -1,102 +1,30 @@
-﻿import { NextResponse } from "next/server";
-import { getSession, isAdmin } from "@/lib/auth";
-import { query, safeError } from "@/lib/db";
+import { NextResponse } from "next/server";
+import { query } from "@/lib/db";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const session = await getSession();
-
-  if (!session) {
-    return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
-  }
-
-  if (!isAdmin(session.role)) {
-    return NextResponse.json({ error: "forbidden" }, { status: 403 });
-  }
-
   try {
-    const [students, teachers, courses, groups, attendance] = await Promise.all(
-      [
-        query(
-          `
-          select
-            count(*)::int as total,
-            count(*) filter (where status = 'active')::int as active,
-            count(*) filter (where status = 'graduated')::int as graduated,
-            count(*) filter (where status = 'suspended')::int as suspended,
-            count(*) filter (where type = 'center')::int as center,
-            count(*) filter (where type = 'online')::int as online
-          from students
-          where tenant_id = $1
-        `,
-          [session.tenantId],
-        ),
-
-        query(
-          `
-          select
-            count(*)::int as total,
-            count(*) filter (where status = 'active')::int as active,
-            count(*) filter (where status = 'inactive')::int as inactive,
-            count(distinct nullif(trim(specialty), ''))::int as specialties
-          from teachers
-          where tenant_id = $1
-        `,
-          [session.tenantId],
-        ),
-
-        query(
-          `
-          select
-            count(*)::int as total,
-            count(*) filter (where status = 'active')::int as active,
-            count(*) filter (where status = 'draft')::int as draft,
-            count(*) filter (where status = 'archived')::int as archived
-          from courses
-          where tenant_id = $1
-        `,
-          [session.tenantId],
-        ),
-
-        query(
-          `
-          select
-            count(*)::int as total,
-            count(*) filter (where status = 'active')::int as active,
-            count(*) filter (where status = 'scheduled')::int as scheduled,
-            count(*) filter (where status = 'completed')::int as completed
-          from groups
-          where tenant_id = $1
-        `,
-          [session.tenantId],
-        ),
-
-        query(
-          `
-          select
-            count(*)::int as total,
-            count(*) filter (where status = 'present')::int as present,
-            count(*) filter (where status = 'absent')::int as absent,
-            count(*) filter (where status = 'late')::int as late,
-            count(*) filter (where status = 'excused')::int as excused
-          from attendance
-          where tenant_id = $1
-        `,
-          [session.tenantId],
-        ),
-      ],
+    const r = await query(
+      `select
+         (select count(*) from students) as students,
+         (select count(*) from questions) as questions,
+         (select count(*) from exams) as exams,
+         (select count(distinct tenant_id) from users) as centers`
     );
-
-    return NextResponse.json({
-      students: students.rows[0],
-      teachers: teachers.rows[0],
-      courses: courses.rows[0],
-      groups: groups.rows[0],
-      attendance: attendance.rows[0],
-    });
-  } catch (error: any) {
+    const rows: any[] = (r as any).rows || [];
+    const row = rows[0] || {};
+    const num = (v: unknown) => (typeof v === "string" ? parseInt(v, 10) || 0 : Number(v) || 0);
     return NextResponse.json(
-      { error: safeError(error, "تعذر تحميل الإحصائيات") },
-      { status: 500 },
+      {
+        students: num(row.students),
+        questions: num(row.questions),
+        exams: num(row.exams),
+        centers: num(row.centers),
+      },
+      { headers: { "cache-control": "no-store" } }
     );
+  } catch {
+    return NextResponse.json({ error: "stats_unavailable" }, { status: 503 });
   }
 }

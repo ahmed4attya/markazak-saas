@@ -1,12 +1,26 @@
-import type { Viewport } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import PWARegister from '@/components/PWARegister';
 import { Toaster } from 'react-hot-toast';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'منصة الخوارزمي | Al-Khwarizmi Platform',
-  description: 'منصة إدارة مراكز التدريب',
+  description: 'منصة إدارة مراكز التدريب وقدرات كمي ولفظي وتحصيلي',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   manifest: '/manifest.webmanifest',
+  openGraph: {
+    title: 'منصة الخوارزمي | Al-Khwarizmi Platform',
+    description: 'منصة تدريب القدرات العامة والتحصيلي — بنك أسئلة، امتحانات محاكية، مكتبة محمية، ومتابعة لحظية لولي الأمر',
+    type: 'website',
+    locale: 'ar_SA',
+    siteName: 'منصة الخوارزمي',
+    images: [{ url: '/icons/icon-512.png', width: 512, height: 512, alt: 'منصة الخوارزمي' }],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'منصة الخوارزمي | Al-Khwarizmi Platform',
+    description: 'منصة تدريب القدرات العامة والتحصيلي',
+  },
   icons: {
     icon: [
       { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
