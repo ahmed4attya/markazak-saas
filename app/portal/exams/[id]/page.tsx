@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { ArrowRight, AlertTriangle, CheckCircle2, XCircle, Sparkles, Clock } from 'lucide-react';
+import PortalConfetti from '@/components/PortalConfetti';
 
 type Q = { id: string; kind: string; text: string; options: string[] };
 type Payload = {
@@ -170,6 +171,7 @@ export default function TakeExam() {
     const good = result.percent >= 60;
     return (
       <div dir="rtl" className="min-h-screen bg-[color:var(--bg)] text-[color:var(--text)] font-['IBM_Plex_Sans_Arabic']">
+        <PortalConfetti fire={!!result} />
         <header className="h-14 flex items-center px-4 border-b border-[color:var(--border)] bg-[color:var(--surface)]">
           <Link href="/portal/exams" className="flex items-center gap-2 text-[color:var(--muted)] hover:text-[color:var(--gold)]"><ArrowRight size={18} /> رجوع</Link>
           <h1 className="font-extrabold mr-4">النتيجة — {result.examTitle}</h1>

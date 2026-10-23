@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import NumberFlow from "@number-flow/react";
 import {
   ClipboardList, NotebookPen, BookOpen, FolderOpen,
-  KeyRound, Zap, PlayCircle, ChevronLeft,
+  KeyRound, Zap, PlayCircle, ChevronLeft, Flame,
 } from "lucide-react";
 
 type PRow = {
@@ -24,6 +24,7 @@ type Me = {
   points?: number;
   level?: string;
 };
+type Streak = { streak: number; lastActive: string | null; todayActive: boolean };
 
 function Ring({ pct, size = 64 }: { pct: number; size?: number }) {
   const r = size / 2 - 5;
@@ -71,15 +72,18 @@ export default function PortalHome() {
   const [me, setMe] = useState<Me | null>(null);
   const [rows, setRows] = useState<PRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stk, setStk] = useState<Streak | null>(null);
 
   useEffect(() => {
     Promise.all([
       fetch("/api/learner/me").then((r) => (r.ok ? r.json() : null)),
       fetch("/api/learner/progress").then((r) => (r.ok ? r.json() : [])),
+      fetch("/api/learner/streak").then((r) => (r.ok ? r.json() : null)),
     ])
-      .then(([m, p]) => {
+      .then(([m, p, sk]) => {
         setMe(m);
         setRows(Array.isArray(p) ? p : []);
+        setStk(sk as Streak | null);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -130,6 +134,19 @@ export default function PortalHome() {
               }}
             >
               {me.level}
+            </span>
+          )}
+          {stk && stk.streak > 0 && (
+            <span
+              className={[
+                "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                "border border-[color:var(--gold-border)]",
+                "inline-flex items-center gap-1",
+              ].join(" ")}
+              style={{ background: "var(--gold-soft)", color: "var(--gold)" }}
+            >
+              <Flame size={11} />
+              سلسلة {stk.streak} يوم
             </span>
           )}
         </div>
