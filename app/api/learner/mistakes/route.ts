@@ -79,7 +79,10 @@ export async function GET() {
       studentName: studentNames.get(last?.user || '') || undefined,
     });
   }
-  out.sort((a, b) => b.wrongCount - a.wrongCount || (a.lastAt || "").localeCompare(b.lastAt || ""));
+  out.sort((a, b) => {
+    const cv = (v: unknown) => (v instanceof Date ? v.toISOString() : String(v ?? ""));
+    return b.wrongCount - a.wrongCount || cv(a.lastAt).localeCompare(cv(b.lastAt));
+  });
   return NextResponse.json(out);
 }
 
