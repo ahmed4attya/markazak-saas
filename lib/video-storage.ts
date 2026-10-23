@@ -1,4 +1,5 @@
-﻿// lib/video-storage.ts - Scope 3 video helpers (DEC-053..057).
+import { randomUUID } from "crypto";
+// lib/video-storage.ts - Scope 3 video helpers (DEC-053..057).
 export const MAX_VIDEO_BYTES = 500 * 1024 * 1024; // 500MB cap until Hobby limits measured (DEC-054)
 
 export const VIDEO_CONTENT_TYPES: string[] = [
@@ -20,7 +21,6 @@ export function isAllowedVideoFile(name: string, mime?: string | null): boolean 
 }
 
 export function buildVideoPathname(tenantId: string, originalName: string): string {
-  const { randomUUID } = require('crypto') as { randomUUID: () => string };
   const dot = originalName.lastIndexOf('.');
   const base = dot > 0 ? originalName.slice(0, dot) : originalName;
   const ext = dot > 0 ? originalName.slice(dot) : '';

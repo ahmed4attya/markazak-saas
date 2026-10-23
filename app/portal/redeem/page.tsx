@@ -1,5 +1,6 @@
 'use client';
 
+import Link from "next/link";
 import { useState } from 'react';
 import { KeyRound } from 'lucide-react';
 
@@ -33,7 +34,7 @@ export default function PortalRedeem() {
           <p>الدورة: <b>{result.courseName}</b></p>
           <p className="text-[color:var(--muted)] text-sm">اشتراكك فعال حتى <b>{new Date(result.subEnd).toLocaleDateString('ar-EG')}</b>{result.resumed ? ' (تمت الإضافة لاشتراكك الحالي)' : ''}</p>
           <div className="flex gap-2 justify-center pt-2">
-            <a href="/portal/courses" className="primary">دوراتي</a>
+            <Link href="/portal/courses" className="primary">دوراتي</Link>
             <button className="ghost" onClick={() => { setResult(null); setCode(''); }}>تفعيل كود آخر</button>
           </div>
         </div>

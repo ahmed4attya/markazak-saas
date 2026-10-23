@@ -126,7 +126,7 @@ export default function Questions() {
                 </label>
               ))}
             </div>
-            <label className="block">شرح الحل (يغذي "لماذا أخطأت؟")
+            <label className="block">شرح الحل (يغذي &quot;لماذا أخطأت؟&quot;)
               <textarea value={f.explanation} onChange={(e) => setF({ ...f, explanation: e.target.value })} rows={2} />
             </label>
             <div className="flex gap-2">
