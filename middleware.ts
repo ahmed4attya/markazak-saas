@@ -4,7 +4,7 @@ function resolveAuthSecret(){const s=process.env.AUTH_SECRET;if(s&&s.length>=32)
 const secret=new TextEncoder().encode(resolveAuthSecret())
 export async function middleware(req:NextRequest){
   const path=req.nextUrl.pathname;
-  if(path.startsWith('/api/auth/')||path==='/api/certificates/verify'||path==='/login'||path==='/verify'||path==='/'||path.startsWith('/_next')||path==='/favicon.ico'||path==='/api/health'||path==='/api/leads'||path==='/privacy'||path==='/terms'||path==='/offline'||path==='/robots.txt'||path==='/sitemap.xml'||path==='/manifest.webmanifest'||path==='/manifest.json'||path==='/sw.js')return NextResponse.next();
+  if(path.startsWith('/api/auth/')||path==='/api/certificates/verify'||path==='/login'||path==='/verify'||path==='/'||path.startsWith('/_next')||path==='/favicon.ico'||path==='/api/health'||path==='/api/leads'||path==='/privacy'||path==='/terms'||path==='/offline'||path==='/robots.txt'||path==='/sitemap.xml'||path==='/manifest.webmanifest'||path==='/manifest.json'||path==='/sw.js'||path==='/plans'||path==='/api/plans')return NextResponse.next();
   const token=req.cookies.get('session')?.value;
   if(!token){if(path.startsWith('/api/'))return NextResponse.json({error:'unauthorized'},{status:401});return NextResponse.redirect(new URL('/login',req.url))}
   const isApi = path.startsWith('/api/');

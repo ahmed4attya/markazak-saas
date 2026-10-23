@@ -1,34 +1,28 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+
+const PLANS_SQL = `
+  SELECT id, code, name, monthly_price, yearly_price, limits, features, active
+  FROM plans
+  WHERE active = true
+  ORDER BY monthly_price ASC
+`;
 
 export async function GET() {
   const session = await getSession();
 
-  if (!session) {
-    return NextResponse.json(
-      { error: 'غير مصرح' },
-      { status: 401 }
-    );
-  }
-
   try {
-    const [plans, subscription] = await Promise.all([
-      query(`
-        SELECT
-          id,
-          code,
-          name,
-          monthly_price,
-          yearly_price,
-          limits,
-          features,
-          active
-        FROM plans
-        WHERE active = true
-        ORDER BY monthly_price ASC
-      `),
+    if (!session) {
+      const anonPlans = await query(PLANS_SQL);
+      return NextResponse.json({
+        plans: anonPlans.rows,
+        subscription: null,
+      });
+    }
 
+    const [plans, subscription] = await Promise.all([
+      query(PLANS_SQL),
       query(
         `
         SELECT

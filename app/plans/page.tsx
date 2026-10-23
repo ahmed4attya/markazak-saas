@@ -1,6 +1,7 @@
-﻿'use client';
+'use client';
 
 import Shell from '@/components/Shell';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 type Plan = {
@@ -19,14 +20,92 @@ type Subscription = {
   current_period_end?: string | null;
 };
 
+function PlansGrid({
+  plans,
+  subscription,
+  subscribing,
+  onChoose,
+}: {
+  plans: Plan[];
+  subscription: Subscription | null;
+  subscribing: string | null;
+  onChoose: (code: string) => void;
+}) {
+  return (
+    <div className="plans">
+      {plans.map(plan => {
+        const current = subscription?.plan === plan.code;
+        const features = Array.isArray(plan.features)
+          ? plan.features
+          : [];
+
+        return (
+          <div
+            className={current ? 'planCard featured' : 'planCard'}
+            key={plan.id}
+          >
+            {current && <span>الخطة الحالية</span>}
+
+            <h2>{plan.name}</h2>
+
+            <strong>
+              {Number(plan.monthly_price).toLocaleString('ar-SA')}
+              <small> ر.س / شهر</small>
+            </strong>
+
+            <p>
+              السنوي:{' '}
+              {Number(plan.yearly_price).toLocaleString('ar-SA')} ر.س
+            </p>
+
+            {features.length > 0 && (
+              <ul>
+                {features.map((feature, i) => (
+                  <li key={i}>
+                    {typeof feature === 'string'
+                      ? feature
+                      : feature?.name || JSON.stringify(feature)}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {current ? (
+              <button className="primary" disabled>
+                الخطة الحالية
+              </button>
+            ) : (
+              <button
+                className="ghost"
+                disabled={subscribing === plan.code}
+                onClick={() => onChoose(plan.code)}
+              >
+                {subscribing === plan.code
+                  ? 'جاري التحويل...'
+                  : 'اختيار الخطة'}
+              </button>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function Plans() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [subscribing, setSubscribing] = useState<string | null>(null);
+  const [anon, setAnon] = useState(false);
 
-  async function subscribe(planCode: string) {
+  async function choose(planCode: string) {
+    if (anon) {
+      window.location.href = '/login';
+      return;
+    }
+
     setError('');
     setSubscribing(planCode);
 
@@ -66,6 +145,7 @@ export default function Plans() {
 
         setPlans(j.plans || []);
         setSubscription(j.subscription || null);
+        setAnon(!j.subscription);
       })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
@@ -73,9 +153,44 @@ export default function Plans() {
 
   if (loading) {
     return (
-      <Shell title="الاشتراك والفوترة" subtitle="الخطة والاشتراك الحالي">
-        <div className="panel">جاري تحميل الخطط...</div>
-      </Shell>
+      <div style={{ padding: 40, textAlign: 'center' }}>
+        جاري تحميل الخطط...
+      </div>
+    );
+  }
+
+  if (anon) {
+    return (
+      <div style={{ maxWidth: 1080, margin: '0 auto', padding: 24 }}>
+        <header
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            marginBottom: 24,
+          }}
+        >
+          <Link href="/" style={{ fontWeight: 700 }}>
+            منصة الخوارزمي
+          </Link>
+          <Link href="/login">تسجيل الدخول</Link>
+        </header>
+
+        {error && <div className="error">{error}</div>}
+
+        <h1 style={{ marginBottom: 16 }}>الباقات والأسعار</h1>
+        <p style={{ marginBottom: 24, opacity: 0.8 }}>
+          اختر الباقة المناسبة لمركزك — لتفعيل الاشتراك سجّل الدخول أولاً.
+        </p>
+
+        <PlansGrid
+          plans={plans}
+          subscription={null}
+          subscribing={subscribing}
+          onChoose={choose}
+        />
+      </div>
     );
   }
 
@@ -106,65 +221,12 @@ export default function Plans() {
         </div>
       </div>
 
-      <div className="plans">
-        {plans.map(plan => {
-          const current =
-            subscription?.plan === plan.code;
-
-          const features = Array.isArray(plan.features)
-            ? plan.features
-            : [];
-
-          return (
-            <div
-              className={current ? 'planCard featured' : 'planCard'}
-              key={plan.id}
-            >
-              {current && <span>الخطة الحالية</span>}
-
-              <h2>{plan.name}</h2>
-
-              <strong>
-                {Number(plan.monthly_price).toLocaleString('ar-SA')}
-                <small> ر.س / شهر</small>
-              </strong>
-
-              <p>
-                السنوي:{' '}
-                {Number(plan.yearly_price).toLocaleString('ar-SA')} ر.س
-              </p>
-
-              {features.length > 0 && (
-                <ul>
-                  {features.map((feature, i) => (
-                    <li key={i}>
-                      {typeof feature === 'string'
-                        ? feature
-                        : feature?.name || JSON.stringify(feature)}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {current ? (
-                <button className="primary" disabled>
-                  الخطة الحالية
-                </button>
-              ) : (
-                <button
-                  className="ghost"
-                  disabled={subscribing === plan.code}
-                  onClick={() => subscribe(plan.code)}
-                >
-                  {subscribing === plan.code
-                    ? 'جاري التحويل...'
-                    : 'اختيار الخطة'}
-                </button>
-              )}
-            </div>
-          );
-        })}
-      </div>
+      <PlansGrid
+        plans={plans}
+        subscription={subscription}
+        subscribing={subscribing}
+        onChoose={choose}
+      />
     </Shell>
   );
 }
