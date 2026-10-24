@@ -1,9 +1,16 @@
 import {NextRequest,NextResponse} from 'next/server'
 import {jwtVerify} from 'jose'
+import { checkRate } from './lib/rate-limit'
 function resolveAuthSecret(){const s=process.env.AUTH_SECRET;if(s&&s.length>=32)return s;if(process.env.NODE_ENV==='production')throw new Error('AUTH_SECRET missing or under 32 chars. Set a strong random value (32+ chars) in environment variables before production.');return s||'dev-only-insecure-secret-change-me-before-prod'}
 const secret=new TextEncoder().encode(resolveAuthSecret())
+const RL_LIMITS:Record<string,number>={'/api/auth/login':10,'/api/leads':5,'/api/certificates/verify':30}
 export async function middleware(req:NextRequest){
   const path=req.nextUrl.pathname;
+  if(RL_LIMITS[path]){
+    const ip=req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'local';
+    const v=await checkRate(path+':'+ip,RL_LIMITS[path]);
+    if(v&&!v.ok)return NextResponse.json({error:'rate limited'},{status:429});
+  }
   if(path.startsWith('/api/auth/')||path==='/api/certificates/verify'||path==='/login'||path==='/verify'||path==='/'||path.startsWith('/_next')||path==='/favicon.ico'||path==='/api/health'||path==='/api/leads'||path==='/privacy'||path==='/terms'||path==='/offline'||path==='/robots.txt'||path==='/sitemap.xml'||path==='/manifest.webmanifest'||path==='/manifest.json'||path==='/sw.js'||path==='/plans'||path==='/api/plans')return NextResponse.next();
   const token=req.cookies.get('session')?.value;
   if(!token){if(path.startsWith('/api/'))return NextResponse.json({error:'unauthorized'},{status:401});return NextResponse.redirect(new URL('/login',req.url))}
@@ -29,5 +36,4 @@ export async function middleware(req:NextRequest){
     return NextResponse.next();
   }catch(e){if(isApi)return NextResponse.json({error:'unauthorized'},{status:401});return NextResponse.redirect(new URL('/login',req.url))}
 }
-export const config={matcher:['/((?!api/auth|api/certificates/verify|login|verify|_next|favicon.ico|api/health|api/leads).*)']};
-
+export const config={matcher:['/((?!api/auth|api/certificates/verify|login|verify|_next|favicon.ico|api/health|api/leads).*)','/api/auth/login','/api/leads','/api/certificates/verify']};
