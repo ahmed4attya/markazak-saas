@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { del } from '@vercel/blob';
 import { query, safeError } from '@/lib/db';
 import { getSession } from '@/lib/auth';
@@ -17,7 +17,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     const isUploader = !!userId && String(row.uploaded_by || '') === userId;
     if (!isPrivileged && !isUploader) return NextResponse.json({ error: 'غير مصرح بحذف هذا الملف' }, { status: 403 });
     try { await del(row.storage_key); } catch { return NextResponse.json({ error: 'تعذر حذف الملف من التخزين - حاول مجدداً' }, { status: 500 }); }
-    await query('delete from files where id=$1', [id]);
+    await query('delete from files where id=$1 and tenant_id=$2', [id, s.tenantId]);
     if (userId) await query('insert into audit_logs(tenant_id,user_id,action,entity,entity_id) values($1,$2,$3,$4,$5)', [s.tenantId, userId, 'file.delete', 'file', id]);
     return NextResponse.json({ ok: true });
   } catch (e) {

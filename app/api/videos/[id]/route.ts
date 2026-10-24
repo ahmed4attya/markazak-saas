@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { del } from '@vercel/blob';
 import { query, safeError } from '@/lib/db';
 import { getSession, isAdmin } from '@/lib/auth';
@@ -15,7 +15,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     const allowed = isAdmin(s.role) || String(row.uploaded_by || '') === s.userId;
     if (!allowed) return NextResponse.json({ error: 'غير مصرح بحذف هذا الفيديو' }, { status: 403 });
     try { await del(row.storage_key); } catch { return NextResponse.json({ error: 'تعذر حذف الفيديو من التخزين - حاول مجدداً' }, { status: 500 }); }
-    await query('delete from videos where id=$1', [id]);
+    await query('delete from videos where id=$1 and tenant_id=$2', [id, s.tenantId]);
     await logAudit({ tenantId: s.tenantId, userId: s.userId, action: 'video.delete', entity: 'video', entityId: id });
     return NextResponse.json({ ok: true });
   } catch (e) {

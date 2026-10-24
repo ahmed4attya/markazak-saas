@@ -92,7 +92,7 @@ export async function DELETE(req: Request) {
     ? true
     : String(q.created_by || '') === s.userId && (!q.course_id || await canAccessCourse(s, String(q.course_id)));
   if (!allowed) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
-  await query('delete from questions where id=$1', [id]);
+  await query('delete from questions where id=$1 and tenant_id=$2', [id, s.tenantId]);
   await logAudit({ tenantId: s.tenantId, userId: s.userId, action: 'question.delete', entity: 'question', entityId: id });
   return NextResponse.json({ ok: true });
 }
