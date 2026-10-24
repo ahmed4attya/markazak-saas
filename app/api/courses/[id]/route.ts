@@ -52,6 +52,13 @@ export async function PATCH(
       );
     }
 
+    if (!isAdmin(s.role)) {
+      return NextResponse.json(
+        { error: 'الصلاحية دي للإدارة بس' },
+        { status: 403 }
+      );
+    }
+
     fields.push('updated_at=now()');
 
     values.push(id);
