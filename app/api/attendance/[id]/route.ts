@@ -32,6 +32,25 @@ export async function PATCH(
       );
     }
 
+    if (!isAdmin(s.role)) {
+      if (s.role !== 'teacher') {
+        return NextResponse.json(
+          { error: 'الصلاحية دي للإدارة بس' },
+          { status: 403 }
+        );
+      }
+      const owned = await query(
+        'select 1 from attendance a join groups g on g.id=a.group_id and g.tenant_id=a.tenant_id join course_teachers ct on ct.course_id=g.course_id where a.id=$1 and a.tenant_id=$2 and ct.teacher_user_id=$3',
+        [id, s.tenantId, s.userId]
+      );
+      if (owned.rows.length === 0) {
+        return NextResponse.json(
+          { error: 'غير مصرح بتعديل حضور هذه المجموعة' },
+          { status: 403 }
+        );
+      }
+    }
+
     const body = await req.json();
 
     if (body.status !== undefined && !STATUSES.includes(body.status)) {

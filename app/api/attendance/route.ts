@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query, safeError } from '@/lib/db';
-import { getSession } from '@/lib/auth';
+import { getSession, isAdmin } from '@/lib/auth';
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -65,6 +65,25 @@ export async function POST(req: Request) {
         { error: 'حالة الحضور غير صالحة' },
         { status: 400 }
       );
+    }
+
+    if (!isAdmin(s.role)) {
+      if (s.role !== 'teacher') {
+        return NextResponse.json(
+          { error: 'الصلاحية دي للإدارة بس' },
+          { status: 403 }
+        );
+      }
+      const owned = await query(
+        'select 1 from groups g join course_teachers ct on ct.course_id=g.course_id where g.id=$1 and g.tenant_id=$2 and ct.teacher_user_id=$3',
+        [body.group_id, s.tenantId, s.userId]
+      );
+      if (owned.rows.length === 0) {
+        return NextResponse.json(
+          { error: 'غير مصرح بتسجيل حضور هذه المجموعة' },
+          { status: 403 }
+        );
+      }
     }
 
     const enrollment = await query(
