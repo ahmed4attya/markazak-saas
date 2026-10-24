@@ -12,9 +12,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const courseId = (searchParams.get('courseId') || '').trim();
   const courseFilter = courseId && UUID_RE.test(courseId) ? ' and v.course_id=$3' : '';
-  const params = s.role === 'student'
-    ? [s.userId, s.tenantId, ...(courseFilter ? [courseId] : [])]
-    : [s.userId, s.tenantId, ...(courseFilter ? [courseId] : [])];
+  const params = [s.userId, s.tenantId, ...(courseFilter ? [courseId] : [])];
 
   if (s.role === 'student') {
     const rows = (await query(
@@ -35,9 +33,9 @@ export async function GET(req: Request) {
      join groups g on g.course_id = c.id
      join enrollments e on e.group_id = g.id
      join students st on st.id = e.student_id
-     where st.guardian_user_id = $1 and v.tenant_id = $2 and e.status = 'active'
+     where st.guardian_user_id = $1 and v.tenant_id = $2 and e.status = 'active'${courseFilter}
      group by v.id, st.name, c.id, c.name order by v.created_at desc limit 100`,
-    [s.userId, s.tenantId]
+    params
   )).rows;
   return NextResponse.json(rows);
 }

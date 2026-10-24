@@ -12,9 +12,9 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const courseId = (searchParams.get('courseId') || '').trim();
   const courseFilter = courseId && UUID_RE.test(courseId) ? ' and f.course_id=$3' : '';
+  const params = [s.userId, s.tenantId, ...(courseFilter ? [courseId] : [])];
 
   if (s.role === 'student') {
-    const params = [s.userId, s.tenantId, ...(courseFilter ? [courseId] : [])];
     const rows = (await query(
       `select f.id, f.name, f.mime, f.size_bytes, f.storage_key, f.created_at, c.id as course_id, c.name as course_name from files f
        join courses c on c.id = f.course_id
@@ -33,9 +33,9 @@ export async function GET(req: Request) {
      join groups g on g.course_id = c.id
      join enrollments e on e.group_id = g.id
      join students st on st.id = e.student_id
-     where st.guardian_user_id = $1 and f.tenant_id = $2 and e.status = 'active'
+     where st.guardian_user_id = $1 and f.tenant_id = $2 and e.status = 'active'${courseFilter}
      group by f.id, st.name, c.id, c.name order by f.created_at desc limit 100`,
-    [s.userId, s.tenantId]
+    params
   )).rows;
   return NextResponse.json(rows);
 }

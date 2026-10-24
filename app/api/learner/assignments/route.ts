@@ -10,7 +10,7 @@ export async function GET() {
   if (s.role !== 'student' && s.role !== 'guardian') return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   if (s.role === 'student') {
     const rows = (await query(
-      `select a.id, a.title, a.description, a.due_date, a.max_score, c.name as course_name,
+      `select distinct a.id, a.title, a.description, a.due_date, a.max_score, a.created_at, c.name as course_name,
               sub.content as my_content, sub.submitted_at as my_submitted_at, sub.score as my_score,
               sub.feedback as my_feedback, sub.graded_at as my_graded_at
        from assignments a
