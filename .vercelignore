@@ -1,0 +1,9 @@
+.git
+.github
+audit-out
+tools
+tests
+playwright.config.ts
+*.patch
+*.backup
+*.bak

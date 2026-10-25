@@ -1,0 +1,174 @@
+import { NextResponse } from 'next/server';
+import { query, safeError } from '@/lib/db';
+import { getSession, isAdmin } from '@/lib/auth';
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const AR_S1_MIX_WARNING = 'تنبيه: نوع الطالب لا يطابق نمط المجموعة';
+const AR_S1_PERIOD_INVALID = 'فترة الاشتراك غير صالحة';
+
+export async function GET(req:Request){
+  const s = await getSession();
+  if (!s) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+  const { searchParams } = new URL(req.url);
+  const groupId = (searchParams.get('groupId') || '').trim();
+  if (groupId) {
+    if (!UUID_RE.test(groupId)) return NextResponse.json({ error: 'معرف المجموعة غير صالح' }, { status: 400 });
+    const group = (await query('select id, course_id, name from groups where id=$1 and tenant_id=$2', [groupId, s.tenantId])).rows[0] as any;
+    if (!group) return NextResponse.json({ error: 'المجموعة غير موجودة' }, { status: 404 });
+    if (s.role === 'teacher') {
+      const mine = (await query('select 1 from course_teachers where course_id=$1 and teacher_user_id=$2', [group.course_id, s.userId])).rows;
+      if (!mine.length) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+    }
+    const current = (await query(
+      `select st.id, st.student_no, st.name, st.type, e.id as enrollment_id
+       from enrollments e join students st on st.id = e.student_id
+       where e.group_id = $1 and e.tenant_id = $2 order by st.name`,
+      [groupId, s.tenantId]
+    )).rows;
+    const available = (await query(
+      `select st.id, st.student_no, st.name, st.type from students st
+       where st.tenant_id = $1 and st.status = 'active'
+         and st.id not in (select student_id from enrollments where group_id = $2 and tenant_id = $1)
+       order by st.name`,
+      [s.tenantId, groupId]
+    )).rows;
+    return NextResponse.json({ groupId, course_id: group.course_id, group_name: group.name, current, available });
+  }
+  try {
+    const result = await query(
+      'select e.*, st.name as student_name, st.student_no, g.name as group_name, c.name as course_name from enrollments e left join students st on st.id = e.student_id and st.tenant_id = e.tenant_id left join groups g on g.id = e.group_id and g.tenant_id = e.tenant_id left join courses c on c.id = g.course_id and c.tenant_id = g.tenant_id where e.tenant_id = $1 order by e.enrolled_at desc',
+      [s.tenantId]
+    );
+
+    return NextResponse.json(result.rows);
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e, 'تعذر جلب التسجيلات') },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(req: Request) {
+  const s = await getSession();
+
+  if (!s) {
+    return NextResponse.json(
+      { error: 'غير مصرح' },
+      { status: 401 }
+    );
+  }
+
+  if (!isAdmin(s.role)) {
+    return NextResponse.json(
+      { error: 'الإسناد للإدارة فقط' },
+      { status: 403 }
+    );
+  }
+
+  try {
+    const body = await req.json();
+
+    if (!body.group_id || !UUID_RE.test(body.group_id)) {
+      return NextResponse.json(
+        { error: 'معرف المجموعة غير صالح' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.student_id || !UUID_RE.test(body.student_id)) {
+      return NextResponse.json(
+        { error: 'معرف الطالب غير صالح' },
+        { status: 400 }
+      );
+    }
+
+    const group = await query(
+      'select id, mode from groups where id=$1 and tenant_id=$2',
+      [body.group_id, s.tenantId]
+    );
+
+    if (group.rows.length === 0) {
+      return NextResponse.json(
+        { error: 'المجموعة غير موجودة' },
+        { status: 404 }
+      );
+    }
+
+    const student = await query(
+      'select id, type from students where id=$1 and tenant_id=$2',
+      [body.student_id, s.tenantId]
+    );
+
+    if (student.rows.length === 0) {
+      return NextResponse.json(
+        { error: 'الطالب غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    const gMode = group.rows[0].mode || 'onsite';
+    const sType = student.rows[0].type || 'center';
+    const expectedType = gMode === 'online' ? 'online' : 'center';
+    let mixWarning: string | null = null;
+
+    if (sType !== expectedType) {
+      mixWarning = AR_S1_MIX_WARNING;
+    }
+
+    const subStart = (typeof body.sub_start === 'string' && body.sub_start.trim() !== '' && !isNaN(Date.parse(body.sub_start))) ? body.sub_start.trim() : null;
+    const subEnd = (typeof body.sub_end === 'string' && body.sub_end.trim() !== '' && !isNaN(Date.parse(body.sub_end))) ? body.sub_end.trim() : null;
+
+    if (subStart && subEnd && Date.parse(subEnd) < Date.parse(subStart)) {
+      return NextResponse.json(
+        { error: AR_S1_PERIOD_INVALID },
+        { status: 400 }
+      );
+    }
+
+    const duplicate = await query(
+      'select id from enrollments where group_id=$1 and student_id=$2 and tenant_id=$3',
+      [body.group_id, body.student_id, s.tenantId]
+    );
+
+    if (duplicate.rows.length > 0) {
+      return NextResponse.json(
+        { error: 'الطالب مسجل بالفعل في هذه المجموعة' },
+        { status: 409 }
+      );
+    }
+
+    const result = await query(
+      'insert into enrollments (tenant_id, group_id, student_id, status, price, discount, sub_start, sub_end) values ($1,$2,$3,$4,$5,$6,$7,$8) returning *',
+      [
+        s.tenantId,
+        body.group_id,
+        body.student_id,
+        body.status || 'active',
+        Number(body.price) || 0,
+        Number(body.discount) || 0,
+        subStart,
+        subEnd
+      ]
+    );
+
+    if (mixWarning) {
+      return NextResponse.json(
+        { ...result.rows[0], warning: mixWarning },
+        { status: 201 }
+      );
+    }
+
+    return NextResponse.json(
+      result.rows[0],
+      { status: 201 }
+    );
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: safeError(e, 'تعذر إنشاء التسجيل') },
+      { status: 400 }
+    );
+  }
+}
