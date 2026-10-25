@@ -185,23 +185,56 @@ export async function POST(req: NextRequest) {
         const buf = Buffer.from(await file.arrayBuffer());
 
         if (source === 'pdf') {
-          const pdfMod = nodeRequire('pdf-parse');
-          if (typeof pdfMod === 'function') {
-            const parsed = await pdfMod(buf);
-            raw = parsed.text || '';
-          } else if (pdfMod?.PDFParse) {
-            const parser = new pdfMod.PDFParse({ data: buf });
-            try {
-              const res = await parser.getText();
-              raw = typeof res === 'string' ? res : (res?.text || '');
-            } finally {
-              await parser.destroy().catch(() => {});
+          try {
+            const pdfMod = nodeRequire('pdf-parse');
+            if (typeof pdfMod === 'function') {
+              const parsed = await pdfMod(buf);
+              raw = parsed.text || '';
+            } else if (pdfMod?.PDFParse) {
+              const parser = new pdfMod.PDFParse({ data: buf });
+              try {
+                const res = await parser.getText();
+                if (res?.pages && Array.isArray(res.pages) && res.pages.length > 0) {
+                  raw = res.pages.map((p: { text?: string }) => p.text || '').join('\n');
+                } else if (typeof res === 'string') {
+                  raw = res;
+                } else if (res?.text) {
+                  raw = res.text;
+                }
+              } finally {
+                await parser.destroy().catch(() => {});
+              }
+            } else {
+              return NextResponse.json({ error: 'مكتبة معالجة PDF غير مهيأة بشكل صحيح' }, { status: 500 });
             }
+          } catch (pdfErr: unknown) {
+            const errName = (pdfErr as Error)?.name || '';
+            const errMsg = (pdfErr as Error)?.message || '';
+            if (errName === 'InvalidPDFException' || errMsg.includes('Invalid PDF')) {
+              return NextResponse.json({
+                error: 'الملف المرفوع ليس ملف PDF صالحاً أو تالفاً. يرجى التأكد من سلامة الملف وحفظه بصيغة PDF صحيحة.',
+              }, { status: 400 });
+            }
+            if (errName === 'PasswordException' || errMsg.includes('password')) {
+              return NextResponse.json({
+                error: 'ملف PDF محمي بكلمة مرور. يرجى إزالة الحماية بكلمة مرور ثم رفعه مجدداً.',
+              }, { status: 400 });
+            }
+            return NextResponse.json({
+              error: `تعذر قراءة ملف PDF: ${errMsg || 'خطأ في معالجة الملف'}. جرب نسخ النص ولصقه مباشرة أو تحويله إلى Word.`,
+            }, { status: 400 });
           }
         } else {
-          const mammoth = nodeRequire('mammoth');
-          const r = await mammoth.extractRawText({ buffer: buf });
-          raw = r?.value || '';
+          try {
+            const mammoth = nodeRequire('mammoth');
+            const r = await mammoth.extractRawText({ buffer: buf });
+            raw = r?.value || '';
+          } catch (docxErr: unknown) {
+            const errMsg = (docxErr as Error)?.message || '';
+            return NextResponse.json({
+              error: `تعذر قراءة ملف Word: ${errMsg || 'تأكد أن الملف بصيغة docx غير تالفة'}.`,
+            }, { status: 400 });
+          }
         }
       } else {
         raw = String(form.get('text') || '');
@@ -210,13 +243,21 @@ export async function POST(req: NextRequest) {
 
     const text = cleanText(raw);
     if (text.trim().length < 15) {
-      return NextResponse.json({ error: 'لم يُستخرج نص كافٍ — قد يكون الملف ممسوحاً ضوئياً (صور)' }, { status: 400 });
+      return NextResponse.json({
+        error: 'لم يُستخرج نص كافٍ من الملف — يرجى التأكد أن الملف يحتوي على نصوص وليس صوراً ممسوحة ضوئياً (Scanned). إذا كان الملف عبارة عن صور، يمكنك لصق الأسئلة مباشرة في تبويب (لصق نص).',
+      }, { status: 400 });
     }
 
     const garbled = looksGarbled(text);
-    const questions = parseQuestions(text, letterless);
+    let questions = parseQuestions(text, letterless);
+    // Automatic smart fallback: if regular parse finds no questions, try letterless mode
+    if (questions.length === 0 && !letterless) {
+      questions = parseQuestions(text, true);
+    }
     if (questions.length === 0) {
-      return NextResponse.json({ error: 'لم يتم العثور على أي أسئلة بصيغة صحيحة (راجع التنسيق والترقيم)' }, { status: 400 });
+      return NextResponse.json({
+        error: 'لم يتم العثور على أي أسئلة بصيغة صحيحة (تأكد أن كل سؤال يتبعه خياراته أ، ب، ج، د، أو فقرات واضحة)',
+      }, { status: 400 });
     }
 
     const withAnswer = questions.filter(q => q.answerKey).length;

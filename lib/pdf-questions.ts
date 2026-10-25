@@ -26,12 +26,13 @@ export function looksGarbled(text: string): boolean {
   return dup / arabic.length > 0.12;
 }
 
-const Q_START = /^(?:(?:س|السؤال)\s*)?(\d{1,3})\s*[).:\-–]\s*/;
-const OPT = /^[\(（]?([أ-دA-Da-d])[\)）.:\-–]\s*/;
-const ANS = /^(?:الإجابة|الاجابة|الجواب|الإجابة\s*الصحيحة|الاجابة\s*الصحيحة|الجواب\s*الصحيح)\s*(?:هي|هو)?\s*[:\-–]?\s*([أ-دA-Da-d1-4])/;
-const ANS_INLINE = /[\s(（]+(?:صح|الصحيحة|الصحيح|✓|✔|\*)[\s)）]*$/;
-const PASSAGE_HEAD_RE = /^(?:\[?(?:النص|المقطع|القطعة|نص|قطعة)\s+(?:الأول|الثاني|الثالث|الرابع|الخامس|السادس|السابع|الثامن|التاسع|العاشر|\d+|[أ-ي]+)\]?\s*[:：\-–]?\s*(.*))$/;
-const PASSAGE_EXPLICIT_RE = /^(?:\[?القطعة|\[?نص الاستيعاب|\[?قطعة القراءة)\s*[:：\-–]\s*(.*)$/;
+// Support numeric prefixes, word prefixes (السؤال الأول، السؤال الثاني)، and (س1، س 2)
+const Q_START = /^(?:(?:س|السؤال)\s*(?:\d{1,3}|الأول|الثاني|الثالث|الرابع|الخامس|السادس|السابع|الثامن|التاسع|العاشر|الحادي\s*عشر|الثاني\s*عشر|الثالث\s*عشر|الرابع\s*عشر|الخامس\s*عشر)?\s*|\d{1,3}\s*)[).:\-–ـ]\s*/;
+const OPT = /^[\(（]?([أ-دA-Da-d])[\)）.:\-–ـ]\s*/;
+const ANS = /^(?:الإجابة|الاجابة|الجواب|الإجابة\s*الصحيحة|الاجابة\s*الصحيحة|الجواب\s*الصحيح|مفتاح\s*الحل|الحل)\s*(?:هي|هو)?\s*[:\-–ـ]?\s*([أ-دA-Da-d1-4])/;
+const ANS_INLINE = /[\s(（]+(?:صح|الصحيحة|الصحيح|صحيحة|✓|✔|\*)[\s)）]*$/;
+const PASSAGE_HEAD_RE = /^(?:\[?(?:النص|المقطع|القطعة|نص|قطعة)\s+(?:الأول|الثاني|الثالث|الرابع|الخامس|السادس|السابع|الثامن|التاسع|العاشر|\d+|[أ-ي]+)\]?\s*[:：\-–ـ]?\s*(.*))$/;
+const PASSAGE_EXPLICIT_RE = /^(?:\[?القطعة|\[?نص الاستيعاب|\[?قطعة القراءة)\s*[:：\-–ـ]\s*(.*)$/;
 const FIGURE_RE = /(?:في الشكل المجاور|الشكل أدناه|المثلث المجاور|الرسم البياني|الدائرة المجاورة|المربع المجاور|المستطيل|انظر الشكل|الموضح في الشكل|المنحنى|المدرج)/;
 const IMG_MARKDOWN_RE = /!\[.*?\]\((https?:\/\/[^\s)]+)\)/;
 const URL_IMAGE_RE = /(https?:\/\/[^\s]+\.(?:png|jpg|jpeg|svg|webp|gif)(?:\?[^\s]+)?)/i;
@@ -47,7 +48,7 @@ function normKey(c: string): string | null {
 }
 
 function splitInlineOptions(line: string): { key: string; text: string }[] | null {
-  const re = /([أ-د])\s*[:.)\-–]/g;
+  const re = /([أ-د])\s*[:.)\-–ـ]/g;
   const marks = [...line.matchAll(re)];
   if (marks.length < 3) return null;
   const keys = marks.map(m => m[1]);
@@ -72,7 +73,7 @@ export function parseQuestions(text: string, letterless = false): ParsedQ[] {
   let cur: { body: string[]; options: { key: string; text: string }[]; answerKey?: string; imageUrl?: string } | null = null;
 
   const push = () => {
-    if (cur && cur.body.join(" ").trim().length > 5 && cur.options.length >= 2) {
+    if (cur && cur.body.join(" ").trim().length > 3 && cur.options.length >= 2) {
       const fullBody = cur.body.join(" ").trim();
       const hasFigure = FIGURE_RE.test(fullBody) || Boolean(cur.imageUrl);
       out.push({
@@ -87,7 +88,9 @@ export function parseQuestions(text: string, letterless = false): ParsedQ[] {
     cur = null;
   };
 
-  for (const line of lines) {
+  for (let idx = 0; idx < lines.length; idx++) {
+    const line = lines[idx];
+
     // Check for reading passage markers
     const passExp = line.match(PASSAGE_EXPLICIT_RE);
     const passHead = line.match(PASSAGE_HEAD_RE);
@@ -117,10 +120,25 @@ export function parseQuestions(text: string, letterless = false): ParsedQ[] {
     const qm = line.match(Q_START);
     if (qm) {
       const bodyLen = cur ? cur.body.join(" ").length : 0;
-      if (!cur || cur.options.length > 0 || bodyLen > 30) {
+      if (!cur || cur.options.length > 0 || bodyLen > 25) {
         push();
         cur = {
           body: [line.replace(Q_START, "")],
+          options: [],
+          imageUrl: detectedImgUrl,
+        };
+        continue;
+      }
+    }
+
+    // Smart Fallback: If line is not an option or answer, but the NEXT line starts with an option 'أ)', treat this as question body!
+    const nextLine = idx + 1 < lines.length ? lines[idx + 1] : "";
+    const nextIsOpt = OPT.test(nextLine) || splitInlineOptions(nextLine) !== null;
+    if (nextIsOpt && line.length >= 3 && !OPT.test(line) && !ANS.test(line)) {
+      if (!cur || cur.options.length >= 2) {
+        push();
+        cur = {
+          body: [line],
           options: [],
           imageUrl: detectedImgUrl,
         };
@@ -161,14 +179,21 @@ export function parseQuestions(text: string, letterless = false): ParsedQ[] {
     }
 
     if (cur) {
-      cur.body.push(line);
+      if (cur.options.length === 0) {
+        cur.body.push(line);
+      }
     } else if (currentPassage && line.length > 20) {
-      // Append multi-line passage text before questions begin
       currentPassage += "\n" + line;
     }
   }
 
   push();
+
+  // If standard parse found nothing, try letterless auto-detection
+  if (out.length === 0 && !letterless) {
+    return parseLetterless(text);
+  }
+
   return out;
 }
 
@@ -180,14 +205,16 @@ function parseLetterless(text: string): ParsedQ[] {
   let currentPassage: string | null = null;
 
   for (const line of lines) {
-    const passExp = line.match(PASSAGE_EXPLICIT_RE) || line.match(PASSAGE_HEAD_RE);
-    if (passExp) {
-      currentPassage = line;
+    const passExp = line.match(PASSAGE_EXPLICIT_RE);
+    const passHead = line.match(PASSAGE_HEAD_RE);
+    if (passExp || passHead) {
+      if (cur.length) { blocks.push(cur); cur = []; count = 0; }
+      const initialText = (passExp ? passExp[1] : (passHead ? passHead[1] : "")).replace(/[\]\[]/g, "").trim();
+      currentPassage = initialText || line;
       continue;
     }
-
-    const looksQuestion = /[؟?]$/.test(line) && line.length <= 200;
-    if (looksQuestion && count >= 5) { blocks.push(cur); cur = []; count = 0; }
+    const looksQuestion = Q_START.test(line) || /^(?:س\s*\d+|\d+[\-.)]|\?|؟)/.test(line) || /^(ما|كم|أي|أين|متى|هل|علل|بم تفسر|أوجد|قارن)/.test(line);
+    if (looksQuestion && count >= 4) { blocks.push(cur); cur = []; count = 0; }
     if (Q_START.test(line) && cur.length > 0 && count >= 3) { blocks.push(cur); cur = []; count = 0; }
     cur.push(line); count++;
   }
@@ -221,16 +248,16 @@ function parseLetterless(text: string): ParsedQ[] {
     const hasFigure = FIGURE_RE.test(fullBody) || Boolean(imageUrl);
 
     if (bullets.length >= 2) {
-      if (fullBody.length > 5) {
+      if (fullBody.length > 3) {
         out.push({ body: fullBody, options: bullets, answerKey, passage: currentPassage || undefined, imageUrl, hasFigure });
         continue;
       }
     }
     if (nonEmpty.length >= 5) {
       const tail = nonEmpty.slice(-4);
-      if (tail.every(l => l.trim().length <= 80)) {
+      if (tail.every(l => l.trim().length <= 120)) {
         const body = nonEmpty.slice(0, -4).join(" ").trim();
-        if (body.length > 5)
+        if (body.length > 3)
           out.push({
             body,
             options: tail.map((t, i) => ({ key: ["أ", "ب", "ج", "د"][i], text: t.trim() })),

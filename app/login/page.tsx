@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import ThemeToggle from '@/components/ThemeToggle';
 
 type LoginTab = 'password' | 'otp';
 
@@ -45,7 +46,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-[#0b0f17] text-white" dir="rtl">
+        <div className="min-h-screen flex items-center justify-center bg-[color:var(--bg)] text-[color:var(--text)]" dir="rtl">
           <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
         </div>
       }
@@ -205,19 +206,22 @@ function LoginForm() {
 
   return (
     <div
-      className="min-h-screen flex flex-col justify-between px-4 py-8 bg-[#0b0f17] text-slate-100"
+      className="min-h-screen flex flex-col justify-between px-4 py-8 bg-[color:var(--bg)] text-[color:var(--text)] transition-colors duration-200"
       dir="rtl"
     >
       {/* Top action bar */}
       <div className="max-w-md w-full mx-auto flex items-center justify-between">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-blue-400 transition"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[color:var(--muted)] hover:text-blue-500 transition"
         >
           <Home className="w-4 h-4" />
           <span>الرئيسية</span>
         </Link>
-        <span className="text-xs text-slate-500">بوابة الدخول الموحد</span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-[color:var(--muted-dim)]">بوابة الدخول الموحد</span>
+          <ThemeToggle />
+        </div>
       </div>
 
       <div className="w-full max-w-md mx-auto space-y-5 my-auto">
@@ -226,38 +230,41 @@ function LoginForm() {
           <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-xl shadow-blue-600/20 mb-2 ring-4 ring-blue-500/20">
             <BookOpen className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white">
-            <span className="text-amber-400">مركزك</span> | Markazak SaaS
+          <h1 className="text-2xl sm:text-3xl font-black text-[color:var(--text)] tracking-tight">
+            سنتر <span className="text-amber-500">الخوارزمي</span>
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400">
+          <p className="text-sm font-bold text-[color:var(--text-soft)]">
+            قدراتك واختباراتك — بإتقان رقمي
+          </p>
+          <p className="text-xs text-[color:var(--muted)]">
             تسجيل دخول آمن — بكلمة المرور أو حساب Google أو رمز التحقق
           </p>
         </div>
 
         {/* Card */}
-        <div className="bg-[#131b2a] rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl space-y-5">
+        <div className="bg-[color:var(--surface)] rounded-3xl p-6 sm:p-8 border border-[color:var(--border)] shadow-2xl space-y-5 transition-colors duration-200">
           {error && (
-            <div className="p-3.5 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-center gap-2 text-red-400 text-xs">
+            <div className="p-3.5 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-center gap-2 text-red-500 text-xs">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
           {message && (
-            <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center gap-2 text-emerald-400 text-xs">
+            <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center gap-2 text-emerald-500 text-xs">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{message}</span>
             </div>
           )}
 
           {/* Dual Tabs */}
-          <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-900 border border-slate-800 rounded-2xl">
+          <div className="grid grid-cols-2 gap-1.5 p-1 bg-[color:var(--surface-2)] border border-[color:var(--border)] rounded-2xl">
             <button
               type="button"
               onClick={() => switchTab('password')}
               className={`py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 tab === 'password'
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25'
-                  : 'text-slate-400 hover:text-white'
+                  : 'text-[color:var(--muted)] hover:text-[color:var(--text)]'
               }`}
             >
               <Lock className="w-3.5 h-3.5" />
@@ -269,7 +276,7 @@ function LoginForm() {
               className={`py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 tab === 'otp'
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25'
-                  : 'text-slate-400 hover:text-white'
+                  : 'text-[color:var(--muted)] hover:text-[color:var(--text)]'
               }`}
             >
               <Mail className="w-3.5 h-3.5" />
@@ -287,27 +294,27 @@ function LoginForm() {
                   window.location.assign('/api/auth/google');
                 }}
                 disabled={googleLoading || googleEnabled === false}
-                className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 font-bold rounded-xl text-sm shadow-sm transition flex items-center justify-center gap-2.5 disabled:opacity-50 cursor-pointer"
+                className="w-full py-3 bg-[color:var(--surface-2)] hover:bg-[color:var(--surface-3)] text-[color:var(--text)] border border-[color:var(--border)] font-bold rounded-xl text-sm shadow-sm transition flex items-center justify-center gap-2.5 disabled:opacity-50 cursor-pointer"
               >
                 {googleLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <GoogleIcon />}
                 <span>المتابعة بحساب Google</span>
               </button>
               {googleEnabled === false && (
-                <p className="text-[10px] text-slate-400 text-center -mt-2">
+                <p className="text-[10px] text-[color:var(--muted)] text-center -mt-2">
                   الدخول بجوجل غير مُعد على هذا الخادم — استخدم كلمة المرور أو رمز التحقق
                 </p>
               )}
 
-              <div className="flex items-center gap-3 text-[10px] text-slate-500">
-                <span className="h-px flex-1 bg-slate-800" />
+              <div className="flex items-center gap-3 text-[10px] text-[color:var(--muted)]">
+                <span className="h-px flex-1 bg-[color:var(--border)]" />
                 أو بكلمة المرور
-                <span className="h-px flex-1 bg-slate-800" />
+                <span className="h-px flex-1 bg-[color:var(--border)]" />
               </div>
 
               {/* Password Form */}
               <form onSubmit={handlePasswordLogin} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">
+                  <label className="text-xs font-bold text-[color:var(--text-soft)]">
                     البريد الإلكتروني
                   </label>
                   <div className="relative">
@@ -318,20 +325,20 @@ function LoginForm() {
                       placeholder="teacher@example.com"
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
-                      className="w-full text-start pl-10 pr-3.5 py-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                      className="w-full text-start pl-10 pr-3.5 py-3 bg-[color:var(--surface-2)] border border-[color:var(--border)] rounded-xl text-sm text-[color:var(--text)] placeholder-[color:var(--muted-dim)] focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                     />
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                    <Mail className="w-4 h-4 text-[color:var(--muted)] absolute left-3.5 top-3.5" />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-slate-300">
+                    <label className="text-xs font-bold text-[color:var(--text-soft)]">
                       كلمة المرور
                     </label>
                     <Link
                       href="/forgot-password"
-                      className="text-[11px] text-blue-400 hover:text-blue-300 hover:underline"
+                      className="text-[11px] text-blue-500 hover:text-blue-400 hover:underline"
                     >
                       نسيت كلمة المرور؟
                     </Link>
@@ -344,9 +351,9 @@ function LoginForm() {
                       placeholder="••••••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full text-start pl-10 pr-3.5 py-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                      className="w-full text-start pl-10 pr-3.5 py-3 bg-[color:var(--surface-2)] border border-[color:var(--border)] rounded-xl text-sm text-[color:var(--text)] placeholder-[color:var(--muted-dim)] focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                     />
-                    <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                    <KeyRound className="w-4 h-4 text-[color:var(--muted)] absolute left-3.5 top-3.5" />
                   </div>
                 </div>
 
@@ -375,7 +382,7 @@ function LoginForm() {
               {step === 'email' ? (
                 <form onSubmit={handleRequestOtp} className="space-y-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300">
+                    <label className="text-xs font-bold text-[color:var(--text-soft)]">
                       أدخل بريدك الإلكتروني لاستلام رمز الدخول السريع
                     </label>
                     <div className="relative">
@@ -386,9 +393,9 @@ function LoginForm() {
                         placeholder="teacher@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full text-start pl-10 pr-3.5 py-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                        className="w-full text-start pl-10 pr-3.5 py-3 bg-[color:var(--surface-2)] border border-[color:var(--border)] rounded-xl text-sm text-[color:var(--text)] placeholder-[color:var(--muted-dim)] focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                       />
-                      <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                      <Mail className="w-4 h-4 text-[color:var(--muted)] absolute left-3.5 top-3.5" />
                     </div>
                   </div>
 
@@ -414,21 +421,21 @@ function LoginForm() {
                 </form>
               ) : (
                 <form onSubmit={handleVerify} className="space-y-4">
-                  <div className="flex items-center justify-between text-xs text-slate-400">
+                  <div className="flex items-center justify-between text-xs text-[color:var(--muted)]">
                     <span>
-                      تم إرسال الرمز إلى: <strong className="text-slate-200" dir="ltr">{email}</strong>
+                      تم إرسال الرمز إلى: <strong className="text-[color:var(--text)]" dir="ltr">{email}</strong>
                     </span>
                     <button
                       type="button"
                       onClick={() => setStep('email')}
-                      className="text-blue-400 hover:underline cursor-pointer"
+                      className="text-blue-500 hover:underline cursor-pointer"
                     >
                       تغيير
                     </button>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300">
+                    <label className="text-xs font-bold text-[color:var(--text-soft)]">
                       رمز التحقق (6 أرقام)
                     </label>
                     <input
@@ -439,7 +446,7 @@ function LoginForm() {
                       placeholder="123456"
                       value={code}
                       onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                      className="w-full text-center tracking-widest text-xl font-mono py-3 bg-slate-900 border border-slate-800 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                      className="w-full text-center tracking-widest text-xl font-mono py-3 bg-[color:var(--surface-2)] border border-[color:var(--border)] rounded-xl text-[color:var(--text)] focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                     />
                   </div>
 
@@ -465,7 +472,7 @@ function LoginForm() {
                     <button
                       type="button"
                       onClick={() => setMethod(method === 'email' ? 'totp' : 'email')}
-                      className="text-slate-400 hover:text-white hover:underline cursor-pointer"
+                      className="text-[color:var(--muted)] hover:text-[color:var(--text)] hover:underline cursor-pointer"
                     >
                       {method === 'email' ? 'استخدام كود TOTP' : 'طلب رمز جديد عبر البريد'}
                     </button>
@@ -474,7 +481,7 @@ function LoginForm() {
                         type="button"
                         disabled={cooldown > 0}
                         onClick={() => handleRequestOtp()}
-                        className="text-blue-400 hover:underline disabled:opacity-40 cursor-pointer"
+                        className="text-blue-500 hover:underline disabled:opacity-40 cursor-pointer"
                       >
                         {cooldown > 0 ? `إعادة الإرسال بعد (${cooldown} ث)` : 'إعادة إرسال الرمز'}
                       </button>
@@ -490,7 +497,7 @@ function LoginForm() {
         <div className="text-center">
           <Link
             href="/register"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300 hover:underline"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-500 hover:text-amber-400 hover:underline"
           >
             <UserPlus className="w-3.5 h-3.5" />
             <span>أنت معلم أو مركز تدريب جديد؟ قدّم طلب انضمام</span>
@@ -498,15 +505,15 @@ function LoginForm() {
         </div>
 
         {/* Security Notice */}
-        <div className="text-center text-[11px] text-slate-500 flex items-center justify-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
+        <div className="text-center text-[11px] text-[color:var(--muted)] flex items-center justify-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5 text-blue-500" />
           <span>تشفير Argon2id وجلسات JWT مؤمنة ومقاومة هجمات التخمين والتوقيت</span>
         </div>
       </div>
 
       {/* Footer Copyright */}
-      <div className="text-center text-xs text-slate-500 py-2">
-        منصة مركزك © {new Date().getFullYear()} — المنصة الذكية لإدارة مراكز التدريب والقدرات
+      <div className="text-center text-xs text-[color:var(--muted-dim)] py-2">
+        سنتر الخوارزمي © {new Date().getFullYear()} — قدراتك واختباراتك بإتقان رقمي
       </div>
     </div>
   );
