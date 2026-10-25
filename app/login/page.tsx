@@ -1,91 +1,504 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { Brain, BarChart3, LockKeyhole } from "lucide-react";
-import Spotlight from "@/components/magicui/spotlight";
 
-const VISUAL_CARDS = [
-  { Icon: BarChart3, b: "لوحة تحكم ذكية", s: "مؤشرات التشغيل لحظة بلحظة" },
-  { Icon: Brain, b: "مساعد AI", s: "تحليل وتقارير وقرارات" },
-];
+import React, { useState, useEffect, Suspense } from "react";
+import {
+  BookOpen,
+  Mail,
+  KeyRound,
+  ShieldCheck,
+  ArrowRight,
+  RefreshCw,
+  CheckCircle2,
+  AlertCircle,
+  Home,
+  Lock,
+  UserPlus,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function Login() {
-  const r = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [err, setErr] = useState("");
-  const [loading, setLoading] = useState(false);
-  async function submit(e: any) {
-    e.preventDefault();
-    setLoading(true);
-    setErr("");
-    const x = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    const j = await x.json();
-    if (x.ok) {
-      const role = String(j?.user?.role || "");
-      const dest =
-        role === "student" || role === "guardian" ? "/portal" : "/dashboard";
-      r.push(dest);
-    } else setErr(j.error || "خطأ");
-    setLoading(false);
-  }
+type LoginTab = "password" | "otp";
+
+function GoogleIcon() {
   return (
-    <main className="loginPage">
-      <motion.div className="loginVisual" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-        <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
-          <Spotlight color="rgba(245,158,11,0.10)" />
+    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="#4285F4"
+        d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.98-3.09z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z"
+      />
+    </svg>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#020617]" dir="rtl">
+          <RefreshCw className="w-8 h-8 animate-spin text-emerald-600" />
         </div>
-        <div className="orb" />
-        <motion.div className="visualInner" initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12, duration: 0.55 }}>
-          <div className="brand big">
-            <span>خ</span>
+      }
+    >
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState<LoginTab>("password");
+
+  // Password state
+  const [loginEmail, setLoginEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  // OTP state
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [step, setStep] = useState<"email" | "code">("email");
+  const [method, setMethod] = useState<"email" | "totp">("email");
+  const [cooldown, setCooldown] = useState(0);
+
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleEnabled, setGoogleEnabled] = useState<boolean | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Check query params for notifications
+  useEffect(() => {
+    const authMsg = searchParams.get("auth");
+    const authErr = searchParams.get("authError");
+    if (authMsg) setMessage(authMsg);
+    if (authErr) setError(authErr);
+    if (authMsg || authErr) {
+      const clean = new URL(window.location.href);
+      clean.searchParams.delete("auth");
+      clean.searchParams.delete("authError");
+      window.history.replaceState({}, "", clean.toString());
+    }
+  }, [searchParams]);
+
+  // Check Google OAuth status
+  useEffect(() => {
+    fetch("/api/auth/google/status")
+      .then((r) => r.json())
+      .then((data) => setGoogleEnabled(data.enabled === true))
+      .catch(() => setGoogleEnabled(false));
+  }, []);
+
+  // Cooldown countdown
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (cooldown > 0) timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
+
+  const finalizeSession = (data: { role?: string; user?: { role?: string } }) => {
+    const role = data.user?.role || data.role || "";
+    const redirectParam = searchParams.get("redirect");
+    if (redirectParam) {
+      router.push(redirectParam);
+      return;
+    }
+    const destination =
+      role === "student" || role === "guardian" ? "/portal" : "/dashboard";
+    router.push(destination);
+  };
+
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!loginEmail || !password) return;
+    setLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: loginEmail, password }),
+      });
+      const data = await res.json();
+      if (res.ok && (data.ok || data.success)) {
+        finalizeSession(data);
+      } else {
+        setError(data.error || "بيانات الدخول غير صحيحة");
+      }
+    } catch {
+      setError("حدث خطأ في الاتصال بالخادم");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRequestOtp = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!email || cooldown > 0) return;
+    setLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const res = await fetch("/api/auth/request-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (res.ok && (data.ok || data.success)) {
+        setMessage(data.message || "تم إرسال رمز الدخول بنجاح!");
+        setStep("code");
+        setCooldown(60);
+      } else {
+        setError(data.error || "تعذر إرسال رمز التحقق");
+      }
+    } catch {
+      setError("حدث خطأ في الاتصال بالخادم");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!code || !email) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/auth/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code, method }),
+      });
+      const data = await res.json();
+      if (res.ok && (data.ok || data.success)) {
+        finalizeSession(data);
+      } else {
+        setError(data.error || "رمز التحقق غير صحيح");
+      }
+    } catch {
+      setError("حدث خطأ أثناء التحقق من الرمز");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const switchTab = (t: LoginTab) => {
+    setTab(t);
+    setError(null);
+    setMessage(null);
+  };
+
+  return (
+    <div
+      className="min-h-screen flex flex-col justify-between px-4 py-8 bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-100"
+      dir="rtl"
+    >
+      {/* Top action bar */}
+      <div className="max-w-md w-full mx-auto flex items-center justify-between">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+        >
+          <Home className="w-4 h-4" />
+          <span>الرئيسية</span>
+        </Link>
+        <span className="text-xs text-slate-400">بوابة الدخول الموحد</span>
+      </div>
+
+      <div className="w-full max-w-md mx-auto space-y-5 my-auto">
+        {/* Brand Header */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex p-3 rounded-2xl bg-emerald-600 text-white shadow-xl shadow-emerald-600/20 mb-2 ring-4 ring-emerald-500/20">
+            <BookOpen className="w-8 h-8" />
           </div>
-          <h1>
-            إدارة مركز التدريب
-            <br />
-            من مكان واحد
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+            منصة الخوارزمي
           </h1>
-          <p>الطلاب، الدورات، الجداول، الحضور، المالية والشهادات.</p>
-          <div className="visualCards">
-            {VISUAL_CARDS.map((c, i) => (
-              <motion.div key={c.b} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 + i * 0.14 }}>
-                <c.Icon />
-                <b>{c.b}</b>
-                <small>{c.s}</small>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </motion.div>
-      <motion.div className="loginBox" initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18, duration: 0.55 }}>
-        <div className="loginBrand">
-          <span>خ</span>
-          <div>
-            <b>منصة الخوارزمي</b>
-            <small>Al-Khwarizmi Platform</small>
-          </div>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+            تسجيل دخول آمن — بكلمة المرور أو حساب جوجل أو رمز التحقق
+          </p>
         </div>
-        <h2>تسجيل الدخول</h2>
-        <p className="muted">أدخل بيانات حسابك في منصة الخوارزمي</p>
-        <form onSubmit={submit}>
-          <label>البريد الإلكتروني</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required />
-          <label>كلمة المرور</label>
-          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
-          {err && <div className="error">{err}</div>}
-          <button className="primary full" disabled={loading}>
-            {loading ? "جارٍ الدخول..." : "دخول إلى النظام"}
-          </button>
-        </form>
-        <div className="secure">
-          <LockKeyhole size={15} /> اتصال آمن ومشفر
+
+        {/* Card */}
+        <div className="bg-white dark:bg-[#0b1220] rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-xl space-y-5">
+          {error && (
+            <div className="p-3.5 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-center gap-2 text-red-600 dark:text-red-400 text-xs">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+          {message && (
+            <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>{message}</span>
+            </div>
+          )}
+
+          {/* Dual Tabs */}
+          <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl">
+            <button
+              type="button"
+              onClick={() => switchTab("password")}
+              className={`py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                tab === "password"
+                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/25"
+                  : "text-slate-600 dark:text-slate-300 hover:text-slate-900"
+              }`}
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>كلمة المرور</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => switchTab("otp")}
+              className={`py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                tab === "otp"
+                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/25"
+                  : "text-slate-600 dark:text-slate-300 hover:text-slate-900"
+              }`}
+            >
+              <Mail className="w-3.5 h-3.5" />
+              <span>رمز التحقق OTP</span>
+            </button>
+          </div>
+
+          {tab === "password" ? (
+            <>
+              {/* Google OAuth Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setGoogleLoading(true);
+                  window.location.assign("/api/auth/google");
+                }}
+                disabled={googleLoading || googleEnabled === false}
+                className="w-full py-3 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-300 dark:border-slate-700 font-bold rounded-xl text-sm shadow-sm transition flex items-center justify-center gap-2.5 disabled:opacity-50 cursor-pointer"
+              >
+                {googleLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <GoogleIcon />}
+                <span>المتابعة بحساب Google</span>
+              </button>
+              {googleEnabled === false && (
+                <p className="text-[10px] text-slate-400 text-center -mt-2">
+                  الدخول بجوجل غير مُعد على هذا الخادم — استخدم كلمة المرور أو رمز التحقق
+                </p>
+              )}
+
+              <div className="flex items-center gap-3 text-[10px] text-slate-400">
+                <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+                أو بكلمة المرور
+                <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+              </div>
+
+              {/* Password Form */}
+              <form onSubmit={handlePasswordLogin} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    البريد الإلكتروني
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="email"
+                      required
+                      dir="ltr"
+                      placeholder="teacher@example.com"
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                      className="w-full text-start pl-10 pr-3.5 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"
+                    />
+                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      كلمة المرور
+                    </label>
+                    <Link
+                      href="/forgot-password"
+                      className="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline"
+                    >
+                      نسيت كلمة المرور؟
+                    </Link>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="password"
+                      required
+                      dir="ltr"
+                      placeholder="••••••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full text-start pl-10 pr-3.5 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"
+                    />
+                    <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || !loginEmail || !password}
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                >
+                  {loading ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-4 h-4" />
+                      <span>تسجيل الدخول</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
+              {step === "email" ? (
+                <form onSubmit={handleRequestOtp} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      البريد الإلكتروني المعتمد
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        required
+                        dir="ltr"
+                        placeholder="teacher@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full text-start pl-10 pr-3.5 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"
+                      />
+                      <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                    </div>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading || !email || cooldown > 0}
+                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                  >
+                    {loading ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <span>إرسال رمز التحقق</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleVerify} className="space-y-4">
+                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                    <span>
+                      أُرسل الرمز إلى:{" "}
+                      <strong className="text-slate-800 dark:text-slate-200">{email}</strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setStep("email")}
+                      className="text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
+                    >
+                      تغيير
+                    </button>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      {method === "totp" ? "رمز المصادقة الثنائية (TOTP)" : "رمز التحقق (OTP)"}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        required
+                        maxLength={15}
+                        placeholder={method === "totp" ? "123456 أو كود الاسترداد" : "482910"}
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        className="w-full text-center tracking-widest pl-10 pr-3.5 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-lg font-mono font-bold focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"
+                      />
+                      <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading || !code}
+                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                  >
+                    {loading ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <ShieldCheck className="w-4 h-4" />
+                        <span>تأكيد وتسجيل الدخول</span>
+                      </>
+                    )}
+                  </button>
+
+                  <div className="flex items-center justify-between text-xs pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setMethod(method === "email" ? "totp" : "email")}
+                      className="text-slate-500 hover:text-slate-800 dark:text-slate-400 hover:underline cursor-pointer"
+                    >
+                      {method === "email" ? "استخدام كود TOTP" : "طلب رمز جديد عبر البريد"}
+                    </button>
+                    {method === "email" && (
+                      <button
+                        type="button"
+                        disabled={cooldown > 0}
+                        onClick={() => handleRequestOtp()}
+                        className="text-emerald-600 dark:text-emerald-400 hover:underline disabled:opacity-40 cursor-pointer"
+                      >
+                        {cooldown > 0 ? `إعادة الإرسال بعد (${cooldown} ث)` : "إعادة إرسال الرمز"}
+                      </button>
+                    )}
+                  </div>
+                </form>
+              )}
+            </>
+          )}
         </div>
-      </motion.div>
-    </main>
+
+        {/* Link to Register */}
+        <div className="text-center">
+          <Link
+            href="/register"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>أنت معلم جديد؟ أنشئ حسابك (بموافقة الإدارة)</span>
+          </Link>
+        </div>
+
+        {/* Security Notice */}
+        <div className="text-center text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+          <span>تشفير Argon2id وجلسات JWT مؤمنة ومقاومة هجمات التخمين والتوقيت</span>
+        </div>
+      </div>
+
+      {/* Footer Copyright */}
+      <div className="text-center text-xs text-slate-400 dark:text-slate-500 py-2">
+        منصة الخوارزمي © 2026 — منصة إدارة مراكز التدريب والتعليم
+      </div>
+    </div>
   );
 }
