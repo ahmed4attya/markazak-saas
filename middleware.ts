@@ -21,7 +21,7 @@ export async function middleware(req:NextRequest){
     const method=req.method.toUpperCase();
     const isLearner=role==='student'||role==='guardian';
     const learnerAllowed=path.startsWith('/portal')||path.startsWith('/api/learner/')||path==='/api/me'||(role==='student'&&path.startsWith('/api/attempts'))||(role==='student'&&method==='GET'&&path.startsWith('/api/assignments'))||(method==='GET'&&path.startsWith('/api/videos/')&&path.endsWith('/stream'))||(method==='GET'&&path.startsWith('/api/files/')&&path.endsWith('/download'));
-    const teacherAdminOnly=['/finance','/users','/settings','/plans','/activation-codes','/audit','/certificates','/ai','/api/invoices','/api/payments','/api/users','/api/settings','/api/plans','/api/activation-codes','/api/audit','/api/certificates','/api/ai','/api/stripe/checkout'];
+    const teacherAdminOnly=['/finance','/tenants','/users','/settings','/plans','/activation-codes','/audit','/certificates','/ai','/api/invoices','/api/payments','/api/tenants','/api/users','/api/settings','/api/plans','/api/activation-codes','/api/audit','/api/certificates','/api/ai','/api/stripe/checkout'];
     const teacherMutationBlocked=['/api/students','/api/teachers','/api/courses','/api/groups','/api/classrooms','/api/enrollments'];
     const hasPrefix=(items:string[])=>items.some((item)=>path===item||path.startsWith(item+'/'));
     const teacherAdminReport=role==='teacher'&&((path==='/reports')||(path.startsWith('/reports/')&&!path.startsWith('/reports/learning'))||(path==='/api/reports')||(path.startsWith('/api/reports/')&&!path.startsWith('/api/reports/learning')));

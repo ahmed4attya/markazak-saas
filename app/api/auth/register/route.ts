@@ -108,6 +108,26 @@ export async function POST(req: NextRequest) {
       }).catch(() => {});
     }
 
+    // 7.1) In-App Notification for Platform Admins (Real-time bell notification)
+    try {
+      const adminUsers = await query<{ id: string; tenant_id: string }>(
+        "select id, tenant_id from users where role in ('owner', 'admin') and active = true limit 10"
+      );
+      for (const adm of adminUsers.rows) {
+        await query(
+          'insert into notifications (tenant_id, user_id, title, body) values ($1, $2, $3, $4)',
+          [
+            adm.tenant_id,
+            adm.id,
+            '🏢 طلب اشتراك جديد: ' + (centerName || name),
+            'قام (' + name + ') بتقديم طلب انضمام لـ (' + (centerName || 'مركز جديد') + ') برقم: ' + (phone || 'غير مسجل') + ' وبريد: ' + email,
+          ]
+        );
+      }
+    } catch {
+      // quiet fail
+    }
+
     // 8) Send confirmation email to applicant
     await sendRegistrationReceivedUser(email, { name, centerName }).catch(() => {});
 

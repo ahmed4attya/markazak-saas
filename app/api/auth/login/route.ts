@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     const b = await req.json();
     const emailForLimit = String(b?.email || '').toLowerCase().trim();
     const limitKey = `login:${ip}:${emailForLimit}`;
-    const rl = await rateLimit(limitKey, 20, 15 * 60 * 1000);
+    const rl = await rateLimit(limitKey, 5, 15 * 60 * 1000);
     if (!rl.allowed) {
       return NextResponse.json(
         { error: 'محاولات كثيرة — انتظر قليلاً ثم حاول مجدداً' },
@@ -23,36 +23,14 @@ export async function POST(req: Request) {
     }
 
     const x = z.object({ email: z.string().email(), password: z.string().min(1) }).parse(b);
-    let u: any;
-    try {
-      const r = await query<any>(
-        `select id, tenant_id, email, name, password_hash, role, active, token_version, failed_attempts, locked_until
-         from users
-         where lower(email)=lower($1)
-         limit 1`,
-        [x.email]
-      );
-      u = r.rows[0];
-    } catch (dbErr: any) {
-      if (dbErr?.code === '42703') {
-        // Missing column (token_version, failed_attempts, or locked_until) -> self-healing ALTER
-        await query(`
-          alter table users add column if not exists token_version int not null default 1;
-          alter table users add column if not exists failed_attempts int not null default 0;
-          alter table users add column if not exists locked_until timestamptz default null;
-        `);
-        const retryR = await query<any>(
-          `select id, tenant_id, email, name, password_hash, role, active, token_version, failed_attempts, locked_until
-           from users
-           where lower(email)=lower($1)
-           limit 1`,
-          [x.email]
-        );
-        u = retryR.rows[0];
-      } else {
-        throw dbErr;
-      }
-    }
+    const r = await query<any>(
+      `select id, tenant_id, email, name, password_hash, role, active, token_version, failed_attempts, locked_until
+       from users
+       where lower(email)=lower($1)
+       limit 1`,
+      [x.email]
+    );
+    const u = r.rows[0];
 
     // Check account lockout
     if (u?.locked_until && new Date(u.locked_until).getTime() > Date.now()) {
@@ -122,8 +100,7 @@ export async function POST(req: Request) {
       maxAge: 604800,
     });
     return res;
-  } catch (err: any) {
-    console.error('[AUTH_LOGIN_ERROR]', err?.message || err);
+  } catch {
     return NextResponse.json({ error: 'تعذر تسجيل الدخول' }, { status: 400 });
   }
 }

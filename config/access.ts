@@ -46,7 +46,9 @@ export const PAGE_ACCESS: PageAccess[] = [
   { path: '/certificates', roles: ['owner', 'manager', 'admin'] },
   { path: '/reports', roles: ['owner', 'manager', 'admin'] },
   { path: '/ai', roles: ['owner', 'manager', 'admin'] },
+  { path: '/tenants', roles: ['owner', 'admin'] },
   { path: '/users', roles: ['owner', 'manager', 'admin'] },
+  { path: '/notifications', roles: ['owner', 'manager', 'admin', 'teacher'] },
   { path: '/settings', roles: ['owner', 'manager', 'admin'] },
   { path: '/plans', roles: ['owner', 'manager', 'admin'] },
   { path: '/activation-codes', roles: ['owner', 'manager', 'admin'] },
@@ -64,6 +66,7 @@ export const API_ACCESS: ApiAccess[] = [
   { path: '/api/certificates/verify', method: 'GET', roles: [], public: true },
   { path: '/api/plans', method: 'GET', roles: [], public: true },
   // == admin tier (owner/manager/admin) ==
+  { path: '/api/tenants', roles: ADMIN },
   { path: '/api/users', roles: ADMIN },
   { path: '/api/invoices', roles: ADMIN },
   { path: '/api/payments', roles: ADMIN },

@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from './ThemeToggle';
+import NotificationBell from './NotificationBell';
 import InstallPWA from './InstallPWA';
 import { isAdminRole } from '@/lib/roles';
 import QuickContact from './QuickContact';
@@ -41,7 +42,7 @@ const GROUPS_SCHEMA = [
   },
   {
     title: 'الإدارة',
-    paths: ['/users', '/settings', '/plans', '/activation-codes', '/audit'],
+    paths: ['/tenants', '/users', '/notifications', '/settings', '/plans', '/activation-codes', '/audit'],
   },
 ];
 
@@ -111,7 +112,9 @@ export default function Shell({
           '/library': 'مكتبة الملفات', '/videos': 'مكتبة الفيديو', '/questions': 'بنك الأسئلة',
           '/exams': 'الامتحانات', '/lessons': 'الدروس', '/assignments': 'الواجبات',
           '/gradebook': 'سجل الدرجات', '/finance': 'الفواتير والمدفوعات', '/certificates': 'الشهادات',
-          '/reports': 'التقارير', '/ai': 'المساعد الذكي', '/users': 'المستخدمون والصلاحيات',
+          '/reports': 'التقارير', '/ai': 'المساعد الذكي', '/tenants': 'المراكز والشركاء (Tenants)',
+          '/notifications': 'الإشعارات والتنبيهات',
+          '/users': 'المستخدمون والصلاحيات',
           '/settings': 'إعدادات المركز', '/plans': 'الاشتراك', '/activation-codes': 'أكواد التفعيل',
           '/audit': 'سجل التدقيق',
         };
@@ -121,7 +124,9 @@ export default function Shell({
           '/library': 'FolderOpen', '/videos': 'MonitorPlay', '/questions': 'HelpCircle',
           '/exams': 'ClipboardList', '/lessons': 'BookMarked', '/assignments': 'NotebookPen',
           '/gradebook': 'ClipboardList', '/finance': 'Wallet', '/certificates': 'FileBadge',
-          '/reports': 'BarChart3', '/ai': 'Brain', '/users': 'UserCog',
+          '/reports': 'BarChart3', '/ai': 'Brain', '/tenants': 'Building2',
+          '/notifications': 'Bell',
+          '/users': 'UserCog',
           '/settings': 'Settings', '/plans': 'CreditCard', '/activation-codes': 'KeyRound',
           '/audit': 'ClipboardList',
         };
@@ -231,6 +236,7 @@ export default function Shell({
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <ThemeToggle />
             <InstallPWA />
             <div className="h-8 w-px bg-[color:var(--border)] mx-2" />

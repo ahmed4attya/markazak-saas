@@ -9,11 +9,7 @@ export async function GET(req: NextRequest) {
   const code = searchParams.get('code');
   const error = searchParams.get('error');
 
-  const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || 'markazak-saas.vercel.app';
-  const proto = req.headers.get('x-forwarded-proto') || 'https';
-  const baseUrl = process.env.NEXTAUTH_URL || process.env.APP_URL || `${proto}://${host}`;
-  const origin = baseUrl.replace(/\/$/, '');
-  const redirectUri = `${origin}/api/auth/google/callback`;
+  const origin = process.env.APP_URL || new URL(req.url).origin;
 
   if (error || !code) {
     const errorMsg = error ? `فشل الدخول بحساب Google (${error})` : 'لم يتم استلام رمز التفويض من Google';
@@ -28,6 +24,10 @@ export async function GET(req: NextRequest) {
       new URL('/login?authError=' + encodeURIComponent('إعدادات Google OAuth غير مكتملة على الخادم'), origin)
     );
   }
+
+  const redirectUri = process.env.NEXTAUTH_URL
+    ? `${process.env.NEXTAUTH_URL}/api/auth/google/callback`
+    : new URL('/api/auth/google/callback', req.url).toString();
 
   try {
     // 1. Exchange code for access token

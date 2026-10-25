@@ -154,14 +154,14 @@ export default function Dashboard() {
       <Shell title="لوحة المعلم" subtitle="المتابعة الأكاديمية لدوراتك ومجموعاتك وطلابك">
         <div className="space-y-8">
           {/* Hero Welcome Card for Teacher */}
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-l from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 p-5 sm:p-8 text-white shadow-xl">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-l from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 p-6 sm:p-8 text-white shadow-xl">
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-emerald-300 text-xs font-semibold backdrop-blur-sm">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   حساب المعلم الأكاديمي
                 </div>
-                <h2 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
                   {greeting}، يا {userName || 'أستاذنا'} 🎓
                 </h2>
                 <p className="text-sm text-slate-300 max-w-xl">
@@ -397,7 +397,7 @@ export default function Dashboard() {
     <Shell title="لوحة التحكم" subtitle="نظرة استراتيجية شاملة على أداء المركز والعمليات الأكاديمية والمالية">
       <div className="space-y-8">
         {/* Hero Welcome Card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-l from-slate-900 via-blue-950 to-slate-900 border border-slate-800 p-5 sm:p-8 text-white shadow-xl">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-l from-slate-900 via-blue-950 to-slate-900 border border-slate-800 p-6 sm:p-8 text-white shadow-xl">
           <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2">
@@ -405,7 +405,7 @@ export default function Dashboard() {
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 المنظومة السحابية متصلة ومستقرة
               </div>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
                 {greeting}، يا {userName || 'مدير المركز'} 👋
               </h2>
               <p className="text-sm text-slate-300 max-w-xl">
