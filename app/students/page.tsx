@@ -15,6 +15,26 @@ export default function Students() {
             title="طالب"
             subtitle="إدارة بيانات الطلاب والتسجيلات والمتابعة"
             endpoint="/api/students"
+            filters={[
+              {
+                key: "status",
+                label: "الحالة",
+                options: [
+                  { value: "active", label: "نشط" },
+                  { value: "inactive", label: "غير نشط" },
+                  { value: "graduated", label: "متخرج" },
+                  { value: "suspended", label: "موقوف" },
+                ],
+              },
+              {
+                key: "type",
+                label: "النوع",
+                options: [
+                  { value: "center", label: "سنتر (حضوري)" },
+                  { value: "online", label: "أونلاين" },
+                ],
+              },
+            ]}
             columns={[
               { key: "student_no", label: "الرقم" },
               { key: "name", label: "الاسم" },

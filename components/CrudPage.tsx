@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Plus, Search, RefreshCw, Save, X, Trash2 } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { Plus, Search, RefreshCw, Save, X, Trash2, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import DataTable from "@/components/DataTable";
@@ -12,6 +12,13 @@ export type Field = {
   type?: string;
   required?: boolean;
   options?: { value: string; label: string }[];
+};
+
+export type FilterOption = {
+  key: string;
+  label: string;
+  options: { value: string; label: string }[];
+  defaultValue?: string;
 };
 
 type Column = {
@@ -26,6 +33,7 @@ type CrudPageProps = {
   columns: Column[];
   fields: Field[];
   empty?: string;
+  filters?: FilterOption[];
   rowActions?: (row: any) => { label: string; onClick: () => void }[];
   deleteDialog?: (row: any) => { notice?: string; checkboxLabel?: string; checkboxParam?: string } | null;
 };
@@ -37,11 +45,21 @@ export default function CrudPage({
   columns,
   fields,
   empty = "لا توجد بيانات",
+  filters,
   rowActions,
   deleteDialog,
 }: CrudPageProps) {
   const [rows, setRows] = useState<any[]>([]);
   const [q, setQ] = useState("");
+  const [filterValues, setFilterValues] = useState<Record<string, string>>(() => {
+    const init: Record<string, string> = {};
+    if (filters) {
+      for (const f of filters) {
+        if (f.defaultValue) init[f.key] = f.defaultValue;
+      }
+    }
+    return init;
+  });
   const [modal, setModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Record<string, any>>({});
@@ -68,7 +86,13 @@ export default function CrudPage({
     setError("");
 
     try {
-      const url = endpoint + (q ? `?q=${encodeURIComponent(q)}` : "");
+      const sp = new URLSearchParams();
+      if (q.trim()) sp.set("q", q.trim());
+      for (const [k, v] of Object.entries(filterValues)) {
+        if (v) sp.set(k, v);
+      }
+      const qs = sp.toString() ? `?${sp.toString()}` : "";
+      const url = endpoint + qs;
       const response = await fetch(url, {
         cache: "no-store",
       });
@@ -91,7 +115,48 @@ export default function CrudPage({
 
   useEffect(() => {
     void load();
-  }, [q, endpoint]);
+  }, [q, endpoint, filterValues]);
+
+  const displayRows = useMemo(() => {
+    return rows.filter((row) => {
+      for (const [k, v] of Object.entries(filterValues)) {
+        if (!v) continue;
+        const rowVal = String(row?.[k] ?? "");
+        if (rowVal.toLowerCase() !== v.toLowerCase()) return false;
+      }
+      if (q.trim()) {
+        const needle = q.trim().toLowerCase();
+        const matchCol = columns.some((col) => {
+          const val = row?.[col.key];
+          return val !== null && val !== undefined && String(val).toLowerCase().includes(needle);
+        });
+        if (matchCol) return true;
+        const commonKeys = [
+          "name",
+          "student_no",
+          "phone",
+          "email",
+          "identity_no",
+          "title",
+          "specialty",
+          "category",
+        ];
+        return commonKeys.some(
+          (k) => row?.[k] && String(row[k]).toLowerCase().includes(needle)
+        );
+      }
+      return true;
+    });
+  }, [rows, filterValues, q, columns]);
+
+  const hasActiveFilters = Boolean(
+    q.trim() || Object.values(filterValues).some((v) => Boolean(v))
+  );
+
+  function resetFilters() {
+    setQ("");
+    setFilterValues({});
+  }
 
   function setField(key: string, value: any) {
     setForm((current) => ({
@@ -211,41 +276,81 @@ export default function CrudPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="relative group">
-            <Search
-              size={18}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors"
-            />
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3 flex-1 flex-wrap">
+            <div className="relative group min-w-[200px] flex-1 sm:flex-initial">
+              <Search
+                size={18}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors"
+              />
 
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="بحث سريع..."
-              className="bg-white border border-slate-200 rounded-xl py-2 pr-10 pl-4 text-sm w-full sm:w-72 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-            />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="بحث سريع..."
+                className="bg-white border border-slate-200 rounded-xl py-2 pr-10 pl-4 text-sm w-full sm:w-64 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+              />
+            </div>
+
+            {filters?.map((filter) => (
+              <div key={filter.key} className="min-w-[130px]">
+                <select
+                  value={filterValues[filter.key] || ""}
+                  onChange={(e) =>
+                    setFilterValues((prev) => ({
+                      ...prev,
+                      [filter.key]: e.target.value,
+                    }))
+                  }
+                  className="bg-white border border-slate-200 rounded-xl py-2 px-3 text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none w-full cursor-pointer"
+                >
+                  <option value="">{filter.label} (الكل)</option>
+                  {filter.options.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ))}
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-all cursor-pointer border border-red-200"
+                title="إعادة ضبط وتفريغ كل الفلاتر والبحث"
+              >
+                <RotateCcw size={13} />
+                <span>إعادة ضبط</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              className="p-2 text-slate-500 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
+              onClick={() => void load()}
+              disabled={loading}
+              title="تحديث البيانات"
+            >
+              <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
+            </button>
+
+            <span className="text-[11px] font-bold text-slate-400 mr-auto sm:mr-0">
+              عرض {displayRows.length} من {rows.length}
+            </span>
           </div>
 
           <button
             type="button"
-            className="p-2 text-slate-500 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
-            onClick={() => void load()}
-            disabled={loading}
-            title="تحديث البيانات"
+            className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-lg shadow-blue-100 shrink-0 cursor-pointer"
+            onClick={openCreate}
           >
-            <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
+            <Plus size={18} />
+            إضافة جديد
           </button>
         </div>
-
-        <button
-          type="button"
-          className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-lg shadow-blue-100"
-          onClick={openCreate}
-        >
-          <Plus size={18} />
-          إضافة جديد
-        </button>
       </div>
 
       {error && (
@@ -261,7 +366,7 @@ export default function CrudPage({
       <DataTable
         title={title}
         columns={columns}
-        initialRows={rows}
+        initialRows={displayRows}
         onAdd={openCreate}
         onEdit={openEdit}
         onDelete={remove}

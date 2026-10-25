@@ -1,7 +1,8 @@
 'use client';
 
 import Shell from '@/components/Shell';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { Search, RotateCcw } from 'lucide-react';
 
 type User = {
   id: string;
@@ -29,6 +30,30 @@ export default function Users() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterRole, setFilterRole] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+
+  const filteredUsers = useMemo(() => {
+    return users.filter((u) => {
+      if (filterRole && u.role !== filterRole) return false;
+      if (filterStatus === 'active' && !u.active) return false;
+      if (filterStatus === 'inactive' && u.active) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.trim().toLowerCase();
+        const roleLabel = (roles.find((r) => r[0] === u.role)?.[1] || '').toLowerCase();
+        const match =
+          (u.name || '').toLowerCase().includes(q) ||
+          (u.email || '').toLowerCase().includes(q) ||
+          (u.phone || '').toLowerCase().includes(q) ||
+          roleLabel.includes(q);
+        if (!match) return false;
+      }
+      return true;
+    });
+  }, [users, filterRole, filterStatus, searchQuery]);
+
+  const hasActiveFilters = Boolean(searchQuery.trim() || filterRole || filterStatus);
 
   const [form, setForm] = useState({
     name: '',
@@ -235,6 +260,64 @@ export default function Users() {
           </form>
         )}
 
+        {/* Smart Filter Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
+          <div className="flex items-center gap-2 flex-1 flex-wrap">
+            <div className="relative group min-w-[200px] flex-1 sm:flex-initial">
+              <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="بحث بالاسم أو البريد أو الهاتف..."
+                className="w-full pr-8 pl-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs outline-none"
+              />
+            </div>
+
+            <select
+              value={filterRole}
+              onChange={(e) => setFilterRole(e.target.value)}
+              className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs font-semibold cursor-pointer"
+            >
+              <option value="">كل الأدوار</option>
+              {roles.map(([val, lbl]) => (
+                <option key={val} value={val}>
+                  {lbl}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs font-semibold cursor-pointer"
+            >
+              <option value="">كل الحالات</option>
+              <option value="active">نشط</option>
+              <option value="inactive">معطل</option>
+            </select>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  setFilterRole('');
+                  setFilterStatus('');
+                }}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-red-600 hover:underline cursor-pointer"
+              >
+                <RotateCcw size={12} />
+                <span>إعادة ضبط</span>
+              </button>
+            )}
+          </div>
+
+          <span className="text-[11px] text-slate-400 font-bold">
+            عرض {filteredUsers.length} من أصل {users.length}
+          </span>
+        </div>
+
         {loading ? (
           <p>جاري التحميل...</p>
         ) : users.length === 0 ? (
@@ -255,7 +338,7 @@ export default function Users() {
               </thead>
 
               <tbody>
-                {users.map(user => (
+                {filteredUsers.map(user => (
                   <tr key={user.id}>
                     <td>{user.name}</td>
                     <td>{user.email}</td>

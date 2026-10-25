@@ -152,6 +152,27 @@ export default function Courses() {
         <CrudPage
           title="دورة"
           endpoint="/api/courses"
+          filters={[
+            {
+              key: "status",
+              label: "الحالة",
+              options: [
+                { value: "active", label: "نشطة" },
+                { value: "draft", label: "مسودة" },
+                { value: "archived", label: "مؤرشفة" },
+              ],
+            },
+            {
+              key: "category",
+              label: "التصنيف",
+              options: [
+                { value: "قدرات كمي", label: "قدرات كمي" },
+                { value: "قدرات لفظي", label: "قدرات لفظي" },
+                { value: "تحصيلي", label: "تحصيلي" },
+                { value: "أخرى", label: "أخرى" },
+              ],
+            },
+          ]}
           columns={[
             { key: "name", label: "الدورة" },
             { key: "category", label: "التصنيف" },

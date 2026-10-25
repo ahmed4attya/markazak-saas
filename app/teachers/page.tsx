@@ -13,6 +13,30 @@ export default function Teachers() {
             title="مدرب"
             subtitle="إدارة بيانات المدربين والتخصصات"
             endpoint="/api/teachers"
+            filters={[
+              {
+                key: "status",
+                label: "الحالة",
+                options: [
+                  { value: "active", label: "نشط" },
+                  { value: "inactive", label: "غير نشط" },
+                ],
+              },
+              {
+                key: "specialty",
+                label: "التخصص",
+                options: [
+                  { value: "كمي", label: "قدرات كمي" },
+                  { value: "لفظي", label: "قدرات لفظي" },
+                  { value: "رياضيات", label: "رياضيات" },
+                  { value: "فيزياء", label: "فيزياء" },
+                  { value: "كيمياء", label: "كيمياء" },
+                  { value: "أحياء", label: "أحياء" },
+                  { value: "إنجليزي", label: "لغة إنجليزية" },
+                  { value: "تحصيلي", label: "تحصيلي" },
+                ],
+              },
+            ]}
             columns={[
               { key: "name", label: "الاسم" },
               { key: "specialty", label: "التخصص" },

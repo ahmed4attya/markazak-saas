@@ -4,23 +4,42 @@ import { getSession, isAdmin } from '@/lib/auth';
 import { courseSchema } from '@/lib/validation';
 import { assertPlanQuota } from '@/lib/quota';
 
-export async function GET() {
+export async function GET(req: Request) {
   const s = await getSession();
   if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+
+  const u = new URL(req.url);
+  const q = (u.searchParams.get('q') || '').trim();
+  const category = (u.searchParams.get('category') || '').trim();
+  const status = (u.searchParams.get('status') || '').trim();
+
+  let sql = `select c.*, coalesce((select string_agg(u.name, '، ') from course_teachers ct join users u on u.id=ct.teacher_user_id where ct.course_id=c.id), '') as teacher_names from courses c where c.tenant_id=$1`;
+  const vals: any[] = [s.tenantId];
+
   if (s.role === 'teacher') {
-    const rows = (await query(
-      `select c.*, coalesce((select string_agg(u.name, '، ') from course_teachers ct join users u on u.id=ct.teacher_user_id where ct.course_id=c.id), '') as teacher_names
-       from courses c
-       where c.tenant_id=$1 and c.id in (select course_id from course_teachers where teacher_user_id=$2)
-       order by c.created_at desc limit 500`,
-      [s.tenantId, s.userId]
-    )).rows;
-    return NextResponse.json(rows);
+    vals.push(s.userId);
+    sql += ` and c.id in (select course_id from course_teachers where teacher_user_id=$${vals.length})`;
   }
-  return NextResponse.json((await query(
-      `select c.*, coalesce((select string_agg(u.name, '، ') from course_teachers ct join users u on u.id=ct.teacher_user_id where ct.course_id=c.id), '') as teacher_names from courses c where c.tenant_id=$1 order by c.created_at desc limit 500`,
-    [s.tenantId]
-  )).rows);
+
+  if (q) {
+    vals.push(`%${q}%`);
+    const p = vals.length;
+    sql += ` and (c.name ilike $${p} or c.description ilike $${p} or c.category ilike $${p})`;
+  }
+
+  if (category) {
+    vals.push(`%${category}%`);
+    sql += ` and c.category ilike $${vals.length}`;
+  }
+
+  if (status && ['active', 'draft', 'archived'].includes(status)) {
+    vals.push(status);
+    sql += ` and c.status=$${vals.length}`;
+  }
+
+  sql += ' order by c.created_at desc limit 500';
+  const rows = (await query(sql, vals)).rows;
+  return NextResponse.json(rows);
 }
 
 export async function POST(req: Request) {

@@ -4,10 +4,34 @@ import {getSession} from '@/lib/auth';
 import {teacherSchema} from '@/lib/validation';
 import {assertPlanQuota} from '@/lib/quota';
 
-export async function GET(){
-  const s=await getSession();
-  if(!s)return NextResponse.json({error:'unauthorized'},{status:401});
-  return NextResponse.json((await query('select * from teachers where tenant_id=$1 order by created_at desc limit 500',[s.tenantId])).rows);
+export async function GET(req: Request) {
+  const s = await getSession();
+  if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+
+  const u = new URL(req.url);
+  const q = (u.searchParams.get('q') || '').trim();
+  const status = (u.searchParams.get('status') || '').trim();
+  const specialty = (u.searchParams.get('specialty') || '').trim();
+
+  let sql = 'select * from teachers where tenant_id=$1';
+  const vals: any[] = [s.tenantId];
+
+  if (q) {
+    vals.push(`%${q}%`);
+    const p = vals.length;
+    sql += ` and (name ilike $${p} or phone ilike $${p} or email ilike $${p} or specialty ilike $${p})`;
+  }
+  if (status && ['active', 'inactive'].includes(status)) {
+    vals.push(status);
+    sql += ` and status=$${vals.length}`;
+  }
+  if (specialty) {
+    vals.push(`%${specialty}%`);
+    sql += ` and specialty ilike $${vals.length}`;
+  }
+
+  sql += ' order by created_at desc limit 500';
+  return NextResponse.json((await query(sql, vals)).rows);
 }
 
 export async function POST(req:Request){

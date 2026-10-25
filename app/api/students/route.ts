@@ -9,14 +9,29 @@ export async function GET(req:Request){
   if(!s)return NextResponse.json({error:'unauthorized'},{status:401});
 
   const u=new URL(req.url);
-  const q=u.searchParams.get('q')||'';
+  const q=(u.searchParams.get('q')||'').trim();
   const type=(u.searchParams.get('type')||'').toLowerCase();
+  const status=(u.searchParams.get('status')||'').toLowerCase();
 
-  const r=await query(
-    'select id,student_no,name,phone,email,identity_no,status,type,user_id,guardian_user_id,created_at from students where tenant_id=$1 and (name ilike $2 or student_no ilike $2 or phone ilike $2)'+(type==='center'||type==='online'?' and type=$3':'')+' order by created_at desc limit 500',
-    (type==='center'||type==='online')?[s.tenantId,`%${q}%`,type]:[s.tenantId,`%${q}%`]
-  );
+  let sql = 'select id,student_no,name,phone,email,identity_no,status,type,user_id,guardian_user_id,created_at from students where tenant_id=$1';
+  const vals: any[] = [s.tenantId];
 
+  if (q) {
+    vals.push(`%${q}%`);
+    const p = vals.length;
+    sql += ` and (name ilike $${p} or student_no ilike $${p} or phone ilike $${p} or email ilike $${p} or identity_no ilike $${p})`;
+  }
+  if (type === 'center' || type === 'online') {
+    vals.push(type);
+    sql += ` and type=$${vals.length}`;
+  }
+  if (['active', 'inactive', 'graduated', 'suspended'].includes(status)) {
+    vals.push(status);
+    sql += ` and status=$${vals.length}`;
+  }
+
+  sql += ' order by created_at desc limit 500';
+  const r = await query(sql, vals);
   return NextResponse.json(r.rows);
 }
 

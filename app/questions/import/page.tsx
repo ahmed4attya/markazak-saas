@@ -15,6 +15,7 @@ import {
   BookOpen,
   Image as ImageIcon,
   X,
+  Edit3,
 } from 'lucide-react';
 
 type Opt = { key: string; text: string };
@@ -77,6 +78,26 @@ export default function QuestionsImportPage() {
   const [modalImage, setModalImage] = useState<string | null>(null);
   const [editingImageIdx, setEditingImageIdx] = useState<number | null>(null);
   const [tempImageUrl, setTempImageUrl] = useState('');
+  const [editingPreviewQ, setEditingPreviewQ] = useState<{
+    index: number;
+    body: string;
+    options: Opt[];
+    answerKey?: string;
+  } | null>(null);
+
+  function saveEditingPreviewQ() {
+    if (!editingPreviewQ || !ext) return;
+    const updated = [...ext.questions];
+    updated[editingPreviewQ.index] = {
+      ...updated[editingPreviewQ.index],
+      body: editingPreviewQ.body,
+      options: editingPreviewQ.options,
+      answerKey: editingPreviewQ.answerKey,
+    };
+    const withAnswer = updated.filter((q) => Boolean(q.answerKey)).length;
+    setExt({ ...ext, questions: updated, withAnswer });
+    setEditingPreviewQ(null);
+  }
 
   useEffect(() => {
     fetch('/api/courses')
@@ -393,10 +414,10 @@ export default function QuestionsImportPage() {
                 {saved.withImage ? ` تم تضمين ${saved.withImage} شكلاً ورسماً بيانياً.` : ''}
               </p>
               <Link
-                href="/questions"
+                href="/questions?status=review"
                 className="mt-2 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition"
               >
-                <span>مراجعة بنك الأسئلة</span>
+                <span>الانتقال لمراجعة وتعديل الأسئلة في بنك الأسئلة</span>
                 <ArrowLeft className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -453,7 +474,38 @@ export default function QuestionsImportPage() {
                       <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td className="px-3 py-2 text-slate-400 font-mono">{i + 1}</td>
                         <td className="max-w-md px-3 py-2 space-y-1.5">
-                          <span className="line-clamp-2 font-medium text-slate-900 dark:text-slate-100">{q.body}</span>
+                          <div className="flex items-start justify-between gap-2">
+                            <span
+                              onClick={() =>
+                                setEditingPreviewQ({
+                                  index: i,
+                                  body: q.body,
+                                  options: [...(q.options || [])],
+                                  answerKey: q.answerKey,
+                                })
+                              }
+                              className="line-clamp-2 font-medium text-slate-900 dark:text-slate-100 hover:text-amber-600 cursor-pointer transition"
+                              title="انقر لتعديل نص السؤال وخياراته"
+                            >
+                              {q.body}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setEditingPreviewQ({
+                                  index: i,
+                                  body: q.body,
+                                  options: [...(q.options || [])],
+                                  answerKey: q.answerKey,
+                                })
+                              }
+                              className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 hover:text-amber-700 bg-amber-500/10 px-2 py-0.5 rounded cursor-pointer shrink-0"
+                              title="تعديل نص السؤال وخياراته"
+                            >
+                              <Edit3 size={11} />
+                              <span>تعديل</span>
+                            </button>
+                          </div>
                           {q.imageUrl && (
                             /* eslint-disable-next-line @next/next/no-img-element */
                             <img
@@ -701,6 +753,98 @@ export default function QuestionsImportPage() {
                   className="px-4 py-1.5 rounded-lg text-xs font-bold text-white bg-amber-500 hover:bg-amber-600"
                 >
                   حفظ الشكل
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Modal: Edit Extracted Question Preview */}
+        {editingPreviewQ && (
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setEditingPreviewQ(null)}
+          >
+            <div
+              className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-xl w-full shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[90vh] flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2 text-amber-600 font-bold text-sm">
+                  <Edit3 size={16} />
+                  <span>تعديل السؤال #{editingPreviewQ.index + 1} قبل الحفظ</span>
+                </div>
+                <button onClick={() => setEditingPreviewQ(null)} className="text-slate-400 hover:text-slate-700">
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="overflow-y-auto space-y-3 flex-1 pr-1 pl-1 text-xs">
+                <label className="block space-y-1">
+                  <span className="font-bold text-slate-700 dark:text-slate-300">نص السؤال</span>
+                  <textarea
+                    value={editingPreviewQ.body}
+                    onChange={(e) => setEditingPreviewQ({ ...editingPreviewQ, body: e.target.value })}
+                    rows={3}
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3 outline-none focus:border-amber-500 font-medium"
+                  />
+                </label>
+
+                <div className="space-y-1.5">
+                  <span className="font-bold text-slate-700 dark:text-slate-300">خيارات الإجابة</span>
+                  <div className="space-y-2">
+                    {editingPreviewQ.options.map((opt, optIdx) => {
+                      const isCorrect = editingPreviewQ.answerKey === opt.key;
+                      return (
+                        <div
+                          key={optIdx}
+                          className={`flex items-center gap-2 p-2 rounded-xl border transition ${
+                            isCorrect
+                              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500'
+                              : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800'
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => setEditingPreviewQ({ ...editingPreviewQ, answerKey: opt.key })}
+                            className={`h-6 w-6 rounded-lg text-xs font-bold shrink-0 flex items-center justify-center cursor-pointer ${
+                              isCorrect ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600'
+                            }`}
+                            title="تحديد كإجابة صحيحة"
+                          >
+                            {opt.key}
+                          </button>
+                          <input
+                            type="text"
+                            value={opt.text}
+                            onChange={(e) => {
+                              const updated = [...editingPreviewQ.options];
+                              updated[optIdx] = { ...updated[optIdx], text: e.target.value };
+                              setEditingPreviewQ({ ...editingPreviewQ, options: updated });
+                            }}
+                            className="w-full bg-transparent outline-none text-xs"
+                          />
+                          {isCorrect && <span className="text-emerald-500 font-bold">✓</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2 justify-end pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setEditingPreviewQ(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 cursor-pointer"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="button"
+                  onClick={saveEditingPreviewQ}
+                  className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 cursor-pointer"
+                >
+                  حفظ التعديل
                 </button>
               </div>
             </div>

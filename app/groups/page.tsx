@@ -144,6 +144,26 @@ export default function Groups() {
           title="مجموعة"
           subtitle="إدارة بيانات المجموعة والجدول والمدرب"
           endpoint="/api/groups"
+          filters={[
+            {
+              key: "status",
+              label: "الحالة",
+              options: [
+                { value: "active", label: "نشطة" },
+                { value: "completed", label: "مكتملة" },
+                { value: "cancelled", label: "ملغاة" },
+              ],
+            },
+            ...(courses.length > 0
+              ? [
+                  {
+                    key: "course_name",
+                    label: "الدورة",
+                    options: courses.map((c) => ({ value: c.label, label: c.label })),
+                  },
+                ]
+              : []),
+          ]}
           rowActions={(row) => [{ label: "إسناد طلاب", onClick: () => openAssign(row) }]}
           columns={[
             { key: "name", label: "المجموعة" },
