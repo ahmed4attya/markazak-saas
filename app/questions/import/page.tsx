@@ -361,6 +361,7 @@ export default function QuestionsImportPage() {
                 <option value="quant">قدرات كمي (معادلات وأشكال)</option>
                 <option value="verbal">قدرات لفظي (استيعاب المقروء وتناظر)</option>
                 <option value="achievement">تحصيلي</option>
+                <option value="other">أخرى / مجالات عامة</option>
               </select>
             </label>
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">

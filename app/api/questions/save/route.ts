@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
   }
 
   const domain = sanitize(raw?.domain || 'quant').toLowerCase();
-  const validDomains = ['quant', 'verbal', 'achievement'];
+  const validDomains = ['quant', 'verbal', 'achievement', 'other'];
   const finalDomain = validDomains.includes(domain) ? domain : 'quant';
   const courseId = raw?.courseId ? String(raw.courseId) : null;
   const skill = sanitize(raw?.skill || '') || null;

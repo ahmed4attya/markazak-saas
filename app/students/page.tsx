@@ -30,6 +30,7 @@ export default function Students() {
             subtitle="إدارة بيانات الطلاب والتسجيلات والمتابعة"
             endpoint="/api/students"
             canCreate={!isTeacher}
+            canEdit={!isTeacher}
             canDelete={!isTeacher}
             filters={[
               {
@@ -62,8 +63,8 @@ export default function Students() {
             fields={[
               {
                 key: "student_no",
-                label: "رقم الطالب",
-                required: true,
+                label: "رقم الطالب (يُنشأ تلقائياً في حال تركه فارغاً)",
+                required: false,
               },
               {
                 key: "name",

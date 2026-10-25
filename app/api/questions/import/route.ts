@@ -9,7 +9,7 @@ import { parseCsv } from '@/lib/csv';
 
 // Scope 4C: bulk CSV question import with QA fingerprints.
 // Figure-suspect rows land with status='review' (disabled-from-taking) - never silently active.
-const DOMAINS = ['quant', 'verbal', 'achievement'];
+const DOMAINS = ['quant', 'verbal', 'achievement', 'other'];
 const FIGURE_WORDS = ['شكل', 'رسم', 'مدرج', 'بياني', 'مبيان', 'المعطى في', 'graph', 'figure', 'chart', 'diagram'];
 const KNOWN = new Set(['domain', 'subject', 'topic', 'skill', 'difficulty', 'kind', 'text', 'o1', 'o2', 'o3', 'o4', 'o5', 'o6', 'correct', 'explanation']);
 const HEADER_MAP: Record<string, string> = {

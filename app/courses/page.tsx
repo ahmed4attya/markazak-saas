@@ -6,6 +6,7 @@ import CrudPage from "@/components/CrudPage";
 import PageStatsCards from "@/components/PageStatsCards";
 
 export default function Courses() {
+  const [userRole, setUserRole] = useState<string>("");
   const [teachersList, setTeachersList] = useState<{ id: string; name: string }[]>([]);
   const [allGroups, setAllGroups] = useState<{ id: string; name: string; course_id: string }[]>([]);
   const [tcCourse, setTcCourse] = useState<any>(null);
@@ -22,7 +23,15 @@ export default function Courses() {
 
   const loadOptions = useCallback(async () => {
     try {
-      const [usersRes, groupsRes] = await Promise.all([fetch("/api/users"), fetch("/api/groups")]);
+      const [usersRes, groupsRes, meRes] = await Promise.all([
+        fetch("/api/users"),
+        fetch("/api/groups"),
+        fetch("/api/me"),
+      ]);
+      if (meRes.ok) {
+        const meData = await meRes.json();
+        if (meData?.role) setUserRole(meData.role);
+      }
       if (usersRes.ok) {
         const data = await usersRes.json();
         setTeachersList((Array.isArray(data) ? data : []).filter((u: any) => u.role === "teacher").map((u: any) => ({ id: u.id, name: u.name })));
@@ -142,6 +151,7 @@ export default function Courses() {
     }
   }
 
+  const isTeacher = userRole === "teacher";
   const courseGroups = stCourse ? allGroups.filter((g) => g.course_id === stCourse.id) : [];
 
   return (
@@ -152,6 +162,9 @@ export default function Courses() {
         <CrudPage
           title="دورة"
           endpoint="/api/courses"
+          canCreate={!isTeacher}
+          canEdit={!isTeacher}
+          canDelete={!isTeacher}
           filters={[
             {
               key: "status",
@@ -203,10 +216,14 @@ export default function Courses() {
               ],
             },
           ]}
-          rowActions={(row) => [
-            { label: "إسناد معلمين", onClick: () => openTeachers(row) },
-            { label: "إسناد طلاب", onClick: () => openStudents(row) },
-          ]}
+          rowActions={
+            !isTeacher
+              ? (row) => [
+                  { label: "إسناد معلمين", onClick: () => openTeachers(row) },
+                  { label: "إسناد طلاب", onClick: () => openStudents(row) },
+                ]
+              : undefined
+          }
           deleteDialog={() => ({
             notice: "تنبيه: حذف الدورة يحذف معها (cascade) مجموعاتها وتسجيلات الطلاب فيها وأسئلة الدورة وإسنادات المعلمين. لا يمكن التراجع.",
           })}

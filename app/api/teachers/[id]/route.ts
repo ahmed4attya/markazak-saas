@@ -20,6 +20,13 @@ export async function PATCH(
     );
   }
 
+  if (!isAdmin(s.role)) {
+    return NextResponse.json(
+      { error: 'الصلاحية دي للإدارة بس' },
+      { status: 403 }
+    );
+  }
+
   try {
     const { id } = await context.params;
     const body = await req.json();

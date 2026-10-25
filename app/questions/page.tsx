@@ -45,6 +45,7 @@ const DOMAIN_LABELS: Record<string, string> = {
   quant: 'قدرات كمي',
   verbal: 'قدرات لفظي',
   achievement: 'تحصيلي',
+  other: 'أخرى',
 };
 
 const OPT_LETTERS = ['أ', 'ب', 'ج', 'د', 'هـ', 'و'];
@@ -600,10 +601,11 @@ export default function Questions() {
                 onChange={(e) => setFilterDomain(e.target.value)}
                 className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 cursor-pointer"
               >
-                <option value="">كل المجالات (كمي/لفظي/تحصيلي)</option>
+                <option value="">كل المجالات (كمي/لفظي/تحصيلي/أخرى)</option>
                 <option value="quant">قدرات كمي</option>
                 <option value="verbal">قدرات لفظي</option>
                 <option value="achievement">تحصيلي</option>
+                <option value="other">أخرى</option>
               </select>
             </div>
 
@@ -683,6 +685,7 @@ export default function Questions() {
                   <option value="quant">قدرات كمي</option>
                   <option value="verbal">قدرات لفظي</option>
                   <option value="achievement">تحصيلي</option>
+                  <option value="other">أخرى</option>
                 </select>
               </label>
 
@@ -1064,6 +1067,7 @@ export default function Questions() {
                       <option value="quant">قدرات كمي</option>
                       <option value="verbal">قدرات لفظي</option>
                       <option value="achievement">تحصيلي</option>
+                      <option value="other">أخرى</option>
                     </select>
                   </label>
 

@@ -1,8 +1,24 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Shell from "@/components/Shell";
 import CrudPage from "@/components/CrudPage";
 import PageStatsCards from "@/components/PageStatsCards";
 
 export default function Teachers() {
+  const [userRole, setUserRole] = useState<string>("");
+
+  useEffect(() => {
+    fetch("/api/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.role) setUserRole(data.role);
+      })
+      .catch(() => {});
+  }, []);
+
+  const isTeacher = userRole === "teacher";
+
   return (
     <Shell title="المدربون" subtitle="إدارة المدربين والتخصصات والبيانات">
       <div className="space-y-6">
@@ -13,6 +29,9 @@ export default function Teachers() {
             title="مدرب"
             subtitle="إدارة بيانات المدربين والتخصصات"
             endpoint="/api/teachers"
+            canCreate={!isTeacher}
+            canEdit={!isTeacher}
+            canDelete={!isTeacher}
             filters={[
               {
                 key: "status",

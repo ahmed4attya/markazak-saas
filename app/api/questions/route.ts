@@ -6,7 +6,7 @@ import { teacherCourseIds, canAccessCourse } from '@/lib/access';
 import { isAdminRole } from '@/lib/roles';
 import { logAudit } from '@/lib/audit';
 
-const DOMAINS = ['quant', 'verbal', 'achievement'];
+const DOMAINS = ['quant', 'verbal', 'achievement', 'other'];
 
 export async function GET(req: Request) {
   const s = await getSession();

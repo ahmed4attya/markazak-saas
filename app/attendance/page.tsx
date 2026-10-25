@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Shell from "../../components/Shell";
-import PageStatsCards from "@/components/PageStatsCards";
 
 type Group = {
   id: string;
@@ -304,11 +303,6 @@ export default function AttendancePage() {
     >
       {" "}
       <main className="space-y-6" dir="rtl">
-        {" "}
-        <div className="mb-6">
-          {" "}
-          <PageStatsCards mode="attendance" />{" "}
-        </div>
         {error && (
           <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             {error}
