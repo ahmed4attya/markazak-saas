@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { getSession } from '@/lib/auth';
-import { isAdminRole } from '@/lib/roles';
+import { isPlatformOwner } from '@/lib/roles';
 import { logAudit } from '@/lib/audit';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
@@ -33,7 +33,7 @@ function slugify(text: string) {
 
 export async function GET() {
   const session = await getSession();
-  if (!session || !isAdminRole(session.role)) {
+  if (!session || !isPlatformOwner(session.email)) {
     return NextResponse.json({ error: 'غير مصرح — مخصص لمالك وإدارة المنصة' }, { status: 403 });
   }
 
@@ -78,7 +78,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
-  if (!session || !isAdminRole(session.role)) {
+  if (!session || !isPlatformOwner(session.email)) {
     return NextResponse.json({ error: 'غير مصرح — مخصص لمالك وإدارة المنصة' }, { status: 403 });
   }
 

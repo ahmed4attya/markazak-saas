@@ -19,6 +19,15 @@ export async function middleware(req:NextRequest){
     const verified=await jwtVerify(token,secret);
     const role=String(verified.payload.role||'');
     const method=req.method.toUpperCase();
+    const userEmail = String(verified.payload.email || '').toLowerCase().trim();
+    const superAdminEmail = (process.env.ADMIN_EMAIL || 'admin@center.sa').toLowerCase().trim();
+    const isPlatformOwner = userEmail === superAdminEmail || userEmail === 'admin@center.sa';
+    if (path === '/tenants' || path.startsWith('/tenants/') || path === '/api/tenants' || path.startsWith('/api/tenants/')) {
+      if (!isPlatformOwner) {
+        if (isApi) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+        return NextResponse.redirect(new URL('/dashboard', req.url));
+      }
+    }
     const isLearner=role==='student'||role==='guardian';
     const learnerAllowed=path.startsWith('/portal')||path.startsWith('/api/learner/')||path==='/api/me'||(role==='student'&&path.startsWith('/api/attempts'))||(role==='student'&&method==='GET'&&path.startsWith('/api/assignments'))||(method==='GET'&&path.startsWith('/api/videos/')&&path.endsWith('/stream'))||(method==='GET'&&path.startsWith('/api/files/')&&path.endsWith('/download'));
     const teacherAdminOnly=['/finance','/tenants','/users','/settings','/plans','/activation-codes','/audit','/certificates','/ai','/api/invoices','/api/payments','/api/tenants','/api/users','/api/settings','/api/plans','/api/activation-codes','/api/audit','/api/certificates','/api/ai','/api/stripe/checkout'];

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { isPlatformOwner } from '@/lib/roles';
 
 export async function GET() {
   const s = await getSession();
@@ -12,5 +13,6 @@ export async function GET() {
     userId: s.userId,
     role: s.role,
     tenantName: t?.name || '',
+    isPlatformOwner: isPlatformOwner(s.email),
   });
 }

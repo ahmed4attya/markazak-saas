@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Shell from '@/components/Shell';
 import {
   Building2,
@@ -53,6 +54,7 @@ interface RegistrationRequest {
 }
 
 export default function TenantsPage() {
+  const router = useRouter();
   const [tenants, setTenants] = useState<TenantItem[]>([]);
   const [requests, setRequests] = useState<RegistrationRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -89,7 +91,10 @@ export default function TenantsPage() {
     try {
       const res = await fetch('/api/tenants');
       if (!res.ok) {
-        if (res.status === 403) throw new Error('غير مصرح لك بالوصول — مخصص لمالك المنصة');
+        if (res.status === 403) {
+          router.push('/dashboard');
+          return;
+        }
         throw new Error('تعذر تحميل بيانات المراكز');
       }
       const data = await res.json();

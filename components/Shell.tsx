@@ -67,6 +67,7 @@ export default function Shell({
   const [dateStr, setDateStr] = useState('');
   const [role, setRole] = useState<AccessRole>('staff');
   const [tenantName, setTenantName] = useState('منصة الخوارزمي');
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
@@ -77,7 +78,8 @@ export default function Shell({
     setDateStr(new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' }));
     fetch('/api/me').then((r) => (r.ok ? r.json() : null)).then((d) => { 
       if (d && d.role) setRole(d.role as AccessRole); 
-      if (d && d.tenantName) setTenantName(String(d.tenantName)); 
+      if (d && d.tenantName) setTenantName(String(d.tenantName));
+      if (d && d.isPlatformOwner) setIsOwner(Boolean(d.isPlatformOwner)); 
     }).catch(() => {});
   }, []);
 
@@ -104,6 +106,7 @@ export default function Shell({
       .map(path => {
         const config = PAGE_ACCESS.find(p => p.path === path);
         if (!config) return null;
+        if (path === '/tenants' && !isOwner) return null;
         if (!config.public && !config.roles.includes(role)) return null;
         
         const labelMap: Record<string, string> = {
