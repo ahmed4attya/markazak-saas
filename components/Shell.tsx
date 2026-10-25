@@ -68,13 +68,21 @@ export default function Shell({
   const [tenantName, setTenantName] = useState('منصة الخوارزمي');
 
   useEffect(() => {
-    setCollapsed(localStorage.getItem('mkz-sidebar-collapsed') === '1');
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      setCollapsed(localStorage.getItem('mkz-sidebar-collapsed') === '1');
+    } else {
+      setCollapsed(false);
+    }
     setDateStr(new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' }));
     fetch('/api/me').then((r) => (r.ok ? r.json() : null)).then((d) => { 
       if (d && d.role) setRole(d.role as AccessRole); 
       if (d && d.tenantName) setTenantName(String(d.tenantName)); 
     }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   function toggleCollapsed() {
     setCollapsed((v) => {
@@ -130,22 +138,40 @@ export default function Shell({
   }).filter(g => g.items.length > 0);
 
   return (
-    <div className="flex min-h-screen bg-[color:var(--bg)] font-sans text-right" dir="rtl">
+    <div className="flex min-h-screen bg-[color:var(--bg)] font-sans text-right relative" dir="rtl">
+      {/* Mobile Backdrop */}
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden cursor-pointer transition-opacity"
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Navigation Sidebar / Drawer */}
       <aside className={cn(
-        "fixed top-0 right-0 z-50 h-screen transition-transform duration-300 border-l border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text)] flex flex-col shadow-2xl lg:shadow-none",
-        collapsed ? "w-20" : "w-64",
-        open ? "translate-x-0" : "translate-x-full lg:translate-x-0"
+        "fixed top-0 right-0 z-50 h-screen transition-all duration-300 border-l border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text)] flex-col shadow-2xl lg:shadow-none",
+        open ? "flex translate-x-0" : "hidden lg:flex lg:translate-x-0",
+        "w-72 max-w-[85vw]",
+        collapsed ? "lg:w-20" : "lg:w-64"
       )}>
         <div className="p-4 border-b border-[color:var(--border)] flex items-center justify-between">
-          {!collapsed && <b className="text-lg font-bold truncate">{tenantName}</b>}
-          <button onClick={() => setOpen(false)} className="lg:hidden p-1.5 text-[color:var(--muted)] hover:text-[color:var(--text)] rounded-lg hover:bg-[color:var(--surface-2)]">
+          <b className={cn("text-lg font-bold truncate", collapsed ? "lg:hidden" : "")}>{tenantName}</b>
+          <button 
+            type="button"
+            onClick={() => setOpen(false)} 
+            className="lg:hidden p-1.5 text-[color:var(--muted)] hover:text-[color:var(--text)] rounded-lg hover:bg-[color:var(--surface-2)] cursor-pointer"
+            aria-label="إغلاق القائمة"
+          >
             <X size={20} />
           </button>
         </div>
         <nav className="flex-1 overflow-y-auto p-3 space-y-6 custom-scrollbar">
           {visibleGroups.map((group, i) => (
             <div key={i}>
-              {!collapsed && <span className="text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wider block mb-3 px-2">{group.title}</span>}
+              <span className={cn("text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wider block mb-3 px-2", collapsed ? "lg:hidden" : "")}>
+                {group.title}
+              </span>
               <div className="space-y-1">
                 {group.items.map((item) => (
                   <Link 
@@ -153,12 +179,12 @@ export default function Shell({
                     href={item.href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 group",
+                      "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group",
                       pathname === item.href ? "bg-[color:var(--blue-soft)] text-[color:var(--blue)] font-bold" : "hover:bg-[color:var(--surface-2)] text-[color:var(--text-soft)] hover:text-[color:var(--text)]"
                     )}
                   >
-                    <item.icon size={20} className={cn("transition-colors", pathname === item.href ? "text-[color:var(--blue)]" : "group-hover:text-[color:var(--text)]")} />
-                    {!collapsed && <span className="text-sm font-medium">{item.label}</span>}
+                    <item.icon size={20} className={cn("shrink-0 transition-colors", pathname === item.href ? "text-[color:var(--blue)]" : "group-hover:text-[color:var(--text)]")} />
+                    <span className={cn("text-sm font-medium", collapsed ? "lg:hidden" : "")}>{item.label}</span>
                   </Link>
                 ))}
               </div>
@@ -166,13 +192,22 @@ export default function Shell({
           ))}
         </nav>
         <div className="p-4 border-t border-[color:var(--border)] space-y-2">
-          <button onClick={toggleCollapsed} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[color:var(--text-soft)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--text)] transition-all">
-            <Menu size={20} />
+          {/* Collapse button strictly for desktop */}
+          <button 
+            type="button"
+            onClick={toggleCollapsed} 
+            className="hidden lg:flex w-full items-center gap-3 px-3 py-2 rounded-xl text-[color:var(--text-soft)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--text)] transition-all cursor-pointer"
+          >
+            <Menu size={20} className="shrink-0" />
             {!collapsed && <span className="text-sm">طي القائمة</span>}
           </button>
-          <button onClick={logout} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-red-400 hover:bg-red-500/10 transition-all">
-            <LogOut size={20} />
-            {!collapsed && <span className="text-sm">تسجيل الخروج</span>}
+          <button 
+            type="button"
+            onClick={logout} 
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
+          >
+            <LogOut size={20} className="shrink-0" />
+            <span className={cn("text-sm font-medium", collapsed ? "lg:hidden" : "")}>تسجيل الخروج</span>
           </button>
         </div>
       </aside>
@@ -183,7 +218,12 @@ export default function Shell({
       )}>
         <header className="sticky top-0 z-30 h-16 border-b border-[color:var(--border)] bg-[color:var(--surface)]/80 backdrop-blur-md px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button onClick={() => setOpen(true)} className="lg:hidden p-2 text-[color:var(--text)] hover:bg-[color:var(--surface-2)] rounded-lg">
+            <button 
+              type="button"
+              onClick={() => setOpen(true)} 
+              className="lg:hidden p-2 text-[color:var(--text)] hover:bg-[color:var(--surface-2)] rounded-lg cursor-pointer"
+              aria-label="فتح القائمة"
+            >
               <Menu size={20} />
             </button>
             <div className="hidden sm:flex items-center gap-2 text-sm text-[color:var(--muted)]">
@@ -215,18 +255,6 @@ export default function Shell({
           </AnimatePresence>
         </section>
       </main>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setOpen(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden cursor-pointer"
-          />
-        )}
-      </AnimatePresence>
       {isAdmin && <QuickContact open={qcOpen} onClose={() => setQcOpen(false)} />}
     </div>
   );
