@@ -14,10 +14,67 @@ export const maxDuration = 60;
 const nodeRequire = createRequire(import.meta.url);
 const KEYS = ['أ', 'ب', 'ج', 'د', 'هـ'];
 
+function findLocalWorkerUrl(): string | null {
+  const candidates = [
+    path.join(process.cwd(), 'node_modules', 'pdf-parse', 'dist', 'worker', 'pdf.worker.mjs'),
+    path.join(process.cwd(), 'node_modules', 'pdfjs-dist', 'build', 'pdf.worker.mjs'),
+    path.join(process.cwd(), 'node_modules', 'pdfjs-dist', 'legacy', 'build', 'pdf.worker.mjs'),
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) {
+      return url.pathToFileURL(c).href;
+    }
+  }
+  try {
+    const pkgJson = nodeRequire.resolve('pdf-parse/package.json');
+    const workerPath = path.join(path.dirname(pkgJson), 'dist', 'worker', 'pdf.worker.mjs');
+    if (fs.existsSync(workerPath)) {
+      return url.pathToFileURL(workerPath).href;
+    }
+  } catch {}
+  return null;
+}
+
 async function extractPdfText(buf: Buffer): Promise<string> {
-  // Strategy 1: Direct in-process PDF.js legacy extraction (Zero fake-worker issue, 100% native in Node.js)
+  const workerUrl = findLocalWorkerUrl();
+
+  // Strategy 1: pdf-parse with local worker file url
+  try {
+    const pdfMod = nodeRequire('pdf-parse');
+    if (pdfMod?.PDFParse) {
+      if (workerUrl) {
+        try {
+          pdfMod.PDFParse.setWorker(workerUrl);
+        } catch (wErr) {
+          console.warn('[PDF] setWorker notice:', wErr);
+        }
+      }
+      const parser = new pdfMod.PDFParse({ data: buf });
+      try {
+        const res = await parser.getText();
+        if (res?.pages && Array.isArray(res.pages) && res.pages.length > 0) {
+          const txt = res.pages.map((p: { text?: string }) => p.text || '').join('\n');
+          if (txt.trim().length > 10) return txt;
+        }
+        if (typeof res === 'string' && res.trim().length > 10) return res;
+        if (res?.text && res.text.trim().length > 10) return res.text;
+      } finally {
+        await parser.destroy().catch(() => {});
+      }
+    } else if (typeof pdfMod === 'function') {
+      const parsed = await pdfMod(buf);
+      if (parsed?.text && parsed.text.trim().length > 10) return parsed.text;
+    }
+  } catch (parseErr: any) {
+    console.warn('[PDF] PDFParse parser error, attempting legacy pdfjs:', parseErr?.message || parseErr);
+  }
+
+  // Strategy 2: Direct in-process PDF.js legacy extraction fallback
   try {
     const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+    if (workerUrl && pdfjs.GlobalWorkerOptions) {
+      pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+    }
     const doc = await pdfjs.getDocument({
       data: new Uint8Array(buf),
       useSystemFonts: true,
@@ -39,35 +96,7 @@ async function extractPdfText(buf: Buffer): Promise<string> {
       return fullText;
     }
   } catch (pdfjsErr: any) {
-    console.warn('[PDF] legacy pdfjs extraction notice:', pdfjsErr?.message || pdfjsErr);
-  }
-
-  // Strategy 2: pdf-parse with worker setup fallback
-  const pdfMod = nodeRequire('pdf-parse');
-  if (pdfMod?.PDFParse) {
-    try {
-      const pkgPath = nodeRequire.resolve('pdf-parse');
-      const workerFile = path.join(path.dirname(path.dirname(path.dirname(pkgPath))), 'worker', 'pdf.worker.mjs');
-      if (fs.existsSync(workerFile)) {
-        pdfMod.PDFParse.setWorker(url.pathToFileURL(workerFile).href);
-      } else {
-        pdfMod.PDFParse.setWorker('https://cdn.jsdelivr.net/npm/pdf-parse@latest/dist/pdf-parse/web/pdf.worker.mjs');
-      }
-    } catch {}
-
-    const parser = new pdfMod.PDFParse({ data: buf });
-    try {
-      const res = await parser.getText();
-      if (res?.pages && Array.isArray(res.pages) && res.pages.length > 0) {
-        return res.pages.map((p: { text?: string }) => p.text || '').join('\n');
-      }
-      return typeof res === 'string' ? res : (res?.text || '');
-    } finally {
-      await parser.destroy().catch(() => {});
-    }
-  } else if (typeof pdfMod === 'function') {
-    const parsed = await pdfMod(buf);
-    return parsed.text || '';
+    console.warn('[PDF] legacy pdfjs extraction failed:', pdfjsErr?.message || pdfjsErr);
   }
 
   return '';
