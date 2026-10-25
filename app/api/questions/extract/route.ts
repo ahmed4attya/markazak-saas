@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRequire } from 'module';
+import path from 'path';
+import url from 'url';
+import fs from 'fs';
 import { getSession } from '@/lib/auth';
 import { cleanText, parseQuestions, looksGarbled, ParsedQ } from '@/lib/pdf-questions';
 import { extractFormJson, mineFormItems, mineAnswerKeys, htmlToQuestionText } from '@/lib/gform';
@@ -10,6 +13,65 @@ export const maxDuration = 60;
 
 const nodeRequire = createRequire(import.meta.url);
 const KEYS = ['أ', 'ب', 'ج', 'د', 'هـ'];
+
+async function extractPdfText(buf: Buffer): Promise<string> {
+  // Strategy 1: Direct in-process PDF.js legacy extraction (Zero fake-worker issue, 100% native in Node.js)
+  try {
+    const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+    const doc = await pdfjs.getDocument({
+      data: new Uint8Array(buf),
+      useSystemFonts: true,
+      disableFontFace: true,
+      isEvalSupported: false,
+    }).promise;
+
+    const pageTexts: string[] = [];
+    for (let i = 1; i <= doc.numPages; i++) {
+      const page = await doc.getPage(i);
+      const content = await page.getTextContent();
+      const strings = content.items
+        .map((item: any) => ('str' in item ? item.str : ''))
+        .filter(Boolean);
+      pageTexts.push(strings.join(' '));
+    }
+    const fullText = pageTexts.join('\n');
+    if (fullText.trim().length > 10) {
+      return fullText;
+    }
+  } catch (pdfjsErr: any) {
+    console.warn('[PDF] legacy pdfjs extraction notice:', pdfjsErr?.message || pdfjsErr);
+  }
+
+  // Strategy 2: pdf-parse with worker setup fallback
+  const pdfMod = nodeRequire('pdf-parse');
+  if (pdfMod?.PDFParse) {
+    try {
+      const pkgPath = nodeRequire.resolve('pdf-parse');
+      const workerFile = path.join(path.dirname(path.dirname(path.dirname(pkgPath))), 'worker', 'pdf.worker.mjs');
+      if (fs.existsSync(workerFile)) {
+        pdfMod.PDFParse.setWorker(url.pathToFileURL(workerFile).href);
+      } else {
+        pdfMod.PDFParse.setWorker('https://cdn.jsdelivr.net/npm/pdf-parse@latest/dist/pdf-parse/web/pdf.worker.mjs');
+      }
+    } catch {}
+
+    const parser = new pdfMod.PDFParse({ data: buf });
+    try {
+      const res = await parser.getText();
+      if (res?.pages && Array.isArray(res.pages) && res.pages.length > 0) {
+        return res.pages.map((p: { text?: string }) => p.text || '').join('\n');
+      }
+      return typeof res === 'string' ? res : (res?.text || '');
+    } finally {
+      await parser.destroy().catch(() => {});
+    }
+  } else if (typeof pdfMod === 'function') {
+    const parsed = await pdfMod(buf);
+    return parsed.text || '';
+  }
+
+  return '';
+}
 
 const SKILL_RE = /^(.{2,60}?)\s*[\(（](\d{1,3})[\)）]\s*$/;
 const SECTION_RE = /^القسم\s*(\d+)\s*[:：\-]?\s*(.*)$/;
@@ -171,7 +233,16 @@ export async function POST(req: NextRequest) {
         raw = String(body.text || '');
       }
     } else {
-      const form = await req.formData();
+      let form: FormData;
+      try {
+        form = await req.formData();
+      } catch (formErr: unknown) {
+        const msg = formErr instanceof Error ? formErr.message : String(formErr);
+        return NextResponse.json({
+          error: `تعذر قراءة بيانات الملف المرفوع (${msg}). تأكد من أن حجم الملف مناسب واستقرار الاتصال بالإنترنت.`,
+        }, { status: 400 });
+      }
+
       source = String(form.get('source') || 'text');
       letterless = String(form.get('letterless') || '') === '1';
 
@@ -186,27 +257,7 @@ export async function POST(req: NextRequest) {
 
         if (source === 'pdf') {
           try {
-            const pdfMod = nodeRequire('pdf-parse');
-            if (typeof pdfMod === 'function') {
-              const parsed = await pdfMod(buf);
-              raw = parsed.text || '';
-            } else if (pdfMod?.PDFParse) {
-              const parser = new pdfMod.PDFParse({ data: buf });
-              try {
-                const res = await parser.getText();
-                if (res?.pages && Array.isArray(res.pages) && res.pages.length > 0) {
-                  raw = res.pages.map((p: { text?: string }) => p.text || '').join('\n');
-                } else if (typeof res === 'string') {
-                  raw = res;
-                } else if (res?.text) {
-                  raw = res.text;
-                }
-              } finally {
-                await parser.destroy().catch(() => {});
-              }
-            } else {
-              return NextResponse.json({ error: 'مكتبة معالجة PDF غير مهيأة بشكل صحيح' }, { status: 500 });
-            }
+            raw = await extractPdfText(buf);
           } catch (pdfErr: unknown) {
             const errName = (pdfErr as Error)?.name || '';
             const errMsg = (pdfErr as Error)?.message || '';
