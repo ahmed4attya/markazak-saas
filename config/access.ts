@@ -29,14 +29,14 @@ const LEARNERS: AccessRole[] = ['student', 'guardian'];
 const ALL_AUTHED: AccessRole[] = ['owner', 'manager', 'admin', 'teacher', 'student', 'guardian'];
 
 export const PAGE_ACCESS: PageAccess[] = [
-  { path: '/dashboard', roles: ['owner', 'manager', 'admin', 'teacher', 'student', 'guardian'] },
+  { path: '/dashboard', roles: ['owner', 'manager', 'admin', 'teacher'] },
   { path: '/students', roles: ['owner', 'manager', 'admin'] },
   { path: '/teachers', roles: ['owner', 'manager', 'admin'] },
   { path: '/courses', roles: ['owner', 'manager', 'admin', 'teacher'] },
   { path: '/groups', roles: ['owner', 'manager', 'admin'] },
   { path: '/attendance', roles: ['owner', 'manager', 'admin', 'teacher'] },
-  { path: '/library', roles: ['owner', 'manager', 'admin', 'teacher', 'student', 'guardian'] },
-  { path: '/videos', roles: ['owner', 'manager', 'admin', 'teacher', 'student', 'guardian'] },
+  { path: '/library', roles: ['owner', 'manager', 'admin', 'teacher'] },
+  { path: '/videos', roles: ['owner', 'manager', 'admin', 'teacher'] },
   { path: '/questions', roles: ['owner', 'manager', 'admin', 'teacher'] },
   { path: '/exams', roles: ['owner', 'manager', 'admin', 'teacher'] },
   { path: '/lessons', roles: ['owner', 'manager', 'admin', 'teacher'] },
@@ -48,7 +48,7 @@ export const PAGE_ACCESS: PageAccess[] = [
   { path: '/ai', roles: ['owner', 'manager', 'admin'] },
   { path: '/users', roles: ['owner', 'manager', 'admin'] },
   { path: '/settings', roles: ['owner', 'manager', 'admin'] },
-  { path: '/plans', roles: ['owner', 'manager', 'admin'] },
+  { path: '/plans', roles: ['owner', 'manager', 'admin'], public: true },
   { path: '/activation-codes', roles: ['owner', 'manager', 'admin'] },
   { path: '/audit', roles: ['owner', 'manager', 'admin'] },
 ];
@@ -156,7 +156,7 @@ export const MATRIX_GAPS: string[] = [
   "GAP-4 /api/attendance/[id] and /api/course-teachers mutations sit outside teacherMutationBlocked, so teachers can PATCH/DELETE attendance and POST/DELETE course-teachers at middleware level; confirm intent or extend the block list in p4. RESOLVED @dcf667f: route-level teacher ownership enforced on attendance create+update via course_teachers join; course-teachers verified already self-guarded (p4-w2).",
   "GAP-5 middleware learnerAllowed keeps a dead clause path.startsWith('/api/attempts'); no such route exists outside /api/learner/attempts. Harmless; cleanup candidate.",
   "GAP-6 /api/auth/register does not exist in the live inventory (login/logout only). If public registration ships later it must get its own RL limit and matcher entry (M2 checklist).",
-  "GAP-7 PAGE_ACCESS v1 grants student+guardian on /dashboard /library /videos; those pages are unreachable for learners (middleware redirects them to /portal), and the grants are kept VERBATIM only so Shell.tsx rendering stays byte-identical; learner equivalents live under /portal and /api/learner/*.",
+  "GAP-7 PAGE_ACCESS v1 grants student+guardian on /dashboard /library /videos; unreachable for learners. RESOLVED in M2: student/guardian removed from /dashboard /library /videos; learner surface cleanly isolated under /portal and /api/learner/*.",
   "GAP-8 /api/stripe/checkout is intent-admin but middleware does not block teachers on /api/stripe/*; an in-route admin guard is recommended in p4. RESOLVED @655a634: in-route getSession+isAdmin verified present; path appended to teacherAdminOnly exact-match (p4-w1).",
-  "GAP-9 /plans page divergence: middleware exempts the /plans page (and /api/plans GET) as a public pricing surface while the matrix, kept verbatim from v1, still marks the /plans page admin-only, so Shell.tsx shows the pricing item to admin roles only; flipping the UI matrix to public requires teaching Shell.tsx to honor public:true (deliberate p4/M2 change, not a matrix side-effect). DEFERRED to M2 (p4 default; owner non-override on record).",
+  "GAP-9 /plans page divergence: middleware exempts /plans and /api/plans as public pricing surfaces. RESOLVED in M2: Shell.tsx taught to honor public:true and /plans marked public:true in PAGE_ACCESS.",
 ];

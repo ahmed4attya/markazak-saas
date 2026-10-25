@@ -95,7 +95,7 @@ export default function Shell({
       .map(path => {
         const config = PAGE_ACCESS.find(p => p.path === path);
         if (!config) return null;
-        if (!config.roles.includes(role)) return null;
+        if (!config.public && !config.roles.includes(role)) return null;
         
         const labelMap: Record<string, string> = {
           '/dashboard': 'لوحة التحكم', '/students': 'الطلاب', '/teachers': 'المعلمون', 
