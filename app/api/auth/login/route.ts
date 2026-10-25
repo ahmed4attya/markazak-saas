@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     const b = await req.json();
     const emailForLimit = String(b?.email || '').toLowerCase().trim();
     const limitKey = `login:${ip}:${emailForLimit}`;
-    const rl = await rateLimit(limitKey, 5, 15 * 60 * 1000);
+    const rl = await rateLimit(limitKey, 20, 15 * 60 * 1000);
     if (!rl.allowed) {
       return NextResponse.json(
         { error: 'محاولات كثيرة — انتظر قليلاً ثم حاول مجدداً' },
