@@ -25,13 +25,7 @@ function findLocalWorkerUrl(): string | null {
       return url.pathToFileURL(c).href;
     }
   }
-  try {
-    const pkgJson = nodeRequire.resolve('pdf-parse/package.json');
-    const workerPath = path.join(path.dirname(pkgJson), 'dist', 'worker', 'pdf.worker.mjs');
-    if (fs.existsSync(workerPath)) {
-      return url.pathToFileURL(workerPath).href;
-    }
-  } catch {}
+  // worker path resolved via candidates
   return null;
 }
 
