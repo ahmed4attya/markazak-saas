@@ -120,32 +120,114 @@ export function htmlToQuestionText(html: string): string {
     .filter(l => l.length > 1 && !NOISE.test(l)).join("\n");
 }
 
-export function mineAnswerKeys(scoreHtml: string, questions: { title: string; options: string[] }[]): Record<string, string> {
+export function mineViewscoreAnswers(scoreHtml: string): Record<string, string> {
   const out: Record<string, string> = {};
-  const re = /<input type="hidden" name="entry\.[^"]+"[^>]*value="([^"]*)"/g;
-  const hits: { idx: number; val: string }[] = [];
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(scoreHtml)) !== null) hits.push({ idx: m.index, val: m[1].trim() });
-  if (hits.length === 0 || hits.length !== questions.length) return out;
+  const blocks = scoreHtml.split('Qr7Oae');
 
-  for (let i = 0; i < questions.length; i++) {
-    const q = questions[i];
-    const end = i + 1 < hits.length ? hits[i + 1].idx : scoreHtml.length;
-    const seg = scoreHtml.slice(hits[i].idx, end);
-    const ci = seg.indexOf("الإجابة الصحيحة");
-    let text: string | null = null;
-    if (ci >= 0) {
-      const region = seg.slice(ci);
-      const dv = region.match(/data-value="([^"]+)"/) || region.match(/aria-label="([^"]+)"/);
-      if (dv) text = dv[1].trim();
-    } else if (hits[i].val.length >= 2 && q.options.includes(hits[i].val)) {
-      text = hits[i].val;
+  for (let i = 1; i < blocks.length; i++) {
+    const b = blocks[i];
+    const titleM =
+      b.match(/class=["'][^"']*M7eMe[^"']*["'][^>]*>([\s\S]*?)<\/div>/) ||
+      b.match(/class=["'][^"']*M7eMe[^"']*["'][^>]*>([\s\S]*?)<\/span>/);
+    if (!titleM) continue;
+    if (!b.includes('role="radio"') && !b.includes("role='radio'")) continue;
+
+    const rawTitle = titleM[1]
+      .replace(/<[^>]+>/g, '')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\s*\*\s*$/, '')
+      .trim();
+
+    let correctAnswer = '';
+
+    // Condition A: Correction box (الإجابة الصحيحة)
+    const correctBox = b.match(
+      /(?:الإجابة الصحيحة|Correct answer)[\s\S]*?(?:<\/div><\/div><\/div>|<div class=["']L9xkvf["']|<div class=["']fLYe2b)/i
+    );
+    if (correctBox) {
+      const valM =
+        correctBox[0].match(/data-value=["']([^"']+)["']/) ||
+        correctBox[0].match(/aria-label=["']([^"']+)["']/) ||
+        correctBox[0].match(/<span[^>]*class=["'][^"']*snByac[^"']*["'][^>]*>([\s\S]*?)<\/span>/);
+      if (valM) correctAnswer = valM[1].replace(/<[^>]+>/g, '').trim();
     }
-    if (!text) continue;
-    const li = q.options.indexOf(text);
-    if (li >= 0 && li < ["أ", "ب", "ج", "د", "هـ"].length) {
-      out[q.title] = ["أ", "ب", "ج", "د", "هـ"][li];
+
+    // Condition B: Option with checkmark / "إجابة صحيحة"
+    if (!correctAnswer) {
+      const correctOpt = b.match(
+        /<label[^>]*>[\s\S]*?(?:aria-label=["']إجابة صحيحة["']|<div class=["']fKfAyc["']>إجابة صحيحة<\/div>)[\s\S]*?<\/label>/i
+      );
+      if (correctOpt) {
+        const valM =
+          correctOpt[0].match(/data-value=["']([^"']+)["']/) ||
+          correctOpt[0].match(/aria-label=["']([^"']+)["']/) ||
+          correctOpt[0].match(/<span[^>]*class=["'][^"']*snByac[^"']*["'][^>]*>([\s\S]*?)<\/span>/);
+        if (valM) correctAnswer = valM[1].replace(/<[^>]+>/g, '').trim();
+      }
+    }
+
+    // Condition C: Radio checked with 1/1 score
+    if (!correctAnswer && (b.includes('1/1') || b.includes('L48fif'))) {
+      const checkedM = b.match(
+        /role=["']radio["'][^>]*aria-checked=["']true["'][^>]*data-value=["']([^"']+)["']/
+      );
+      if (checkedM) correctAnswer = checkedM[1].replace(/<[^>]+>/g, '').trim();
+    }
+
+    if (correctAnswer) {
+      out[rawTitle] = correctAnswer;
     }
   }
+
+  return out;
+}
+
+function normAr(s: string): string {
+  return (s || '')
+    .replace(/[أإآ]/g, 'ا')
+    .replace(/ة/g, 'ه')
+    .replace(/[\u064B-\u065F\u0670]/g, '')
+    .replace(/[^\u0600-\u06FFa-zA-Z0-9]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+export function mineAnswerKeys(
+  scoreHtml: string,
+  questions: { title: string; options: string[] }[]
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  const answerMap = mineViewscoreAnswers(scoreHtml);
+  const KEYS = ['أ', 'ب', 'ج', 'د', 'هـ'];
+
+  for (const q of questions) {
+    const qNorm = normAr(q.title);
+    let correctText = answerMap[q.title];
+
+    if (!correctText) {
+      // Fuzzy lookup by normalized title
+      const foundKey = Object.keys(answerMap).find((k) => {
+        const kNorm = normAr(k);
+        return kNorm === qNorm || kNorm.includes(qNorm) || qNorm.includes(kNorm);
+      });
+      if (foundKey) correctText = answerMap[foundKey];
+    }
+
+    if (correctText) {
+      const cNorm = normAr(correctText);
+      let optIdx = q.options.findIndex((o) => normAr(o) === cNorm);
+      if (optIdx === -1) {
+        optIdx = q.options.findIndex(
+          (o) => normAr(o).includes(cNorm) || cNorm.includes(normAr(o))
+        );
+      }
+      if (optIdx >= 0 && optIdx < KEYS.length) {
+        out[q.title] = KEYS[optIdx];
+      }
+    }
+  }
+
   return out;
 }

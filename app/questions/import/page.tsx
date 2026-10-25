@@ -185,6 +185,14 @@ export default function QuestionsImportPage() {
     setTempImageUrl('');
   }
 
+  function setQuestionAnswerKey(idx: number, key: string | undefined) {
+    if (!ext) return;
+    const updated = [...ext.questions];
+    updated[idx] = { ...updated[idx], answerKey: key };
+    const withAnswer = updated.filter((q) => Boolean(q.answerKey)).length;
+    setExt({ ...ext, questions: updated, withAnswer });
+  }
+
   const tabs = [
     { key: 'text', label: 'لصق نص', icon: FileText },
     { key: 'link', label: 'رابط نموذج', icon: Link2 },
@@ -434,9 +442,9 @@ export default function QuestionsImportPage() {
                   <thead className="sticky top-0 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700">
                     <tr>
                       <th className="px-3 py-2.5 font-bold">#</th>
-                      <th className="px-3 py-2.5 font-bold">السؤال والمحتوى الملحق</th>
-                      <th className="px-3 py-2.5 font-bold">الخيارات</th>
-                      <th className="px-3 py-2.5 font-bold text-center">الإجابة</th>
+                      <th className="px-3 py-2.5 font-bold">السؤال والخيارات</th>
+                      <th className="px-3 py-2.5 font-bold text-center">الخيارات</th>
+                      <th className="px-3 py-2.5 font-bold text-center min-w-[140px]">الإجابة الصحيحة (اختر / عدّل)</th>
                       <th className="px-3 py-2.5 font-bold text-center">الملحقات (القطعة/الشكل)</th>
                     </tr>
                   </thead>
@@ -444,9 +452,10 @@ export default function QuestionsImportPage() {
                     {ext.questions.slice(0, 100).map((q, i) => (
                       <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td className="px-3 py-2 text-slate-400 font-mono">{i + 1}</td>
-                        <td className="max-w-md px-3 py-2 space-y-1">
-                          <span className="line-clamp-2 font-medium">{q.body}</span>
+                        <td className="max-w-md px-3 py-2 space-y-1.5">
+                          <span className="line-clamp-2 font-medium text-slate-900 dark:text-slate-100">{q.body}</span>
                           {q.imageUrl && (
+                            /* eslint-disable-next-line @next/next/no-img-element */
                             <img
                               src={q.imageUrl}
                               alt="معاينة شكل السؤال"
@@ -454,20 +463,78 @@ export default function QuestionsImportPage() {
                               onClick={() => setModalImage(q.imageUrl || null)}
                             />
                           )}
+                          {/* Interactive options list */}
+                          <div className="flex flex-wrap gap-1 pt-0.5">
+                            {q.options?.map((opt, optIdx) => {
+                              const isCorrect = q.answerKey === opt.key;
+                              return (
+                                <button
+                                  key={optIdx}
+                                  type="button"
+                                  onClick={() => setQuestionAnswerKey(i, isCorrect ? undefined : opt.key)}
+                                  className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded border transition-all cursor-pointer ${
+                                    isCorrect
+                                      ? 'bg-emerald-500/15 border-emerald-500 text-emerald-700 dark:text-emerald-300 font-black ring-1 ring-emerald-500/30'
+                                      : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-amber-400'
+                                  }`}
+                                  title={`انقر لاختيار [${opt.key}] كإجابة صحيحة`}
+                                >
+                                  <strong className="font-bold">{opt.key}:</strong>
+                                  <span className="truncate max-w-[130px]">{opt.text}</span>
+                                  {isCorrect && <span className="text-emerald-500 font-black">✓</span>}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </td>
-                        <td className="px-3 py-2">
+                        <td className="px-3 py-2 text-center">
                           <span className="inline-block rounded bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-bold">
                             {q.options?.length ?? 0}
                           </span>
                         </td>
                         <td className="px-3 py-2 text-center">
-                          {q.answerKey ? (
-                            <span className="inline-block rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 font-black text-xs">
-                              {q.answerKey}
-                            </span>
-                          ) : (
-                            <span className="text-slate-300 dark:text-slate-600">—</span>
-                          )}
+                          <div className="flex flex-col items-center gap-1.5 min-w-[130px]">
+                            {/* Dropdown Selector */}
+                            <select
+                              value={q.answerKey || ''}
+                              onChange={(e) => setQuestionAnswerKey(i, e.target.value || undefined)}
+                              className={`w-full px-2 py-1 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                                q.answerKey
+                                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 text-emerald-700 dark:text-emerald-300 font-black'
+                                  : 'bg-slate-50 dark:bg-slate-800 border-dashed border-slate-300 dark:border-slate-700 text-slate-500 hover:border-amber-500'
+                              }`}
+                              title="حدد الخيار الصحيح لهذا السؤال"
+                            >
+                              <option value="">— حدد الإجابة —</option>
+                              {q.options?.map((opt, optIdx) => (
+                                <option key={opt.key || optIdx} value={opt.key}>
+                                  {opt.key}: {opt.text.slice(0, 32)}
+                                </option>
+                              ))}
+                            </select>
+
+                            {/* Quick 1-click pills */}
+                            <div className="flex items-center gap-1 flex-wrap justify-center">
+                              {q.options?.map((opt, optIdx) => {
+                                const isSelected = q.answerKey === opt.key;
+                                return (
+                                  <button
+                                    key={opt.key || optIdx}
+                                    type="button"
+                                    onClick={() => setQuestionAnswerKey(i, isSelected ? undefined : opt.key)}
+                                    className={`w-6 h-6 rounded-md text-xs font-bold flex items-center justify-center transition-all cursor-pointer ${
+                                      isSelected
+                                        ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-400 font-black scale-105'
+                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-amber-500/20 hover:text-amber-600'
+                                    }`}
+                                    title={`تعيين [${opt.key}] كإجابة صحيحة: "${opt.text}"`}
+                                  >
+                                    {opt.key}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
                         </td>
                         <td className="px-3 py-2 text-center">
                           <div className="flex items-center justify-center gap-1.5 flex-wrap">

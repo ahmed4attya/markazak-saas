@@ -114,10 +114,12 @@ export async function POST(req: NextRequest) {
               }
 
               if (it.kind === 'q') {
+                const t = it.title.trim();
+                if (t.startsWith('/forms') || t.startsWith('forms/') || t.length < 3) continue;
                 const hasFigure = Boolean(it.imageUrl) || FIGURE_RE.test(it.title);
                 parsedQuestionsList.push({
                   body: it.title,
-                  options: it.options.slice(0, 5).map((t, i) => ({ key: KEYS[i] || 'أ', text: t })),
+                  options: it.options.slice(0, 5).map((text, i) => ({ key: KEYS[i] || 'أ', text })),
                   passage: currentPassage || undefined,
                   imageUrl: it.imageUrl,
                   hasFigure,
@@ -127,7 +129,10 @@ export async function POST(req: NextRequest) {
 
             // If viewscore link, mine answer keys
             if (url.includes('/viewscore')) {
-              const keyMap = mineAnswerKeys(html, parsedQuestionsList.map(q => ({ title: q.body, options: q.options.map(o => o.text) })));
+              const keyMap = mineAnswerKeys(
+                html,
+                parsedQuestionsList.map((q) => ({ title: q.body, options: q.options.map((o) => o.text) }))
+              );
               for (const q of parsedQuestionsList) {
                 if (keyMap[q.body]) q.answerKey = keyMap[q.body];
               }
@@ -148,6 +153,10 @@ export async function POST(req: NextRequest) {
         const withPassage = parsedQuestionsList.filter(q => q.passage).length;
         const withFigures = parsedQuestionsList.filter(q => q.hasFigure || q.imageUrl).length;
 
+        const notes: string[] = [];
+        if (withAnswer > 0) notes.push(`تم استخراج ${withAnswer} إجابة صحيحة تلقائياً من نموذج الإجابات!`);
+        if (withPassage > 0) notes.push(`تم ربط ${withPassage} سؤالاً بقطع استيعاب المقروء`);
+
         return NextResponse.json({
           ok: true,
           fileName,
@@ -156,7 +165,7 @@ export async function POST(req: NextRequest) {
           withOptions,
           withPassage,
           withFigures,
-          note: withPassage > 0 ? `تم استخراج ${withPassage} سؤالاً مرتبطاً بقطع استيعاب المقروء بنجاح!` : undefined,
+          note: notes.length > 0 ? notes.join(' • ') : undefined,
         });
       } else {
         raw = String(body.text || '');
