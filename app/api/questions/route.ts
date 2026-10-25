@@ -37,7 +37,22 @@ export async function POST(req: Request) {
   const s = await getSession();
   if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   try {
-    const b = (await req.json()) as { courseId?: string | null; domain?: string; subject?: string; topic?: string; skill?: string; difficulty?: number; kind?: string; text?: string; options?: string[]; correctIndex?: number; explanation?: string };
+    const b = (await req.json()) as {
+      courseId?: string | null;
+      domain?: string;
+      subject?: string;
+      topic?: string;
+      skill?: string;
+      difficulty?: number;
+      kind?: string;
+      text?: string;
+      options?: string[];
+      correctIndex?: number;
+      explanation?: string;
+      passage?: string | null;
+      imageUrl?: string | null;
+      image_url?: string | null;
+    };
     const courseId = b.courseId || null;
     if (courseId) {
       if (!(await canAccessCourse(s, courseId))) return NextResponse.json({ error: 'غير مصرح لهذه الدورة' }, { status: 403 });
@@ -54,9 +69,14 @@ export async function POST(req: Request) {
     if (correctIndex < 0 || correctIndex >= options.length) return NextResponse.json({ error: 'حدد الإجابة الصحيحة' }, { status: 400 });
     const difficulty = typeof b.difficulty === 'number' ? Math.min(5, Math.max(1, Math.round(b.difficulty))) : 3;
     const kind = b.kind === 'truefalse' ? 'truefalse' : 'mcq';
+    const passage = typeof b.passage === 'string' ? b.passage.trim() : null;
+    const imageUrl = typeof b.imageUrl === 'string' ? b.imageUrl.trim() : (typeof b.image_url === 'string' ? b.image_url.trim() : null);
+
     const ins = (await query(
-      'insert into questions(tenant_id,course_id,domain,subject,topic,skill,difficulty,kind,text,options,correct_index,explanation,created_by) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) returning *',
-      [s.tenantId, courseId, domain, b.subject || null, b.topic || null, b.skill || null, difficulty, kind, text, JSON.stringify(options), correctIndex, b.explanation || null, s.userId]
+      `insert into questions(
+        tenant_id, course_id, domain, subject, topic, skill, difficulty, kind, text, options, correct_index, explanation, created_by, passage, image_url
+      ) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning *`,
+      [s.tenantId, courseId, domain, b.subject || null, b.topic || null, b.skill || null, difficulty, kind, text, JSON.stringify(options), correctIndex, b.explanation || null, s.userId, passage, imageUrl]
     )).rows[0];
     await logAudit({ tenantId: s.tenantId, userId: s.userId, action: 'question.create', entity: 'question', entityId: String(ins.id) });
     return NextResponse.json(ins, { status: 201 });
@@ -69,7 +89,7 @@ export async function PATCH(req: Request) {
   const s = await getSession();
   if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   if (!isAdminRole(s.role)) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
-  const b = (await req.json().catch(() => ({}))) as { id?: string; status?: string };
+  const b = (await req.json().catch(() => ({}))) as { id?: string; status?: string; passage?: string; imageUrl?: string };
   const id = String(b.id || '');
   const status = String(b.status || '');
   if (!id || !['active', 'review', 'disabled'].includes(status)) return NextResponse.json({ error: 'bad request' }, { status: 400 });
@@ -96,6 +116,3 @@ export async function DELETE(req: Request) {
   await logAudit({ tenantId: s.tenantId, userId: s.userId, action: 'question.delete', entity: 'question', entityId: id });
   return NextResponse.json({ ok: true });
 }
-
-
-

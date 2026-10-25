@@ -3,23 +3,43 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Shell from '@/components/Shell';
-import { FileText, Link2, Sparkles, FileCode, FileType, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
+import {
+  FileText,
+  Link2,
+  Sparkles,
+  FileCode,
+  FileType,
+  CheckCircle2,
+  AlertCircle,
+  ArrowLeft,
+  BookOpen,
+  Image as ImageIcon,
+  X,
+} from 'lucide-react';
 
 type Opt = { key: string; text: string };
-type ExtractedQ = { body: string; options: Opt[]; answerKey?: string };
+type ExtractedQ = {
+  body: string;
+  options: Opt[];
+  answerKey?: string;
+  passage?: string;
+  imageUrl?: string;
+  hasFigure?: boolean;
+};
 
-const TEMPLATE = `1. إذا كان ثمن 3 أقلام 12 ريالاً فما ثمن 7 أقلام؟
-أ. 24
-ب. 26
-ج. 28
-د. 30
-الإجابة: ج
+const TEMPLATE = `[القطعة: التجارة الإلكترونية هي نظام يتيح بيع وشراء السلع عبر الإنترنت. وقد حققت نمواً ملحوظاً في المملكة مع انتشار المدفوعات الرقمية والدعم اللوجستي المتطور.]
+1. ما العامل الأساسي الذي ساهم في نمو التجارة الإلكترونية وفق النص؟
+أ. زيادة الإعلانات الورقية
+ب. انتشار المدفوعات الرقمية والدعم اللوجستي
+ج. تراجع استخدام الإنترنت
+د. غياب المنافسة
+الإجابة: ب
 
-2. سلك طوله 20 سم شُكّل مربعاً فكم ضلعه؟
-أ. 4
-ب. 5
-ج. 8 (صح)
-د. 10`;
+2. في الشكل المجاور مثلث قائم الزاوية طول وتره 10 سم وأحد أضلاعه 6 سم، فكم طول الضلع الآخر؟
+أ. 6 سم
+ب. 8 سم (صح)
+ج. 9 سم
+د. 12 سم`;
 
 export default function QuestionsImportPage() {
   const [tab, setTab] = useState<'text' | 'link' | 'ai' | 'pdf' | 'docx'>('text');
@@ -39,10 +59,24 @@ export default function QuestionsImportPage() {
     questions: ExtractedQ[];
     withAnswer: number;
     withOptions: number;
+    withPassage?: number;
+    withFigures?: number;
     garbled?: boolean;
     note?: string;
   } | null>(null);
-  const [saved, setSaved] = useState<{ created: number; duplicates: number; fileName: string } | null>(null);
+  const [saved, setSaved] = useState<{
+    created: number;
+    duplicates: number;
+    withPassage?: number;
+    withImage?: number;
+    fileName: string;
+  } | null>(null);
+
+  // Modals
+  const [modalPassage, setModalPassage] = useState<{ title: string; text: string } | null>(null);
+  const [modalImage, setModalImage] = useState<string | null>(null);
+  const [editingImageIdx, setEditingImageIdx] = useState<number | null>(null);
+  const [tempImageUrl, setTempImageUrl] = useState('');
 
   useEffect(() => {
     fetch('/api/courses')
@@ -141,6 +175,16 @@ export default function QuestionsImportPage() {
     }
   }
 
+  function attachImageToQuestion(idx: number, imgUrl: string) {
+    if (!ext) return;
+    const updated = [...ext.questions];
+    updated[idx] = { ...updated[idx], imageUrl: imgUrl.trim() || undefined, hasFigure: Boolean(imgUrl.trim()) };
+    const withFigures = updated.filter((q) => q.imageUrl || q.hasFigure).length;
+    setExt({ ...ext, questions: updated, withFigures });
+    setEditingImageIdx(null);
+    setTempImageUrl('');
+  }
+
   const tabs = [
     { key: 'text', label: 'لصق نص', icon: FileText },
     { key: 'link', label: 'رابط نموذج', icon: Link2 },
@@ -152,7 +196,7 @@ export default function QuestionsImportPage() {
   return (
     <Shell
       title="استيراد الأسئلة"
-      subtitle="استيراد سريع للأسئلة من مصادر متعددة — التحقق والمعاينة والحفظ التلقائي كمسودات للمراجعة"
+      subtitle="استيراد ذكي يدعم القطع القرائية (استيعاب المقروء اللفظي) والأشكال الهندسية والرسوم (الكمي) — استخراج ومعاينة وحفظ كمسودات"
     >
       <div className="max-w-5xl mx-auto space-y-6" dir="rtl">
         {/* Banner */}
@@ -179,7 +223,7 @@ export default function QuestionsImportPage() {
                     setSaved(null);
                     setErr('');
                   }}
-                  className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-all ${
+                  className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-all cursor-pointer ${
                     active
                       ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20'
                       : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-amber-400'
@@ -212,6 +256,9 @@ export default function QuestionsImportPage() {
                 placeholder={TEMPLATE}
                 className="w-full rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 text-sm leading-loose outline-none focus:border-amber-500 transition font-mono"
               />
+              <p className="text-xs text-slate-400">
+                💡 تلميح: يمكنك وضع علامة [القطعة: نص القطعة...] قبل الأسئلة ليتم ربطها آلياً بقطعة استيعاب المقروء.
+              </p>
             </div>
           )}
 
@@ -230,7 +277,7 @@ export default function QuestionsImportPage() {
                 />
               </label>
               <p className="rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 p-3 text-xs text-blue-800 dark:text-blue-300">
-                يدعم نماذج جوجل ومايكروسوفت فورمز — يسحب الأسئلة والخيارات مباشرة. الإجابات الصحيحة تُحدد في المراجعة.
+                يدعم نماذج جوجل ومايكروسوفت فورمز — يسحب نصوص الأسئلة والخيارات، وقطع استيعاب المقروء اللفظية، وأشكال ورسوم الأسئلة الكمية مباشرة!
               </p>
             </div>
           )}
@@ -248,7 +295,7 @@ export default function QuestionsImportPage() {
                 />
               </label>
               <p className="rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 p-3 text-xs text-amber-800 dark:text-amber-300">
-                استخراج ذكي ومعالجة بصرية للنماذج والصور المصورة.
+                استخراج ذكي ومعالجة بصرية للنماذج والصور والأشكال الهندسية.
               </p>
             </div>
           )}
@@ -267,7 +314,7 @@ export default function QuestionsImportPage() {
               </label>
               <p className="rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 p-3 text-xs text-emerald-800 dark:text-emerald-300">
                 {tab === 'pdf'
-                  ? 'يتم قراءة النصوص والجداول من ملف PDF مباشرة عبر محرك pdf-parse واستخراج الأسئلة وخياراتها ومفاتيحها.'
+                  ? 'يتم قراءة النصوص والجداول من ملف PDF مباشرة عبر محرك pdf-parse واستخراج الأسئلة وخياراتها ومفاتيحها والقطع المرتبطة.'
                   : 'يتم استخراج النصوص الكاملة من ملف Word (.docx) وتحليلها آلياً.'}
               </p>
             </div>
@@ -282,8 +329,8 @@ export default function QuestionsImportPage() {
                 onChange={(e) => setDomain(e.target.value)}
                 className="mt-1 w-full rounded-xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-2.5 text-sm"
               >
-                <option value="quant">قدرات كمي</option>
-                <option value="verbal">قدرات لفظي</option>
+                <option value="quant">قدرات كمي (معادلات وأشكال)</option>
+                <option value="verbal">قدرات لفظي (استيعاب المقروء وتناظر)</option>
                 <option value="achievement">تحصيلي</option>
               </select>
             </label>
@@ -308,7 +355,7 @@ export default function QuestionsImportPage() {
                 type="text"
                 value={skill}
                 onChange={(e) => setSkill(e.target.value)}
-                placeholder="مثال: الحساب الذهني، إكمال الجمل"
+                placeholder="مثال: استيعاب المقروء، هندسة المثلثات"
                 className="mt-1 w-full rounded-xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-2.5 text-sm outline-none focus:border-amber-500"
               />
             </label>
@@ -334,6 +381,8 @@ export default function QuestionsImportPage() {
               </div>
               <p className="text-xs text-emerald-700 dark:text-emerald-400">
                 الأسئلة أصبحت جاهزة في بنك الأسئلة بحالة «مراجعة» ولن تظهر للطلاب إلا بعد المراجعة والاعتماد.
+                {saved.withPassage ? ` تم ربط ${saved.withPassage} سؤالاً بقطع استيعاب المقروء.` : ''}
+                {saved.withImage ? ` تم تضمين ${saved.withImage} شكلاً ورسماً بيانياً.` : ''}
               </p>
               <Link
                 href="/questions"
@@ -352,13 +401,25 @@ export default function QuestionsImportPage() {
                 <p className="font-black text-slate-800 dark:text-white">
                   تم التعرف على {ext.questions.length} سؤالاً من «{ext.fileName}»
                 </p>
-                <div className="flex gap-2 text-xs font-bold">
+                <div className="flex flex-wrap gap-2 text-xs font-bold">
                   <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 text-emerald-700 dark:text-emerald-300">
                     بإجابة محددة: {ext.withAnswer}
                   </span>
                   <span className="rounded-full bg-blue-500/10 border border-blue-500/30 px-3 py-1 text-blue-700 dark:text-blue-300">
                     بخيارات كاملة: {ext.withOptions}
                   </span>
+                  {Boolean(ext.withPassage) && (
+                    <span className="rounded-full bg-amber-500/10 border border-amber-500/30 px-3 py-1 text-amber-700 dark:text-amber-300 flex items-center gap-1">
+                      <BookOpen size={12} />
+                      بقطعة استيعاب: {ext.withPassage}
+                    </span>
+                  )}
+                  {Boolean(ext.withFigures) && (
+                    <span className="rounded-full bg-purple-500/10 border border-purple-500/30 px-3 py-1 text-purple-700 dark:text-purple-300 flex items-center gap-1">
+                      <ImageIcon size={12} />
+                      بأشكال/رسوم: {ext.withFigures}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -368,22 +429,31 @@ export default function QuestionsImportPage() {
                 </p>
               )}
 
-              <div className="max-h-72 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-inner">
+              <div className="max-h-80 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-inner">
                 <table className="w-full text-xs text-right">
                   <thead className="sticky top-0 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700">
                     <tr>
                       <th className="px-3 py-2.5 font-bold">#</th>
-                      <th className="px-3 py-2.5 font-bold">السؤال</th>
+                      <th className="px-3 py-2.5 font-bold">السؤال والمحتوى الملحق</th>
                       <th className="px-3 py-2.5 font-bold">الخيارات</th>
                       <th className="px-3 py-2.5 font-bold text-center">الإجابة</th>
+                      <th className="px-3 py-2.5 font-bold text-center">الملحقات (القطعة/الشكل)</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
                     {ext.questions.slice(0, 100).map((q, i) => (
                       <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td className="px-3 py-2 text-slate-400 font-mono">{i + 1}</td>
-                        <td className="max-w-md px-3 py-2">
-                          <span className="line-clamp-1">{q.body}</span>
+                        <td className="max-w-md px-3 py-2 space-y-1">
+                          <span className="line-clamp-2 font-medium">{q.body}</span>
+                          {q.imageUrl && (
+                            <img
+                              src={q.imageUrl}
+                              alt="معاينة شكل السؤال"
+                              className="h-10 w-auto rounded border border-slate-200 cursor-pointer"
+                              onClick={() => setModalImage(q.imageUrl || null)}
+                            />
+                          )}
                         </td>
                         <td className="px-3 py-2">
                           <span className="inline-block rounded bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-bold">
@@ -398,6 +468,43 @@ export default function QuestionsImportPage() {
                           ) : (
                             <span className="text-slate-300 dark:text-slate-600">—</span>
                           )}
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                            {q.passage && (
+                              <button
+                                type="button"
+                                onClick={() => setModalPassage({ title: `القطعة للسؤال ${i + 1}`, text: q.passage || '' })}
+                                className="px-2 py-0.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-bold flex items-center gap-1 cursor-pointer transition"
+                              >
+                                <BookOpen size={11} />
+                                <span>القطعة</span>
+                              </button>
+                            )}
+
+                            {q.imageUrl ? (
+                              <button
+                                type="button"
+                                onClick={() => setModalImage(q.imageUrl || null)}
+                                className="px-2 py-0.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 text-[10px] font-bold flex items-center gap-1 cursor-pointer transition"
+                              >
+                                <ImageIcon size={11} />
+                                <span>الشكل</span>
+                              </button>
+                            ) : q.hasFigure ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingImageIdx(i);
+                                  setTempImageUrl('');
+                                }}
+                                className="px-2 py-0.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-700 dark:text-red-300 text-[10px] font-bold flex items-center gap-1 cursor-pointer transition"
+                              >
+                                <AlertCircle size={11} />
+                                <span>أضف شكلاً</span>
+                              </button>
+                            ) : null}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -427,6 +534,111 @@ export default function QuestionsImportPage() {
             </button>
           </div>
         </div>
+
+        {/* Modal: Preview Passage */}
+        {modalPassage && (
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setModalPassage(null)}
+          >
+            <div
+              className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2 text-amber-600 font-bold text-base">
+                  <BookOpen size={18} />
+                  <span>{modalPassage.title}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setModalPassage(null)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="overflow-y-auto py-4 text-slate-800 dark:text-slate-100 leading-loose whitespace-pre-line text-sm font-medium">
+                {modalPassage.text}
+              </div>
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 text-left">
+                <button
+                  type="button"
+                  onClick={() => setModalPassage(null)}
+                  className="px-4 py-2 rounded-xl bg-amber-500 text-white font-bold text-xs"
+                >
+                  إغلاق
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Preview Image */}
+        {modalImage && (
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 cursor-pointer"
+            onClick={() => setModalImage(null)}
+          >
+            <div className="relative max-w-3xl max-h-[85vh] p-3 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <img src={modalImage} alt="شكل السؤال" className="max-h-[75vh] w-auto object-contain rounded-xl" />
+              <button
+                type="button"
+                onClick={() => setModalImage(null)}
+                className="absolute top-4 left-4 p-2 bg-black/60 hover:bg-black text-white rounded-full"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Attach Image URL */}
+        {editingImageIdx !== null && (
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setEditingImageIdx(null)}
+          >
+            <div
+              className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                <h4 className="font-bold text-sm text-slate-900 dark:text-white">إرفاق رابط الشكل للسؤال {editingImageIdx + 1}</h4>
+                <button onClick={() => setEditingImageIdx(null)} className="text-slate-400 hover:text-slate-700">
+                  <X size={18} />
+                </button>
+              </div>
+              <p className="text-xs text-slate-500">
+                أدخل رابط صورة الشكل الهندسي أو الرسم البياني (URL مباشر):
+              </p>
+              <input
+                type="url"
+                value={tempImageUrl}
+                onChange={(e) => setTempImageUrl(e.target.value)}
+                dir="ltr"
+                placeholder="https://example.com/triangle.png"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2.5 text-xs outline-none focus:border-amber-500"
+              />
+              <div className="flex gap-2 justify-end pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingImageIdx(null)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="button"
+                  onClick={() => attachImageToQuestion(editingImageIdx, tempImageUrl)}
+                  className="px-4 py-1.5 rounded-lg text-xs font-bold text-white bg-amber-500 hover:bg-amber-600"
+                >
+                  حفظ الشكل
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Shell>
   );

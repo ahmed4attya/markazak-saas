@@ -145,3 +145,9 @@ create table if not exists lessons(
 create index if not exists idx_lessons_module on lessons(module_id);
 create index if not exists idx_lessons_course on lessons(course_id);
 create index if not exists idx_lessons_tenant on lessons(tenant_id);
+
+-- M3: Reading passages (استيعاب المقروء) & Images/Figures (الأشكال الهندسية)
+alter table questions add column if not exists passage text default null;
+alter table questions add column if not exists image_url text default null;
+create index if not exists idx_questions_passage on questions(tenant_id) where passage is not null;
+create index if not exists idx_questions_image on questions(tenant_id) where image_url is not null;

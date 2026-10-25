@@ -28,11 +28,11 @@ export async function POST(req: Request) {
   const c = b.c as Record<string, number>;
 
   const qs = (await query(
-    `select q.id, q.correct_index, q.explanation, q.text from exam_questions eq
+    `select q.id, q.correct_index, q.explanation, q.text, q.passage, q.image_url from exam_questions eq
      join questions q on q.id = eq.question_id and q.tenant_id=$2
      where eq.exam_id=$1 and q.status='active'`,
     [attempt.exam_id, s.tenantId]
-  )).rows as Array<{ id: string; correct_index: number; explanation: string | null; text: string }>;
+  )).rows as Array<{ id: string; correct_index: number; explanation: string | null; text: string; passage?: string | null; image_url?: string | null }>;
   if (!qs.length) return NextResponse.json({ error: 'الامتحان بلا أسئلة' }, { status: 400 });
 
   let score = 0;
@@ -47,6 +47,8 @@ export async function POST(req: Request) {
       correctIndex: Number(q.correct_index),
       correct,
       explanation: q.explanation,
+      passage: q.passage || null,
+      imageUrl: q.image_url || null,
     };
   });
 

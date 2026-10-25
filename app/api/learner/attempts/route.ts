@@ -83,9 +83,9 @@ export async function POST(req: Request) {
   }
 
   const qs = (await query(
-    `select q.id, q.kind, q.text, q.options from exam_questions eq join questions q on q.id=eq.question_id and q.tenant_id=$2 where eq.exam_id=$1 and q.status='active' order by eq.position`,
+    `select q.id, q.kind, q.text, q.options, q.passage, q.image_url from exam_questions eq join questions q on q.id=eq.question_id and q.tenant_id=$2 where eq.exam_id=$1 and q.status='active' order by eq.position`,
     [examId, s.tenantId]
-  )).rows as Array<{ id: string; kind: string; text: string; options: any }>;
+  )).rows as Array<{ id: string; kind: string; text: string; options: any; passage?: string | null; image_url?: string | null }>;
 
   if (!existing || saved.order.length !== qs.length) {
     const ordered = exam.randomize ? shuffle(qs) : qs;
@@ -99,7 +99,14 @@ export async function POST(req: Request) {
     attemptId,
     resumed: Boolean(existing),
     exam: { id: exam.id, title: exam.title, kind: exam.kind, duration_minutes: exam.duration_minutes },
-    questions: questions.map((q) => ({ id: q.id, kind: q.kind, text: q.text, options: Array.isArray(q.options) ? q.options : [] })),
+    questions: questions.map((q) => ({
+      id: q.id,
+      kind: q.kind,
+      text: q.text,
+      options: Array.isArray(q.options) ? q.options : [],
+      passage: q.passage || null,
+      imageUrl: q.image_url || null,
+    })),
     saved,
     startedAt,
   });

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createRequire } from 'module';
 import { getSession } from '@/lib/auth';
 import { cleanText, parseQuestions, looksGarbled, ParsedQ } from '@/lib/pdf-questions';
-import { extractFormJson, mineQuestions, htmlToQuestionText } from '@/lib/gform';
+import { extractFormJson, mineFormItems, mineAnswerKeys, htmlToQuestionText } from '@/lib/gform';
 import { extractMsFormNode, mineMsForm } from '@/lib/msform';
 
 export const runtime = 'nodejs';
@@ -10,6 +10,23 @@ export const maxDuration = 60;
 
 const nodeRequire = createRequire(import.meta.url);
 const KEYS = ['أ', 'ب', 'ج', 'د', 'هـ'];
+
+const SKILL_RE = /^(.{2,60}?)\s*[\(（](\d{1,3})[\)）]\s*$/;
+const SECTION_RE = /^القسم\s*(\d+)\s*[:：\-]?\s*(.*)$/;
+const PASSAGE_HEAD_RE = /^(?:\[?(?:النص|المقطع|القطعة|نص|قطعة)\s+(?:الأول|الثاني|الثالث|الرابع|الخامس|السادس|السابع|الثامن|التاسع|العاشر|\d+|[أ-ي]+)\]?\s*[:：\-–]?\s*(.*))$/;
+const FIGURE_RE = /(?:في الشكل المجاور|الشكل أدناه|المثلث المجاور|الرسم البياني|الدائرة المجاورة|المربع المجاور|المستطيل|انظر الشكل|الموضح في الشكل|المنحنى|المدرج)/;
+
+function isJunkText(t: string): boolean {
+  const s = t.trim();
+  if (s.length < 2 || s === '[]') return true;
+  if (/^[0-9*/.\s\-—]+$/.test(s)) return true;
+  if (/^[A-Za-z0-9_-]{30,}$/.test(s)) return true;
+  if (/1FAIpQLS|t\.me|telegram|href=|<a\s|https?:\/\//i.test(s)) return true;
+  if (/(بوت التسريبات|رابط البوت|قناة التليجرام|تليجرام|تيليجرام|#العراب|اشترك في قناة|تم إرسال إجابتك)/i.test(s)) return true;
+  if (/^total points/i.test(s)) return true;
+  if (/^(إرسال|محو( النموذج)?|التالي|الخلف|رجوع|الصفحة السابقة|الصفحة التالية|Google|نماذج Google|نماذج|لم تنشئ هذا النموذج\?|الإبلاغ عن إساءة الاستخدام|شروط الاستخدام|سياسة الخصوصية|مطلوب|Never submit passwords through Google Forms\.?)$/i.test(s)) return true;
+  return false;
+}
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -30,6 +47,7 @@ export async function POST(req: NextRequest) {
       const body = await req.json();
       source = String(body.source || 'text');
       letterless = Boolean(body.letterless);
+
       if (source === 'link') {
         const rawUrl = String(body.url || '').trim();
         if (!rawUrl || rawUrl.length < 10) {
@@ -55,7 +73,6 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: `تعذر الوصول للنموذج (HTTP ${res.status})` }, { status: 400 });
         }
         const html = await res.text();
-        note = 'النماذج العامة لا تكشف مفاتيح الإجابة — حدد الإجابة في المراجعة';
         fileName = (isMs ? 'نموذج مايكروسوفت — ' : 'نموذج جوجل — ') + url.slice(0, 80);
 
         if (isMs) {
@@ -64,16 +81,59 @@ export async function POST(req: NextRequest) {
             parsedQuestionsList = mineMsForm(form).slice(0, 300).map(q => ({
               body: q.title,
               options: q.options.slice(0, 5).map((t, i) => ({ key: KEYS[i] || 'أ', text: t })),
+              hasFigure: FIGURE_RE.test(q.title),
             }));
           }
         } else {
           const json = extractFormJson(html);
           if (json) {
-            parsedQuestionsList = mineQuestions(json).slice(0, 300).map(q => ({
-              body: q.title,
-              options: q.options.slice(0, 5).map((t, i) => ({ key: KEYS[i] || 'أ', text: t })),
-            }));
+            const formItems = mineFormItems(json);
+            let currentPassage: string | null = null;
+
+            for (const it of formItems) {
+              if (it.kind === 't') {
+                const t = it.text.trim();
+                if (isJunkText(t)) continue;
+                const sk = t.match(SKILL_RE);
+                if (sk) {
+                  currentPassage = null;
+                  continue;
+                }
+                const sec = t.match(SECTION_RE);
+                if (sec) {
+                  currentPassage = null;
+                  continue;
+                }
+                const passHead = t.match(PASSAGE_HEAD_RE);
+                if (passHead) {
+                  currentPassage = passHead[1] || t;
+                } else if (t.length > 50) {
+                  currentPassage = currentPassage ? currentPassage + '\n' + t : t;
+                }
+                continue;
+              }
+
+              if (it.kind === 'q') {
+                const hasFigure = Boolean(it.imageUrl) || FIGURE_RE.test(it.title);
+                parsedQuestionsList.push({
+                  body: it.title,
+                  options: it.options.slice(0, 5).map((t, i) => ({ key: KEYS[i] || 'أ', text: t })),
+                  passage: currentPassage || undefined,
+                  imageUrl: it.imageUrl,
+                  hasFigure,
+                });
+              }
+            }
+
+            // If viewscore link, mine answer keys
+            if (url.includes('/viewscore')) {
+              const keyMap = mineAnswerKeys(html, parsedQuestionsList.map(q => ({ title: q.body, options: q.options.map(o => o.text) })));
+              for (const q of parsedQuestionsList) {
+                if (keyMap[q.body]) q.answerKey = keyMap[q.body];
+              }
+            }
           }
+
           if (parsedQuestionsList.length === 0) {
             parsedQuestionsList = parseQuestions(htmlToQuestionText(html), true).slice(0, 300);
           }
@@ -85,13 +145,18 @@ export async function POST(req: NextRequest) {
 
         const withAnswer = parsedQuestionsList.filter(q => q.answerKey).length;
         const withOptions = parsedQuestionsList.filter(q => q.options.length >= 2).length;
+        const withPassage = parsedQuestionsList.filter(q => q.passage).length;
+        const withFigures = parsedQuestionsList.filter(q => q.hasFigure || q.imageUrl).length;
+
         return NextResponse.json({
           ok: true,
           fileName,
           questions: parsedQuestionsList,
           withAnswer,
           withOptions,
-          note,
+          withPassage,
+          withFigures,
+          note: withPassage > 0 ? `تم استخراج ${withPassage} سؤالاً مرتبطاً بقطع استيعاب المقروء بنجاح!` : undefined,
         });
       } else {
         raw = String(body.text || '');
@@ -147,6 +212,11 @@ export async function POST(req: NextRequest) {
 
     const withAnswer = questions.filter(q => q.answerKey).length;
     const withOptions = questions.filter(q => q.options.length >= 2).length;
+    const withPassage = questions.filter(q => q.passage).length;
+    const withFigures = questions.filter(q => q.hasFigure || q.imageUrl).length;
+    if (withPassage > 0) {
+      note = `تم استخراج ${withPassage} سؤالاً مرتبطاً بقطع استيعاب المقروء`;
+    }
 
     return NextResponse.json({
       ok: true,
@@ -156,6 +226,8 @@ export async function POST(req: NextRequest) {
       questions,
       withAnswer,
       withOptions,
+      withPassage,
+      withFigures,
       note,
     });
   } catch (e: unknown) {

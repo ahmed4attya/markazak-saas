@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   const raw = await req.json().catch(() => null);
   if (!raw) return NextResponse.json({ error: 'طلب غير صالح' }, { status: 400 });
 
-  const questions = (raw?.questions || []) as ParsedQ[];
+  const questions = (raw?.questions || []) as (ParsedQ & { image_url?: string })[];
   if (!Array.isArray(questions) || questions.length === 0) {
     return NextResponse.json({ error: 'لا توجد أسئلة للحفظ' }, { status: 400 });
   }
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
   const skill = sanitize(raw?.skill || '') || null;
   const fileName = sanitize(raw?.fileName || 'استيراد جديد').slice(0, 200);
 
-  // Clean each question
+  // Clean each question (including passage & image_url)
   const cleaned = questions
     .map((q) => {
       const body = sanitize(q?.body).trim();
@@ -53,7 +53,9 @@ export async function POST(req: NextRequest) {
         correctIndex = AR_KEY_TO_INDEX[q.answerKey];
       }
       if (correctIndex >= options.length) correctIndex = 0;
-      return { body, options, correctIndex };
+      const passage = sanitize(q?.passage || '').trim() || null;
+      const imageUrl = sanitize(q?.imageUrl || q?.image_url || '').trim() || null;
+      return { body, options, correctIndex, passage, imageUrl };
     })
     .filter((q) => q.body.length > 5 && q.options.length >= 2);
 
@@ -85,8 +87,8 @@ export async function POST(req: NextRequest) {
     for (const q of fresh) {
       await client.query(
         `insert into questions(
-          tenant_id, course_id, domain, skill, text, options, correct_index, status, created_by
-        ) values($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          tenant_id, course_id, domain, skill, text, options, correct_index, status, created_by, passage, image_url
+        ) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
         [
           session.tenantId,
           courseId,
@@ -97,12 +99,17 @@ export async function POST(req: NextRequest) {
           q.correctIndex,
           'review', // always lands as review (مسودة)
           session.userId,
+          q.passage,
+          q.imageUrl,
         ]
       );
       count++;
     }
     return count;
   });
+
+  const withPassageCount = fresh.filter((q) => q.passage).length;
+  const withImageCount = fresh.filter((q) => q.imageUrl).length;
 
   await logAudit({
     tenantId: session.tenantId,
@@ -114,6 +121,8 @@ export async function POST(req: NextRequest) {
       totalReceived: questions.length,
       created: insertedCount,
       duplicates: cleaned.length - fresh.length,
+      withPassage: withPassageCount,
+      withImage: withImageCount,
       status: 'review',
     },
   });
@@ -122,6 +131,8 @@ export async function POST(req: NextRequest) {
     ok: true,
     created: insertedCount,
     duplicates: cleaned.length - fresh.length,
+    withPassage: withPassageCount,
+    withImage: withImageCount,
     fileName,
   });
 }
