@@ -1,7 +1,8 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { query, safeError } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { MAX_VIDEO_BYTES, isAllowedVideoFile, buildVideoPathname } from '@/lib/video-storage';
+import { assertPlanQuota } from '@/lib/quota';
 
 export async function POST(req: Request) {
   const s = await getSession();
@@ -12,6 +13,7 @@ export async function POST(req: Request) {
     const sizeBytes = typeof b.sizeBytes === 'number' ? b.sizeBytes : 0;
     if (!filename || !isAllowedVideoFile(filename, b.contentType)) return NextResponse.json({ error: 'نوع الفيديو غير مسموح' }, { status: 400 });
     if (sizeBytes <= 0 || sizeBytes > MAX_VIDEO_BYTES) return NextResponse.json({ error: 'حجم الفيديو غير مسموح (الحد 500MB)' }, { status: 400 });
+    await assertPlanQuota(s.tenantId, 'storage_mb', Math.ceil(sizeBytes / (1024 * 1024)));
     if (b.courseId) {
       const c = await query('select id from courses where id=$1 and tenant_id=$2', [b.courseId, s.tenantId]);
       if (!c.rows.length) return NextResponse.json({ error: 'الدورة غير موجودة' }, { status: 400 });

@@ -2,6 +2,7 @@ import {NextResponse} from 'next/server';
 import {query,safeError} from '@/lib/db';
 import {getSession} from '@/lib/auth';
 import {studentSchema} from '@/lib/validation';
+import {assertPlanQuota} from '@/lib/quota';
 
 export async function GET(req:Request){
   const s=await getSession();
@@ -24,6 +25,7 @@ export async function POST(req:Request){
   if(!s)return NextResponse.json({error:'unauthorized'},{status:401});
 
   try{
+    await assertPlanQuota(s.tenantId, 'students');
     const body=await req.json();
     const x=studentSchema.parse(body);
     const rawType=(typeof body.type==='string')?body.type.trim().toLowerCase():'center';
