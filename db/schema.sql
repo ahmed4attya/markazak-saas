@@ -151,3 +151,23 @@ alter table questions add column if not exists passage text default null;
 alter table questions add column if not exists image_url text default null;
 create index if not exists idx_questions_passage on questions(tenant_id) where passage is not null;
 create index if not exists idx_questions_image on questions(tenant_id) where image_url is not null;
+
+-- Registration requests for new center & teacher approvals
+create table if not exists registration_requests (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid references tenants(id) on delete cascade,
+  name text not null,
+  email text not null,
+  phone text,
+  center_name text,
+  role text default 'teacher',
+  password_hash text not null,
+  status text default 'pending',
+  rejection_reason text,
+  reviewed_by uuid references users(id),
+  reviewed_at timestamptz,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+create index if not exists idx_reg_requests_status on registration_requests(status);
+create index if not exists idx_reg_requests_email on registration_requests(email);

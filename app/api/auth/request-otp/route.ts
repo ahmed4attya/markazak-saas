@@ -4,6 +4,7 @@ import { query } from '@/lib/db';
 import { rateLimit } from '@/lib/rateLimit';
 import { hashResetToken } from '@/lib/auth-security';
 import { logAudit } from '@/lib/audit';
+import { sendOtpEmail } from '@/lib/mailer';
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '127.0.0.1';
@@ -65,8 +66,8 @@ export async function POST(req: NextRequest) {
         metadata: { ip },
       });
 
-      // Log OTP in development environment for zero friction testing
-      console.log(`[AUTH-OTP] Generated OTP for ${email}: ${code} (expires in 10 mins)`);
+      // Dispatch system OTP email via configured mailer
+      await sendOtpEmail(email, code, 10).catch(() => {});
     }
 
     // Always return generic success to prevent enumeration
