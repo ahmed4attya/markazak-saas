@@ -57,6 +57,8 @@ export const API_ACCESS: ApiAccess[] = [
   // == public API surface (middleware line-7 exemptions; RL limits per middleware v2) ==
   { path: '/api/auth/login', method: 'POST', roles: [], public: true },
   { path: '/api/auth/logout', method: 'POST', roles: [], public: true },
+  { path: '/api/auth/forgot-password', method: 'POST', roles: [], public: true },
+  { path: '/api/auth/reset-password', method: 'POST', roles: [], public: true },
   { path: '/api/health', method: 'GET', roles: [], public: true },
   { path: '/api/leads', method: 'POST', roles: [], public: true },
   { path: '/api/certificates/verify', method: 'GET', roles: [], public: true },
