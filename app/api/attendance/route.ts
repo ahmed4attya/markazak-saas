@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query, safeError } from '@/lib/db';
 import { getSession, isAdmin } from '@/lib/auth';
+import { canAccessGroup, teacherGroupIds } from '@/lib/access';
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -15,11 +16,22 @@ export async function GET() {
   }
 
   try {
-    const result = await query(
-      'select a.*, st.name as student_name, st.student_no, g.name as group_name from attendance a left join students st on st.id=a.student_id and st.tenant_id=a.tenant_id left join groups g on g.id=a.group_id and g.tenant_id=a.tenant_id where a.tenant_id=$1 order by a.attendance_date desc, st.name asc limit 1000',
-      [s.tenantId]
-    );
+    let sql =
+      'select a.*, st.name as student_name, st.student_no, g.name as group_name from attendance a left join students st on st.id=a.student_id and st.tenant_id=a.tenant_id left join groups g on g.id=a.group_id and g.tenant_id=a.tenant_id where a.tenant_id=$1';
+    const vals: any[] = [s.tenantId];
 
+    if (s.role === 'teacher') {
+      const allowedGroupIds = await teacherGroupIds(s.userId, s.tenantId);
+      if (allowedGroupIds.length === 0) {
+        return NextResponse.json([]);
+      }
+      vals.push(allowedGroupIds);
+      sql += ` and a.group_id = any($${vals.length})`;
+    }
+
+    sql += ' order by a.attendance_date desc, st.name asc limit 1000';
+
+    const result = await query(sql, vals);
     return NextResponse.json(result.rows);
   } catch (e: any) {
     return NextResponse.json(
@@ -74,11 +86,8 @@ export async function POST(req: Request) {
           { status: 403 }
         );
       }
-      const owned = await query(
-        'select 1 from groups g join course_teachers ct on ct.course_id=g.course_id where g.id=$1 and g.tenant_id=$2 and ct.teacher_user_id=$3',
-        [body.group_id, s.tenantId, s.userId]
-      );
-      if (owned.rows.length === 0) {
+      const canAccess = await canAccessGroup(s, body.group_id);
+      if (!canAccess) {
         return NextResponse.json(
           { error: 'غير مصرح بتسجيل حضور هذه المجموعة' },
           { status: 403 }

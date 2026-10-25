@@ -3,6 +3,7 @@ import {query,safeError} from '@/lib/db';
 import {getSession} from '@/lib/auth';
 import {studentSchema} from '@/lib/validation';
 import {assertPlanQuota} from '@/lib/quota';
+import bcrypt from 'bcryptjs';
 
 export async function GET(req:Request){
   const s=await getSession();
@@ -39,6 +40,11 @@ export async function POST(req:Request){
   const s=await getSession();
   if(!s)return NextResponse.json({error:'unauthorized'},{status:401});
 
+  // Requirement 5: Teacher cannot register students. Allowed roles: owner, manager, admin, staff.
+  if(s.role === 'teacher'){
+    return NextResponse.json({error:'غير مصرح للمعلم بتسجيل الطلاب، هذه الصلاحية للإدارة فقط'},{status:403});
+  }
+
   try{
     await assertPlanQuota(s.tenantId, 'students');
     const body=await req.json();
@@ -46,9 +52,33 @@ export async function POST(req:Request){
     const rawType=(typeof body.type==='string')?body.type.trim().toLowerCase():'center';
     const stype=(rawType==='center'||rawType==='online')?rawType:'center';
 
+    // Requirement 1: Check or create linked user account for student
+    let userId: string | null = null;
+    const cleanEmail = (x.email || '').trim().toLowerCase();
+    const studentLogin = cleanEmail || `${x.student_no}@student.markazak.internal`;
+
+    const existingUser = await query(
+      'select id from users where tenant_id=$1 and email=$2',
+      [s.tenantId, studentLogin]
+    );
+
+    if (existingUser.rows.length > 0) {
+      userId = existingUser.rows[0].id;
+    } else {
+      const defaultPassword = x.phone && x.phone.length >= 8 ? x.phone : (x.student_no.length >= 8 ? x.student_no : '12345678');
+      const hash = await bcrypt.hash(defaultPassword, 10);
+      const newUser = await query(
+        `insert into users (tenant_id, name, email, password_hash, role, phone, active)
+         values ($1, $2, $3, $4, 'student', $5, true)
+         returning id`,
+        [s.tenantId, x.name, studentLogin, hash, x.phone || '']
+      );
+      userId = newUser.rows[0].id;
+    }
+
     const r=await query(
-      'insert into students(tenant_id,student_no,name,phone,email,identity_no,status,type) values($1,$2,$3,$4,$5,$6,$7,$8) returning *',
-      [s.tenantId,x.student_no,x.name,x.phone,x.email,x.identity_no,x.status,stype]
+      'insert into students(tenant_id,student_no,name,phone,email,identity_no,status,type,user_id) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning *',
+      [s.tenantId,x.student_no,x.name,x.phone,x.email,x.identity_no,x.status,stype,userId]
     );
 
     return NextResponse.json(r.rows[0],{status:201});

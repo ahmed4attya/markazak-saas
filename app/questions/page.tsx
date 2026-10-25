@@ -80,6 +80,19 @@ export default function Questions() {
   const [previewPassage, setPreviewPassage] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
+  // User role state
+  const [userRole, setUserRole] = useState('');
+
+  // Flag / Teacher Note modal state
+  const [flagModalQuestion, setFlagModalQuestion] = useState<Question | null>(null);
+  const [flagNoteText, setFlagNoteText] = useState('');
+  const [flagSubmitting, setFlagSubmitting] = useState(false);
+
+  // Admin View Notes Modal
+  const [adminNotesQuestion, setAdminNotesQuestion] = useState<Question | null>(null);
+  const [questionNotesList, setQuestionNotesList] = useState<any[]>([]);
+  const [notesLoading, setNotesLoading] = useState(false);
+
   // Edit Modal State
   const [editingQuestion, setEditingQuestion] = useState<{
     id: string;
@@ -144,6 +157,13 @@ export default function Questions() {
         if (Array.isArray(d)) setCourses(d);
       })
       .catch(() => {});
+
+    fetch('/api/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.role) setUserRole(d.role);
+      })
+      .catch(() => {});
   }, []);
 
   // Filtered rows
@@ -190,6 +210,71 @@ export default function Questions() {
     }
     return { all: rows.length, active, review, disabled };
   }, [rows]);
+
+  // Submit teacher revision note to admin
+  async function onSubmitTeacherNote() {
+    if (!flagModalQuestion || !flagNoteText.trim()) return;
+    setFlagSubmitting(true);
+    try {
+      const res = await fetch('/api/questions/notes', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          questionId: flagModalQuestion.id,
+          note: flagNoteText.trim(),
+        }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || 'تعذر إرسال الملاحظة');
+      }
+      setOk('تم إرسال ملاحظتك للإدارة بنجاح وسيتم مراجعتها');
+      setFlagModalQuestion(null);
+      setFlagNoteText('');
+      await load();
+    } catch (e: any) {
+      setError(e.message || 'تعذر إرسال الملاحظة');
+    } finally {
+      setFlagSubmitting(false);
+    }
+  }
+
+  // Open Admin Notes View
+  async function openAdminNotes(q: Question) {
+    setAdminNotesQuestion(q);
+    setNotesLoading(true);
+    try {
+      const res = await fetch(`/api/questions/notes?questionId=${q.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setQuestionNotesList(Array.isArray(data) ? data : []);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setNotesLoading(false);
+    }
+  }
+
+  // Resolve Note by Admin
+  async function onResolveNote(noteId: string) {
+    try {
+      const res = await fetch('/api/questions/notes', {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id: noteId, status: 'resolved' }),
+      });
+      if (res.ok) {
+        setQuestionNotesList((prev) => prev.map((n) => (n.id === noteId ? { ...n, status: 'resolved' } : n)));
+        setOk('تم تمييز الملاحظة كمعالجة');
+        await load();
+      }
+    } catch {
+      setError('تعذر تحديث الملاحظة');
+    }
+  }
+
+  const isTeacher = userRole === 'teacher';
 
   const hasActiveFilters = Boolean(
     filterDomain || filterCourse || filterStatus !== 'all' || filterDifficulty || filterAttachment !== 'all' || searchQuery.trim()
@@ -443,21 +528,30 @@ export default function Questions() {
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <Link
-              href="/questions/import"
-              className="inline-flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-xs font-bold text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 transition cursor-pointer"
-            >
-              <Upload size={15} />
-              <span>استيراد أسئلة (نماذج / PDF / AI)</span>
-            </Link>
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-4 py-2 text-xs font-bold text-white transition shadow-sm cursor-pointer"
-              onClick={() => setShowForm(!showForm)}
-            >
-              <Plus size={15} />
-              <span>سؤال جديد</span>
-            </button>
+            {!isTeacher && (
+              <>
+                <Link
+                  href="/questions/import"
+                  className="inline-flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-xs font-bold text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 transition cursor-pointer"
+                >
+                  <Upload size={15} />
+                  <span>استيراد أسئلة (نماذج / PDF / AI)</span>
+                </Link>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-4 py-2 text-xs font-bold text-white transition shadow-sm cursor-pointer"
+                  onClick={() => setShowForm(!showForm)}
+                >
+                  <Plus size={15} />
+                  <span>سؤال جديد</span>
+                </button>
+              </>
+            )}
+            {isTeacher && (
+              <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200">
+                وضع المشاهدة الأكاديمي — يمكنك إرسال ملاحظات للإدارة
+              </span>
+            )}
           </div>
         </div>
 
@@ -843,41 +937,70 @@ export default function Questions() {
 
                         <td className="px-4 py-3 text-center">
                           <div className="flex items-center justify-center gap-1.5">
-                            {/* Edit Button */}
-                            <button
-                              type="button"
-                              onClick={() => openEdit(r)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 transition cursor-pointer border border-blue-200 dark:border-blue-900/60"
-                              title="تعديل السؤال والإجابات"
-                            >
-                              <Edit3 size={13} />
-                              <span>تعديل</span>
-                            </button>
+                            {isTeacher ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFlagModalQuestion(r);
+                                  setFlagNoteText('');
+                                }}
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/50 transition cursor-pointer border border-amber-200 dark:border-amber-800"
+                                title="إرسال ملاحظة أو اقتراح تعديل للمدير"
+                              >
+                                <Sparkles size={13} className="text-amber-500" />
+                                <span>طلب تعديل للمدير</span>
+                              </button>
+                            ) : (
+                              <>
+                                {/* Admin Notes Badge Button */}
+                                {(r as any).pending_notes_count > 0 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => openAdminNotes(r)}
+                                    className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-bold text-amber-700 bg-amber-100 hover:bg-amber-200 border border-amber-300 transition cursor-pointer animate-pulse"
+                                    title="يوجد ملاحظات مرسلة من المعلمين على هذا السؤال"
+                                  >
+                                    <span>{(r as any).pending_notes_count} ملاحظة</span>
+                                  </button>
+                                )}
 
-                            {/* Status Toggle Button */}
-                            <button
-                              type="button"
-                              onClick={() => toggleStatus(r)}
-                              disabled={busy}
-                              className={`px-2 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer border ${
-                                r.status === 'active'
-                                  ? 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-200'
-                                  : 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 hover:bg-emerald-100'
-                              }`}
-                            >
-                              {r.status === 'active' ? 'تعطيل' : 'تفعيل'}
-                            </button>
+                                {/* Edit Button */}
+                                <button
+                                  type="button"
+                                  onClick={() => openEdit(r)}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 transition cursor-pointer border border-blue-200 dark:border-blue-900/60"
+                                  title="تعديل السؤال والإجابات"
+                                >
+                                  <Edit3 size={13} />
+                                  <span>تعديل</span>
+                                </button>
 
-                            {/* Delete Button */}
-                            <button
-                              type="button"
-                              onClick={() => onDelete(r)}
-                              disabled={busy}
-                              className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer"
-                              title="حذف السؤال"
-                            >
-                              <Trash2 size={14} />
-                            </button>
+                                {/* Status Toggle Button */}
+                                <button
+                                  type="button"
+                                  onClick={() => toggleStatus(r)}
+                                  disabled={busy}
+                                  className={`px-2 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer border ${
+                                    r.status === 'active'
+                                      ? 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-200'
+                                      : 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 hover:bg-emerald-100'
+                                  }`}
+                                >
+                                  {r.status === 'active' ? 'تعطيل' : 'تفعيل'}
+                                </button>
+
+                                {/* Delete Button */}
+                                <button
+                                  type="button"
+                                  onClick={() => onDelete(r)}
+                                  disabled={busy}
+                                  className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer"
+                                  title="حذف السؤال"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -1317,6 +1440,187 @@ export default function Questions() {
               </button>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={previewImage} alt="شكل هندسي" className="max-h-[80vh] w-auto object-contain rounded-xl" />
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* Teacher Flag / Note Modal (إرسال ملاحظة للمدير) */}
+        {/* ============================================================== */}
+        {flagModalQuestion && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setFlagModalQuestion(null)}
+          >
+            <div
+              className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 font-bold">
+                    <Sparkles size={18} />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-base">إرسال ملاحظة / طلب تعديل للمدير</h3>
+                    <p className="text-xs text-slate-400">سيتم تنبيه إدارة المنصة لمراجعة السؤال</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFlagModalQuestion(null)}
+                  className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs">
+                <p className="font-bold text-slate-500 mb-1">السؤال المحدد:</p>
+                <p className="text-slate-800 dark:text-slate-200 font-medium line-clamp-3">{flagModalQuestion.text}</p>
+              </div>
+
+              <label className="block space-y-1.5 text-xs">
+                <span className="font-bold text-slate-700 dark:text-slate-300">نص ملاحظتك أو الخطأ المراد تصحيحه:</span>
+                <textarea
+                  rows={4}
+                  value={flagNoteText}
+                  onChange={(e) => setFlagNoteText(e.target.value)}
+                  placeholder="مثال: الخيار (ب) هو الصحيح بدلاً من (أ) لأن ناتج المعادلة يساوي 15 وليس 20..."
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 outline-none focus:border-amber-500 transition"
+                />
+              </label>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setFlagModalQuestion(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="button"
+                  onClick={onSubmitTeacherNote}
+                  disabled={flagSubmitting || !flagNoteText.trim()}
+                  className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 disabled:opacity-50 transition shadow-sm"
+                >
+                  {flagSubmitting ? 'جارٍ الإرسال…' : 'إرسال الملاحظة للمدير'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* Admin Question Notes Dialog (عرض ومعالجة ملاحظات المعلمين) */}
+        {/* ============================================================== */}
+        {adminNotesQuestion && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setAdminNotesQuestion(null)}
+          >
+            <div
+              className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[85vh] flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 font-bold">
+                    <Sparkles size={18} />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-base">ملاحظات المعلمين على السؤال</h3>
+                    <p className="text-xs text-slate-400">سجل اقتراحات التصحيح والتعديل المرسلة من المعلمين</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAdminNotesQuestion(null)}
+                  className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs">
+                <p className="font-bold text-slate-500 mb-1">السؤال:</p>
+                <p className="text-slate-800 dark:text-slate-200 font-medium line-clamp-2">{adminNotesQuestion.text}</p>
+              </div>
+
+              <div className="overflow-y-auto flex-1 space-y-3">
+                {notesLoading ? (
+                  <p className="text-center py-6 text-xs text-slate-400">جارٍ تحميل الملاحظات…</p>
+                ) : questionNotesList.length === 0 ? (
+                  <p className="text-center py-6 text-xs text-slate-400">لا توجد ملاحظات على هذا السؤال</p>
+                ) : (
+                  questionNotesList.map((n) => (
+                    <div
+                      key={n.id}
+                      className={`p-3.5 rounded-2xl border text-xs space-y-2 ${
+                        n.status === 'resolved'
+                          ? 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 text-slate-500'
+                          : 'bg-amber-50/60 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/60 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-amber-800 dark:text-amber-300">
+                          {n.teacher_name || 'معلم'}
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          {new Date(n.created_at).toLocaleDateString('ar-SA')}
+                        </span>
+                      </div>
+                      <p className="leading-relaxed">{n.note}</p>
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800">
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                            n.status === 'resolved'
+                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                              : 'bg-amber-200 text-amber-800 dark:bg-amber-900 dark:text-amber-200'
+                          }`}
+                        >
+                          {n.status === 'resolved' ? 'تمت المعالجة ✓' : 'قيد الانتظار'}
+                        </span>
+                        {n.status !== 'resolved' && (
+                          <button
+                            type="button"
+                            onClick={() => onResolveNote(n.id)}
+                            className="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 underline cursor-pointer"
+                          >
+                            تحديد كمعالجة
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const qToEdit = adminNotesQuestion;
+                    setAdminNotesQuestion(null);
+                    openEdit(qToEdit);
+                  }}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/50 dark:text-blue-300"
+                >
+                  فتح نافذة تعديل السؤال الآن
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAdminNotesQuestion(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200"
+                >
+                  إغلاق
+                </button>
+              </div>
             </div>
           </div>
         )}

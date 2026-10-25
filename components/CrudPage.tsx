@@ -36,6 +36,9 @@ type CrudPageProps = {
   filters?: FilterOption[];
   rowActions?: (row: any) => { label: string; onClick: () => void }[];
   deleteDialog?: (row: any) => { notice?: string; checkboxLabel?: string; checkboxParam?: string } | null;
+  canCreate?: boolean;
+  canEdit?: boolean;
+  canDelete?: boolean;
 };
 
 export default function CrudPage({
@@ -48,6 +51,9 @@ export default function CrudPage({
   filters,
   rowActions,
   deleteDialog,
+  canCreate = true,
+  canEdit = true,
+  canDelete = true,
 }: CrudPageProps) {
   const [rows, setRows] = useState<any[]>([]);
   const [q, setQ] = useState("");
@@ -342,14 +348,16 @@ export default function CrudPage({
             </span>
           </div>
 
-          <button
-            type="button"
-            className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-lg shadow-blue-100 shrink-0 cursor-pointer"
-            onClick={openCreate}
-          >
-            <Plus size={18} />
-            إضافة جديد
-          </button>
+          {canCreate && (
+            <button
+              type="button"
+              className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-lg shadow-blue-100 shrink-0 cursor-pointer"
+              onClick={openCreate}
+            >
+              <Plus size={18} />
+              إضافة جديد
+            </button>
+          )}
         </div>
       </div>
 
@@ -367,9 +375,9 @@ export default function CrudPage({
         title={title}
         columns={columns}
         initialRows={displayRows}
-        onAdd={openCreate}
-        onEdit={openEdit}
-        onDelete={remove}
+        onAdd={canCreate ? openCreate : undefined}
+        onEdit={canEdit ? openEdit : undefined}
+        onDelete={canDelete ? remove : undefined}
         extraActions={
           rowActions
             ? (row) => rowActions(row).map((a) => ({ ...a, onClick: () => { a.onClick(); } }))

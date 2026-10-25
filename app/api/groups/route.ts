@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query, safeError } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { teacherGroupIds } from '@/lib/access';
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -16,11 +17,22 @@ export async function GET() {
   }
 
   try {
-    const result = await query(
-      'select g.*, c.name as course_name, t.name as teacher_name, cr.name as classroom_name, (select count(*) from enrollments e where e.group_id = g.id) as student_count from groups g left join courses c on c.id = g.course_id and c.tenant_id = g.tenant_id left join teachers t on t.id = g.teacher_id and t.tenant_id = g.tenant_id left join classrooms cr on cr.id = g.classroom_id and cr.tenant_id = g.tenant_id where g.tenant_id = $1 order by g.start_date desc nulls last, g.created_at desc',
-      [s.tenantId]
-    );
+    let sql =
+      'select g.*, c.name as course_name, t.name as teacher_name, cr.name as classroom_name, (select count(*) from enrollments e where e.group_id = g.id) as student_count from groups g left join courses c on c.id = g.course_id and c.tenant_id = g.tenant_id left join teachers t on t.id = g.teacher_id and t.tenant_id = g.tenant_id left join classrooms cr on cr.id = g.classroom_id and cr.tenant_id = g.tenant_id where g.tenant_id = $1';
+    const vals: any[] = [s.tenantId];
 
+    if (s.role === 'teacher') {
+      const allowedGroupIds = await teacherGroupIds(s.userId, s.tenantId);
+      if (allowedGroupIds.length === 0) {
+        return NextResponse.json([]);
+      }
+      vals.push(allowedGroupIds);
+      sql += ` and g.id = any($${vals.length})`;
+    }
+
+    sql += ' order by g.start_date desc nulls last, g.created_at desc';
+
+    const result = await query(sql, vals);
     return NextResponse.json(result.rows);
   } catch (e: any) {
     return NextResponse.json(
@@ -38,6 +50,10 @@ export async function POST(req: Request) {
       { error: 'غير مصرح' },
       { status: 401 }
     );
+  }
+
+  if (s.role === 'teacher') {
+    return NextResponse.json({ error: 'غير مصرح للمعلم بإنشاء مجموعات' }, { status: 403 });
   }
 
   try {

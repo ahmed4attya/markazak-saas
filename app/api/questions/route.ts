@@ -22,61 +22,106 @@ export async function GET(req: Request) {
   const hasPassage = (searchParams.get('hasPassage') || '').trim();
   const hasImage = (searchParams.get('hasImage') || '').trim();
 
-  let sql = 'select * from questions where tenant_id=$1';
+  // Also include pending notes count if admin or teacher
+  let sql = `
+    select q.*,
+           (select count(*)::int from question_notes qn where qn.question_id = q.id and qn.status = 'pending') as pending_notes_count
+    from questions q
+    where q.tenant_id = $1
+  `;
   const vals: any[] = [s.tenantId];
 
-  if (!isAdminRole(s.role)) {
-    if (s.role !== 'teacher') return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  // Scoping for teachers:
+  if (s.role === 'teacher') {
+    // Teacher sees questions in their assigned courses OR if teacher has a specialty matching domain/subject
+    const teacherRow = (await query('select specialty from teachers where user_id=$1 and tenant_id=$2', [s.userId, s.tenantId])).rows[0];
+    const specialty = (teacherRow?.specialty || '').trim().toLowerCase();
     const ids = await teacherCourseIds(s.userId, s.tenantId);
-    if (!ids.length) return NextResponse.json([]);
-    vals.push(ids);
-    sql += ' and (course_id = ANY($' + vals.length + ') or (course_id is null and created_by=$' + (vals.length + 1) + '))';
-    vals.push(s.userId);
-    if (courseId && ids.indexOf(courseId) < 0) return NextResponse.json([]);
+
+    // If teacher has assigned courses or domain
+    const orClauses: string[] = [];
+    if (ids.length > 0) {
+      vals.push(ids);
+      orClauses.push(`q.course_id = any($${vals.length})`);
+    }
+    if (specialty) {
+      // Map specialty to domain if applicable, e.g. quant/كمي or verbal/لفظي
+      if (specialty.includes('كمي') || specialty.includes('رياضيات') || specialty.includes('quant')) {
+        vals.push('quant');
+        orClauses.push(`q.domain = $${vals.length}`);
+      } else if (specialty.includes('لفظي') || specialty.includes('عربي') || specialty.includes('لغة') || specialty.includes('verbal')) {
+        vals.push('verbal');
+        orClauses.push(`q.domain = $${vals.length}`);
+      } else {
+        vals.push(`%${specialty}%`);
+        orClauses.push(`(q.subject ilike $${vals.length} or q.topic ilike $${vals.length})`);
+      }
+    }
+
+    if (orClauses.length > 0) {
+      sql += ` and (${orClauses.join(' or ')})`;
+    } else {
+      // If neither courses nor specialty, return questions in the teacher's tenant for viewing
+      // No restrictions to allow studying question bank
+    }
+
+    if (courseId) {
+      if (ids.length > 0 && !ids.includes(courseId)) {
+        return NextResponse.json([]);
+      }
+    }
+  } else if (!isAdminRole(s.role)) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
 
   if (domain && DOMAINS.includes(domain)) {
     vals.push(domain);
-    sql += ' and domain=$' + vals.length;
+    sql += ` and q.domain=$${vals.length}`;
   }
   if (courseId) {
     vals.push(courseId);
-    sql += ' and course_id=$' + vals.length;
+    sql += ` and q.course_id=$${vals.length}`;
   }
   if (status && ['active', 'review', 'disabled'].includes(status)) {
     vals.push(status);
-    sql += ' and status=$' + vals.length;
+    sql += ` and q.status=$${vals.length}`;
   }
   if (difficulty && !isNaN(Number(difficulty))) {
     vals.push(Number(difficulty));
-    sql += ' and difficulty=$' + vals.length;
+    sql += ` and q.difficulty=$${vals.length}`;
   }
-  if (hasPassage === 'true' || hasPassage === '1') {
-    sql += " and passage is not null and trim(passage) != ''";
-  } else if (hasPassage === 'false' || hasPassage === '0') {
-    sql += " and (passage is null or trim(passage) = '')";
+  if (hasPassage === 'true') {
+    sql += ` and q.passage is not null and length(trim(q.passage)) > 0`;
   }
-  if (hasImage === 'true' || hasImage === '1') {
-    sql += " and image_url is not null and trim(image_url) != ''";
-  } else if (hasImage === 'false' || hasImage === '0') {
-    sql += " and (image_url is null or trim(image_url) = '')";
+  if (hasImage === 'true') {
+    sql += ` and q.image_url is not null and length(trim(q.image_url)) > 0`;
   }
   if (q) {
     vals.push(`%${q}%`);
     const p = vals.length;
-    sql += ` and (text ilike $${p} or topic ilike $${p} or skill ilike $${p} or subject ilike $${p} or explanation ilike $${p})`;
+    sql += ` and (q.text ilike $${p} or q.explanation ilike $${p} or q.passage ilike $${p} or q.subject ilike $${p} or q.topic ilike $${p} or q.skill ilike $${p})`;
   }
 
-  sql += ' order by created_at desc limit 400';
-  return NextResponse.json((await query(sql, vals)).rows);
+  sql += ' order by q.created_at desc limit 500';
+
+  const rows = (await query(sql, vals)).rows;
+  return NextResponse.json(rows);
 }
 
 export async function POST(req: Request) {
   const s = await getSession();
   if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+
+  // Requirement 6: Question bank is strictly read-only for teachers.
+  if (s.role === 'teacher') {
+    return NextResponse.json({ error: 'بنك الأسئلة متاح للمشاهدة فقط للمعلم. يمكنك إرسال ملاحظة للمدير لتعديل أي سؤال.' }, { status: 403 });
+  }
+
+  if (!isAdminRole(s.role)) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+
   try {
     const b = (await req.json()) as {
-      courseId?: string | null;
+      courseId?: string;
       domain?: string;
       subject?: string;
       topic?: string;
@@ -94,8 +139,6 @@ export async function POST(req: Request) {
     const courseId = b.courseId || null;
     if (courseId) {
       if (!(await canAccessCourse(s, courseId))) return NextResponse.json({ error: 'غير مصرح لهذه الدورة' }, { status: 403 });
-    } else if (!isAdminRole(s.role)) {
-      return NextResponse.json({ error: 'الأسئلة العامة للمدير فقط — اربط سؤالك بدورة' }, { status: 403 });
     }
     const domain = typeof b.domain === 'string' ? b.domain : '';
     if (DOMAINS.indexOf(domain) < 0) return NextResponse.json({ error: 'التصنيف الرئيسي غير صالح' }, { status: 400 });
@@ -126,6 +169,14 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   const s = await getSession();
   if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+
+  // Requirement 6: Teacher cannot modify questions
+  if (s.role === 'teacher') {
+    return NextResponse.json({ error: 'غير مصرح للمعلم بتعديل الأسئلة. يمكنك إرسال ملاحظة للمدير.' }, { status: 403 });
+  }
+
+  if (!isAdminRole(s.role)) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+
   const b = (await req.json().catch(() => ({}))) as {
     id?: string;
     status?: string;
@@ -151,11 +202,6 @@ export async function PATCH(req: Request) {
   const existingRows = (await query('select * from questions where id=$1 and tenant_id=$2', [id, s.tenantId])).rows;
   if (!existingRows.length) return NextResponse.json({ error: 'السؤال غير موجود' }, { status: 404 });
   const q = existingRows[0];
-
-  const allowed = isAdminRole(s.role)
-    ? true
-    : String(q.created_by || '') === s.userId && (!q.course_id || await canAccessCourse(s, String(q.course_id)));
-  if (!allowed) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
 
   // If this is solely a status toggle:
   const isOnlyStatus = Object.keys(b).filter((k) => k !== 'id').length === 1 && b.status !== undefined;
@@ -279,16 +325,19 @@ export async function PATCH(req: Request) {
 export async function DELETE(req: Request) {
   const s = await getSession();
   if (!s) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+
+  // Requirement 6: Teacher cannot delete questions
+  if (s.role === 'teacher') {
+    return NextResponse.json({ error: 'غير مصرح للمعلم بحذف الأسئلة' }, { status: 403 });
+  }
+
+  if (!isAdminRole(s.role)) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+
   const { searchParams } = new URL(req.url);
   const id = (searchParams.get('id') || '').trim();
   if (!id) return NextResponse.json({ error: 'bad request' }, { status: 400 });
   const rows = (await query('select * from questions where id=$1 and tenant_id=$2', [id, s.tenantId])).rows;
   if (!rows.length) return NextResponse.json({ error: 'السؤال غير موجود' }, { status: 404 });
-  const q = rows[0];
-  const allowed = isAdminRole(s.role)
-    ? true
-    : String(q.created_by || '') === s.userId && (!q.course_id || await canAccessCourse(s, String(q.course_id)));
-  if (!allowed) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
   await query('delete from questions where id=$1 and tenant_id=$2', [id, s.tenantId]);
   await logAudit({ tenantId: s.tenantId, userId: s.userId, action: 'question.delete', entity: 'question', entityId: id });
   return NextResponse.json({ ok: true });
