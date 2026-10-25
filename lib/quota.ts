@@ -1,4 +1,5 @@
 import { query } from './db';
+import { assertSubscriptionActive } from './subscription';
 
 export type QuotaResource = 'students' | 'teachers' | 'courses' | 'storage_mb';
 
@@ -23,6 +24,7 @@ export async function assertPlanQuota(
   resource: QuotaResource,
   increment: number = 1
 ): Promise<{ allowed: boolean; limit: number; current: number }> {
+  await assertSubscriptionActive(tenantId);
   const r = await query<{
     plan: string;
     max_students: number;

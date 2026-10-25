@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { getSubscriptionStatus } from '@/lib/subscription';
 
 const PLANS_SQL = `
   SELECT id, code, name, monthly_price, yearly_price, limits, features, active
@@ -21,7 +22,7 @@ export async function GET() {
       });
     }
 
-    const [plans, subscription] = await Promise.all([
+    const [plans, subscription, statusDetails] = await Promise.all([
       query(PLANS_SQL),
       query(
         `
@@ -39,6 +40,7 @@ export async function GET() {
         `,
         [session.tenantId]
       ),
+      getSubscriptionStatus(session.tenantId),
     ]);
 
     return NextResponse.json({
@@ -49,6 +51,7 @@ export async function GET() {
           status: 'trialing',
           current_period_end: null,
         },
+      statusDetails,
     });
   } catch (error) {
     console.error('Plans GET error:', error);
