@@ -1,4 +1,4 @@
-﻿// lib/storage.ts - File library helpers (Scope 2, DEC-047/048). Vercel Blob wrapper.
+// lib/storage.ts - File library helpers (Scope 2, DEC-047/048). Vercel Blob wrapper.
 import { randomUUID } from 'crypto';
 
 export const MAX_FILE_BYTES = 100 * 1024 * 1024; // 100MB (DEC-048)
@@ -7,7 +7,10 @@ export const ALLOWED_CONTENT_TYPES: string[] = [
   'application/pdf',
   'image/png',
   'image/jpeg',
+  'image/jpg',
   'image/webp',
+  'image/gif',
+  'image/svg+xml',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/vnd.ms-excel',
@@ -19,15 +22,14 @@ export const ALLOWED_CONTENT_TYPES: string[] = [
   'text/plain',
 ];
 
-const ALLOWED_EXTENSIONS: string[] = ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'txt'];
+const ALLOWED_EXTENSIONS: string[] = ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'txt'];
 
-export function isAllowedFile(name: string, mime?: string | null): boolean {
+export function isAllowedFile(name: string, _mime?: string | null): boolean {
+  if (!name || typeof name !== 'string') return false;
   const dot = name.lastIndexOf('.');
   if (dot < 0) return false;
   const ext = name.slice(dot + 1).toLowerCase();
-  if (ALLOWED_EXTENSIONS.indexOf(ext) < 0) return false;
-  if (mime && ALLOWED_CONTENT_TYPES.indexOf(mime) < 0) return false;
-  return true;
+  return ALLOWED_EXTENSIONS.includes(ext);
 }
 
 export function sanitizeName(name: string): string {

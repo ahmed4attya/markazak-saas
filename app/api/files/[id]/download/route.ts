@@ -36,7 +36,9 @@ export async function GET(_req: Request, { params }: Context) {
   }
 
   const safeName = String(row.name || 'file').replace(/["\\\r\n]/g, '');
-  const disposition = 'attachment; filename="' + encodeURIComponent(safeName) + '"';
+  const encodedName = encodeURIComponent(safeName);
+  const asciiFallback = safeName.replace(/[^\x20-\x7E]/g, '_');
+  const disposition = `attachment; filename="${asciiFallback}"; filename*=UTF-8''${encodedName}`;
 
   // 0. If file_data is stored directly in database
   if (row.file_data) {

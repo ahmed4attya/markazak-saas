@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 
   const contentTypeHeader = req.headers.get('content-type') || '';
 
-  // 1. Direct Multipart/Form-Data Upload (Fast & Resilient)
+  // 1. Direct Multipart/Form-Data Upload (Fast & Resilient with DB TOAST fallback)
   if (contentTypeHeader.includes('multipart/form-data')) {
     try {
       const formData = await req.formData();
@@ -23,11 +23,13 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'الملف مطلوب' }, { status: 400 });
       }
 
-      const courseId = (formData.get('courseId') as string) || null;
-      const groupId = (formData.get('groupId') as string) || null;
+      const rawCourseId = formData.get('courseId');
+      const courseId = (typeof rawCourseId === 'string' && rawCourseId.trim().length > 10) ? rawCourseId.trim() : null;
+      const rawGroupId = formData.get('groupId');
+      const groupId = (typeof rawGroupId === 'string' && rawGroupId.trim().length > 10) ? rawGroupId.trim() : null;
 
       if (!isAllowedFile(file.name, file.type)) {
-        return NextResponse.json({ error: 'نوع الملف غير مسموح به' }, { status: 400 });
+        return NextResponse.json({ error: 'نوع الملف غير مدعوم. الصيغ المسموحة: PDF, PNG, JPG, DOCX, ZIP' }, { status: 400 });
       }
 
       if (file.size <= 0 || file.size > MAX_FILE_BYTES) {
@@ -35,33 +37,36 @@ export async function POST(req: Request) {
       }
 
       const safeFileName = sanitizeName(file.name);
-      let storageKey: string;
-      let fileData: string | null = null;
+      let storageKey = `internal://tenants/${s.tenantId}/${randomUUID()}/${safeFileName}`;
       const buffer = Buffer.from(await file.arrayBuffer());
+      // Always store base64 in database TOAST so file is permanently accessible
+      const fileData = buffer.toString('base64');
 
-      // If Vercel Blob token is configured in environment, use Vercel Blob
+      // Attempt Vercel Blob if token is available, but don't fail if it's not supported
       if (process.env.BLOB_READ_WRITE_TOKEN) {
-        const { put } = await import('@vercel/blob');
-        const pathname = buildPathname(s.tenantId, file.name);
-        const blob = await put(pathname, buffer, {
-          access: 'private',
-          contentType: file.type || 'application/octet-stream',
-        });
-        storageKey = blob.url;
-      } else {
-        // High-reliability internal storage in Postgres TOAST
-        storageKey = `internal://tenants/${s.tenantId}/${randomUUID()}/${safeFileName}`;
-        fileData = buffer.toString('base64');
+        try {
+          const { put } = await import('@vercel/blob');
+          const pathname = buildPathname(s.tenantId, file.name);
+          const blob = await put(pathname, buffer, {
+            access: 'public',
+            contentType: file.type || 'application/octet-stream',
+          });
+          if (blob && blob.url) {
+            storageKey = blob.url;
+          }
+        } catch (blobErr) {
+          console.warn('Vercel blob put failed, falling back to database storage:', blobErr);
+        }
       }
 
       if (courseId) {
         const c = await query('select id from courses where id=$1 and tenant_id=$2', [courseId, s.tenantId]);
-        if (!c.rows.length) return NextResponse.json({ error: 'الدورة غير موجودة' }, { status: 400 });
+        if (!c.rows.length) return NextResponse.json({ error: 'الدورة المحددة غير موجودة' }, { status: 400 });
       }
 
       if (groupId) {
         const g = await query('select id from groups where id=$1 and tenant_id=$2', [groupId, s.tenantId]);
-        if (!g.rows.length) return NextResponse.json({ error: 'المجموعة غير موجودة' }, { status: 400 });
+        if (!g.rows.length) return NextResponse.json({ error: 'المجموعة المحددة غير موجودة' }, { status: 400 });
       }
 
       const res = await query(
@@ -84,11 +89,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, file: res.rows[0] });
     } catch (e) {
       console.error('Direct upload error:', e);
-      return NextResponse.json({ error: safeError(e) }, { status: 400 });
+      const msg = e instanceof Error ? e.message : safeError(e);
+      return NextResponse.json({ error: msg }, { status: 400 });
     }
   }
 
-  // 2. Vercel Blob client token-based upload
+  // 2. Vercel Blob client token-based upload (legacy compatibility)
   let body: HandleUploadBody;
   try { body = (await req.json()) as HandleUploadBody; } catch { return NextResponse.json({ error: 'bad request' }, { status: 400 }); }
   try {
@@ -102,7 +108,7 @@ export async function POST(req: Request) {
         return {
           allowedContentTypes: ALLOWED_CONTENT_TYPES,
           maximumSizeInBytes: MAX_FILE_BYTES,
-          access: 'private',
+          access: 'public',
           tokenPayload: JSON.stringify({ tenantId: s.tenantId, userId } as TokenPayload),
         };
       },
@@ -120,6 +126,7 @@ export async function POST(req: Request) {
     });
     return NextResponse.json(json);
   } catch (e) {
-    return NextResponse.json({ error: safeError(e) }, { status: 400 });
+    const msg = e instanceof Error ? e.message : safeError(e);
+    return NextResponse.json({ error: msg }, { status: 400 });
   }
 }
