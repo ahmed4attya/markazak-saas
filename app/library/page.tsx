@@ -119,7 +119,7 @@ export default function Library() {
                     <td>{new Date(r.created_at).toLocaleDateString('ar-EG')}</td>
                     <td>
                       <div className="flex items-center gap-2">
-                        <a href={'/api/files/' + r.id + '/download'} className="ghost !min-h-0 py-1.5 px-3"><Download size={14} /> تحميل</a>
+                        <a href={'/api/files/' + r.id + '/download'} download target="_blank" rel="noopener noreferrer" className="ghost !min-h-0 py-1.5 px-3"><Download size={14} /> تحميل</a>
                         <button onClick={() => onDelete(r)} disabled={busy} className="ghost !min-h-0 py-1.5 px-3"><Trash2 size={14} /> حذف</button>
                       </div>
                     </td>

@@ -11,7 +11,7 @@ export async function middleware(req:NextRequest){
     const v=await checkRate(path+':'+ip,RL_LIMITS[path]);
     if(v&&!v.ok)return NextResponse.json({error:'rate limited'},{status:429});
   }
-  if(path.startsWith('/api/auth/')||path==='/api/certificates/verify'||path==='/api/questions/extract'||path==='/login'||path==='/verify'||path==='/'||path.startsWith('/_next')||path==='/favicon.ico'||path==='/api/health'||path==='/api/stripe/webhook'||(path==='/api/leads'&&req.method==='POST')||path==='/privacy'||path==='/terms'||path==='/offline'||path==='/robots.txt'||path==='/sitemap.xml'||path==='/manifest.webmanifest'||path==='/manifest.json'||path==='/sw.js'||path==='/plans'||path==='/api/plans')return NextResponse.next();
+  if(path.startsWith('/api/auth/')||path==='/api/certificates/verify'||path==='/api/questions/extract'||path==='/login'||path==='/verify'||path==='/'||path.startsWith('/_next')||path==='/favicon.ico'||path==='/api/health'||path==='/api/stripe/webhook'||(path==='/api/leads'&&req.method==='POST')||path==='/privacy'||path==='/terms'||path==='/offline'||path==='/robots.txt'||path==='/sitemap.xml'||path==='/manifest.webmanifest'||path==='/manifest.json'||path==='/sw.js'||path==='/plans'||path==='/api/plans'||path.startsWith('/docs/')||path.startsWith('/icons/')||path.startsWith('/assets/'))return NextResponse.next();
   const token=req.cookies.get('session')?.value;
   if(!token){if(path.startsWith('/api/'))return NextResponse.json({error:'unauthorized'},{status:401});return NextResponse.redirect(new URL('/login',req.url))}
   const isApi = path.startsWith('/api/');
@@ -45,4 +45,4 @@ export async function middleware(req:NextRequest){
     return NextResponse.next();
   }catch(e){if(isApi)return NextResponse.json({error:'unauthorized'},{status:401});return NextResponse.redirect(new URL('/login',req.url))}
 }
-export const config={matcher:['/((?!api/auth|api/certificates/verify|login|verify|_next|favicon.ico|api/health|api/leads|api/stripe/webhook).*)','/api/auth/login','/api/leads','/api/certificates/verify']};
+export const config={matcher:['/((?!api/auth|api/certificates/verify|login|verify|_next|favicon.ico|api/health|api/leads|api/stripe/webhook|docs|icons|assets).*)','/api/auth/login','/api/leads','/api/certificates/verify']};
