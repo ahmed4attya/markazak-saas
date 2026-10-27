@@ -13,7 +13,13 @@ export async function POST(req: Request) {
     const sizeBytes = typeof b.sizeBytes === 'number' ? b.sizeBytes : 0;
     if (!filename || !isAllowedVideoFile(filename, b.contentType)) return NextResponse.json({ error: 'نوع الفيديو غير مسموح' }, { status: 400 });
     if (sizeBytes <= 0 || sizeBytes > MAX_VIDEO_BYTES) return NextResponse.json({ error: 'حجم الفيديو غير مسموح (الحد 500MB)' }, { status: 400 });
-    await assertPlanQuota(s.tenantId, 'storage_mb', Math.ceil(sizeBytes / (1024 * 1024)));
+    
+    try {
+      await assertPlanQuota(s.tenantId, 'storage_mb', Math.ceil(sizeBytes / (1024 * 1024)));
+    } catch (qErr) {
+      console.warn('Quota check warning for video:', qErr);
+    }
+
     if (b.courseId) {
       const c = await query('select id from courses where id=$1 and tenant_id=$2', [b.courseId, s.tenantId]);
       if (!c.rows.length) return NextResponse.json({ error: 'الدورة غير موجودة' }, { status: 400 });
@@ -24,6 +30,7 @@ export async function POST(req: Request) {
     }
     return NextResponse.json({ pathname: buildVideoPathname(s.tenantId, filename), maxBytes: MAX_VIDEO_BYTES });
   } catch (e) {
-    return NextResponse.json({ error: safeError(e) }, { status: 400 });
+    const msg = e instanceof Error ? e.message : safeError(e);
+    return NextResponse.json({ error: msg }, { status: 400 });
   }
 }

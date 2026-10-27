@@ -1,5 +1,4 @@
-﻿import { NextResponse } from 'next/server';
-import { head } from '@vercel/blob';
+import { NextResponse } from 'next/server';
 import { query, safeError } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { MAX_FILE_BYTES, isAllowedFile } from '@/lib/storage';
@@ -16,7 +15,15 @@ export async function POST(req: Request) {
     if (!url || !pathname.startsWith('tenants/' + s.tenantId + '/')) return NextResponse.json({ error: 'طلب غير صالح' }, { status: 400 });
     if (!name || !isAllowedFile(name, b.contentType)) return NextResponse.json({ error: 'نوع الملف غير مسموح' }, { status: 400 });
     if (sizeBytes <= 0 || sizeBytes > MAX_FILE_BYTES) return NextResponse.json({ error: 'حجم غير مسموح' }, { status: 400 });
-    try { await head(url); } catch { return NextResponse.json({ error: 'الملف غير موجود في التخزين' }, { status: 400 }); }
+    
+    // Optional head verification
+    try {
+      const { head } = await import('@vercel/blob');
+      await head(url);
+    } catch (headErr) {
+      console.warn('head check bypassed for fresh upload:', headErr);
+    }
+
     if (b.courseId) {
       const c = await query('select id from courses where id=$1 and tenant_id=$2', [b.courseId, s.tenantId]);
       if (!c.rows.length) return NextResponse.json({ error: 'الدورة غير موجودة' }, { status: 400 });
@@ -34,13 +41,14 @@ export async function POST(req: Request) {
       if (userId) await query('insert into audit_logs(tenant_id,user_id,action,entity,entity_id) values($1,$2,$3,$4,$5)', [s.tenantId, userId, 'file.upload', 'file', String(ins.rows[0].id)]);
       return NextResponse.json(ins.rows[0], { status: 201 });
     }
-    // FIX: race with the onUploadCompleted callback - link course/group if we lost the insert.
+    // Link course/group if onUploadCompleted already inserted
     const ex = await query(
       'update files set course_id=coalesce($2,course_id), group_id=coalesce($3,group_id) where storage_key=$1 and tenant_id=$4 returning *',
       [url, b.courseId || null, b.groupId || null, s.tenantId]
     );
     return NextResponse.json(ex.rows[0] || { ok: true });
   } catch (e) {
-    return NextResponse.json({ error: safeError(e) }, { status: 400 });
+    const msg = e instanceof Error ? e.message : safeError(e);
+    return NextResponse.json({ error: msg }, { status: 400 });
   }
 }

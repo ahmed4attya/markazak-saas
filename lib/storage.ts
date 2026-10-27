@@ -1,7 +1,7 @@
 // lib/storage.ts - File library helpers (Scope 2, DEC-047/048). Vercel Blob wrapper.
 import { randomUUID } from 'crypto';
 
-export const MAX_FILE_BYTES = 100 * 1024 * 1024; // 100MB (DEC-048)
+export const MAX_FILE_BYTES = 500 * 1024 * 1024; // 500MB
 
 export const ALLOWED_CONTENT_TYPES: string[] = [
   'application/pdf',
@@ -11,6 +11,7 @@ export const ALLOWED_CONTENT_TYPES: string[] = [
   'image/webp',
   'image/gif',
   'image/svg+xml',
+  'image/bmp',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/vnd.ms-excel',
@@ -19,10 +20,39 @@ export const ALLOWED_CONTENT_TYPES: string[] = [
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   'application/zip',
   'application/x-zip-compressed',
+  'application/x-rar-compressed',
+  'application/x-7z-compressed',
   'text/plain',
+  'text/csv',
+  // Audio & Podcasts
+  'audio/mp4',
+  'audio/x-m4a',
+  'audio/m4a',
+  'audio/mpeg',
+  'audio/mp3',
+  'audio/wav',
+  'audio/x-wav',
+  'audio/aac',
+  'audio/ogg',
+  'audio/webm',
+  'audio/flac',
+  // Videos
+  'video/mp4',
+  'video/webm',
+  'video/quicktime',
+  'video/x-m4v',
+  'video/x-matroska',
+  'video/avi',
+  'application/octet-stream',
 ];
 
-const ALLOWED_EXTENSIONS: string[] = ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'txt'];
+const ALLOWED_EXTENSIONS: string[] = [
+  'pdf', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'bmp',
+  'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv',
+  'zip', 'rar', '7z',
+  'm4a', 'mp3', 'wav', 'aac', 'ogg', 'flac',
+  'mp4', 'webm', 'mov', 'm4v', 'mkv', 'avi'
+];
 
 export function isAllowedFile(name: string, _mime?: string | null): boolean {
   if (!name || typeof name !== 'string') return false;

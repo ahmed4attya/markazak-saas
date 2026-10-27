@@ -1,13 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Upload, Trash2, Download, FileText } from 'lucide-react';
+import { Upload, Trash2, Download, FileText, Music, Video as VideoIcon } from 'lucide-react';
 import Shell from '@/components/Shell';
 
 type FileRow = { id: string; name: string; mime: string | null; size_bytes: number | string; storage_key: string; created_at: string };
 type Course = { id: string; name: string };
 
-const ACCEPT = '.pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.txt';
+const ACCEPT = '.pdf,.png,.jpg,.jpeg,.webp,.gif,.svg,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.7z,.txt,.csv,.m4a,.mp3,.wav,.aac,.ogg,.flac,.mp4,.mov,.webm,.mkv';
 
 export default function Library() {
   const [rows, setRows] = useState<FileRow[]>([]);
@@ -34,20 +34,58 @@ export default function Library() {
     if (!f) return;
     setBusy(true); setError(''); setOk('');
     try {
-      if (f.size > 100 * 1024 * 1024) throw new Error('حجم الملف يتجاوز الحد 100MB');
+      if (f.size > 500 * 1024 * 1024) throw new Error('حجم الملف يتجاوز الحد الأقصى 500MB');
 
-      const formData = new FormData();
-      formData.append('file', f);
-      if (courseId) formData.append('courseId', courseId);
+      // For files > 4MB, upload directly to Vercel Blob store from the browser
+      // to avoid Vercel Serverless Function 4.5MB request body limit
+      if (f.size > 4 * 1024 * 1024) {
+        const prep = await fetch('/api/files/prepare', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ filename: f.name, contentType: f.type, sizeBytes: f.size, courseId: courseId || null }),
+        });
+        if (!prep.ok) {
+          const j = await prep.json().catch(() => ({}));
+          throw new Error((j as { error?: string }).error || 'فشل إعداد مسار الرفع');
+        }
+        const { pathname } = (await prep.json()) as { pathname: string };
+        const { upload } = await import('@vercel/blob/client');
+        const blob = await upload(pathname, f, {
+          access: 'public',
+          handleUploadUrl: '/api/files/upload',
+          clientPayload: JSON.stringify({ courseId: courseId || null }),
+        });
+        const done = await fetch('/api/files/upload-complete', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            url: blob.url,
+            pathname: blob.pathname,
+            name: f.name,
+            contentType: blob.contentType || f.type,
+            sizeBytes: f.size,
+            courseId: courseId || null
+          }),
+        });
+        if (!done.ok) {
+          const j = await done.json().catch(() => ({}));
+          throw new Error((j as { error?: string }).error || 'فشل تسجيل الملف في قاعدة البيانات');
+        }
+      } else {
+        // Direct multipart upload for files <= 4MB (ultra fast with TOAST database backup)
+        const formData = new FormData();
+        formData.append('file', f);
+        if (courseId) formData.append('courseId', courseId);
 
-      const res = await fetch('/api/files/upload', {
-        method: 'POST',
-        body: formData,
-      });
+        const res = await fetch('/api/files/upload', {
+          method: 'POST',
+          body: formData,
+        });
 
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        throw new Error(data.error || 'فشل رفع الملف');
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        if (!res.ok) {
+          throw new Error(data.error || 'فشل رفع الملف');
+        }
       }
 
       setOk('تم رفع الملف بنجاح');
@@ -80,8 +118,19 @@ export default function Library() {
     return String(b) + ' B';
   }
 
+  function renderIcon(name: string, mime: string | null) {
+    const ext = name.split('.').pop()?.toLowerCase() || '';
+    if (['mp3', 'm4a', 'wav', 'aac', 'ogg', 'flac'].includes(ext) || (mime && mime.startsWith('audio/'))) {
+      return <Music size={16} className="text-emerald-500" />;
+    }
+    if (['mp4', 'mov', 'webm', 'mkv', 'avi'].includes(ext) || (mime && mime.startsWith('video/'))) {
+      return <VideoIcon size={16} className="text-purple-500" />;
+    }
+    return <FileText size={16} className="text-[color:var(--blue)]" />;
+  }
+
   return (
-    <Shell title="مكتبة الملفات" subtitle="رفع وتنظيم ملفات الدورات والمجموعات">
+    <Shell title="مكتبة الملفات" subtitle="رفع وتنظيم ملفات الدورات، المستندات، البودكاست والفيديوهات">
       <div className="space-y-6">
         <div className="toolbar">
           <div className="flex items-center gap-2">
@@ -93,7 +142,7 @@ export default function Library() {
           <div className="flex items-center gap-2">
             <input ref={inputRef} type="file" accept={ACCEPT} className="hidden" onChange={(e) => onPick(e.target.files ? e.target.files[0] : null)} />
             <button className="primary" disabled={busy} onClick={() => inputRef.current?.click()}>
-              <Upload size={16} /> رفع ملف
+              <Upload size={16} /> رفع ملف أو بودكاست
             </button>
           </div>
         </div>
@@ -109,13 +158,13 @@ export default function Library() {
               </thead>
               <tbody>
                 {rows.length === 0 && (
-                  <tr><td className="tableEmpty" colSpan={5}>لا توجد ملفات بعد — ابدأ برفع أول ملف</td></tr>
+                  <tr><td className="tableEmpty" colSpan={5}>لا توجد ملفات بعد — ابدأ برفع أول ملف أو بودكاست</td></tr>
                 )}
                 {rows.map((r) => (
                   <tr key={r.id}>
-                    <td><span className="inline-flex items-center gap-2"><FileText size={16} className="text-[color:var(--blue)]" /> {r.name}</span></td>
+                    <td><span className="inline-flex items-center gap-2">{renderIcon(r.name, r.mime)} {r.name}</span></td>
                     <td>{fmtSize(r.size_bytes)}</td>
-                    <td>{(r.mime || '').split('/').pop() || '-'}</td>
+                    <td>{(r.mime || '').split('/').pop() || r.name.split('.').pop() || '-'}</td>
                     <td>{new Date(r.created_at).toLocaleDateString('ar-EG')}</td>
                     <td>
                       <div className="flex items-center gap-2">

@@ -9,7 +9,7 @@ type VideoRow = { id: string; title: string; mime: string | null; size_bytes: nu
 type Course = { id: string; name: string };
 type Me = { name: string; email: string; userId: string };
 
-const ACCEPT = '.mp4,.webm,.mov,.m4v';
+const ACCEPT = '.mp4,.webm,.mov,.m4v,.mkv,.avi,.m4a,.mp3';
 
 function Watermark({ text }: { text: string }) {
   return (
@@ -61,7 +61,7 @@ export default function Videos() {
     if (!f) return;
     setBusy(true); setError(''); setOk('');
     try {
-      if (f.size > 500 * 1024 * 1024) throw new Error('حجم الفيديو يتجاوز الحد 500MB');
+      if (f.size > 500 * 1024 * 1024) throw new Error('حجم الملف يتجاوز الحد 500MB');
       const durationSeconds = await readDuration(f);
       const prep = await fetch('/api/videos/prepare', {
         method: 'POST', headers: { 'content-type': 'application/json' },
@@ -69,7 +69,7 @@ export default function Videos() {
       });
       if (!prep.ok) { const j = await prep.json().catch(() => ({})); throw new Error((j as { error?: string }).error || 'الملف غير مسموح'); }
       const { pathname } = (await prep.json()) as { pathname: string };
-      const res = await upload(pathname, f, { access: 'private', handleUploadUrl: '/api/videos/upload' });
+      const res = await upload(pathname, f, { access: 'public', handleUploadUrl: '/api/videos/upload' });
       const done = await fetch('/api/videos/upload-complete', {
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ url: res.url, pathname: res.pathname, title: f.name, contentType: res.contentType, sizeBytes: f.size, durationSeconds, courseId: courseId || null }),

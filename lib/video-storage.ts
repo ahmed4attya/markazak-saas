@@ -1,23 +1,31 @@
 import { randomUUID } from "crypto";
 // lib/video-storage.ts - Scope 3 video helpers (DEC-053..057).
-export const MAX_VIDEO_BYTES = 500 * 1024 * 1024; // 500MB cap until Hobby limits measured (DEC-054)
+export const MAX_VIDEO_BYTES = 500 * 1024 * 1024; // 500MB cap
 
 export const VIDEO_CONTENT_TYPES: string[] = [
   'video/mp4',
   'video/webm',
   'video/quicktime',
   'video/x-m4v',
+  'video/x-matroska',
+  'video/avi',
+  'audio/mp4',
+  'audio/x-m4a',
+  'audio/m4a',
+  'audio/mpeg',
+  'audio/mp3',
+  'audio/wav',
+  'application/octet-stream',
 ];
 
-const VIDEO_EXTENSIONS: string[] = ['mp4', 'webm', 'mov', 'm4v'];
+const VIDEO_EXTENSIONS: string[] = ['mp4', 'webm', 'mov', 'm4v', 'mkv', 'avi', 'm4a', 'mp3'];
 
-export function isAllowedVideoFile(name: string, mime?: string | null): boolean {
+export function isAllowedVideoFile(name: string, _mime?: string | null): boolean {
+  if (!name || typeof name !== 'string') return false;
   const dot = name.lastIndexOf('.');
   if (dot < 0) return false;
   const ext = name.slice(dot + 1).toLowerCase();
-  if (VIDEO_EXTENSIONS.indexOf(ext) < 0) return false;
-  if (mime && mime.indexOf('video/') !== 0 && mime !== 'application/octet-stream') return false;
-  return true;
+  return VIDEO_EXTENSIONS.includes(ext);
 }
 
 export function buildVideoPathname(tenantId: string, originalName: string): string {

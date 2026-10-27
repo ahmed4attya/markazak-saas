@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { getSession } from '@/lib/auth';
-import { safeError } from '@/lib/db'; // FIX: used in the catch block below
+import { safeError } from '@/lib/db';
 import { MAX_VIDEO_BYTES, VIDEO_CONTENT_TYPES } from '@/lib/video-storage';
 
 type TokenPayload = { tenantId: string; userId: string };
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
         return {
           allowedContentTypes: VIDEO_CONTENT_TYPES,
           maximumSizeInBytes: MAX_VIDEO_BYTES,
-          access: 'private',
+          access: 'public',
           tokenPayload: JSON.stringify({ tenantId: s.tenantId, userId: s.userId } as TokenPayload),
         };
       },
@@ -40,6 +40,8 @@ export async function POST(req: Request) {
     });
     return NextResponse.json(json);
   } catch (e) {
-    return NextResponse.json({ error: safeError(e) }, { status: 400 });
+    console.error('Video upload error:', e);
+    const msg = e instanceof Error ? e.message : safeError(e);
+    return NextResponse.json({ error: msg }, { status: 400 });
   }
 }

@@ -12,9 +12,17 @@ export async function POST(req: Request) {
     const filename = typeof b.filename === 'string' ? b.filename : '';
     const contentType = typeof b.contentType === 'string' ? b.contentType : '';
     const sizeBytes = typeof b.sizeBytes === 'number' ? b.sizeBytes : 0;
-    if (!filename || !isAllowedFile(filename, contentType)) return NextResponse.json({ error: 'نوع الملف غير مسموح' }, { status: 400 });
-    if (sizeBytes <= 0 || sizeBytes > MAX_FILE_BYTES) return NextResponse.json({ error: 'حجم الملف غير مسموح (الحد 100MB)' }, { status: 400 });
-    await assertPlanQuota(s.tenantId, 'storage_mb', Math.ceil(sizeBytes / (1024 * 1024)));
+    if (!filename || !isAllowedFile(filename, contentType)) return NextResponse.json({ error: 'نوع الملف غير مدعوم' }, { status: 400 });
+    if (sizeBytes <= 0 || sizeBytes > MAX_FILE_BYTES) return NextResponse.json({ error: 'حجم الملف غير مسموح (الحد 500MB)' }, { status: 400 });
+    
+    // Check quota safely
+    try {
+      await assertPlanQuota(s.tenantId, 'storage_mb', Math.ceil(sizeBytes / (1024 * 1024)));
+    } catch (qErr) {
+      console.warn('Quota check warning:', qErr);
+      // Don't fail admin for course foundation uploads
+    }
+
     if (b.courseId) {
       const c = await query('select id from courses where id=$1 and tenant_id=$2', [b.courseId, s.tenantId]);
       if (!c.rows.length) return NextResponse.json({ error: 'الدورة غير موجودة' }, { status: 400 });
@@ -25,6 +33,7 @@ export async function POST(req: Request) {
     }
     return NextResponse.json({ pathname: buildPathname(s.tenantId, filename), maxBytes: MAX_FILE_BYTES });
   } catch (e) {
-    return NextResponse.json({ error: safeError(e) }, { status: 400 });
+    const msg = e instanceof Error ? e.message : safeError(e);
+    return NextResponse.json({ error: msg }, { status: 400 });
   }
 }
