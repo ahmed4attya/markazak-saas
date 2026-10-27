@@ -38,6 +38,17 @@ export async function GET(_req: Request, { params }: Context) {
   const safeName = String(row.name || 'file').replace(/["\\\r\n]/g, '');
   const disposition = 'attachment; filename="' + encodeURIComponent(safeName) + '"';
 
+  // 0. If file_data is stored directly in database
+  if (row.file_data) {
+    const buffer = Buffer.from(row.file_data, 'base64');
+    const headers = new Headers();
+    headers.set('content-type', row.mime || 'application/octet-stream');
+    headers.set('content-length', String(buffer.length));
+    headers.set('content-disposition', disposition);
+    headers.set('cache-control', 'private, no-store');
+    return new Response(buffer, { status: 200, headers });
+  }
+
   // 1. If storage_key is a local public path (e.g. /docs/...)
   if (typeof row.storage_key === 'string' && row.storage_key.startsWith('/')) {
     try {

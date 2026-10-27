@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { randomUUID } from 'crypto';
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { getSession } from '@/lib/auth';
 import { query, safeError } from '@/lib/db';
@@ -13,7 +14,7 @@ export async function POST(req: Request) {
 
   const contentTypeHeader = req.headers.get('content-type') || '';
 
-  // 1. Direct Multipart/Form-Data Upload (Resilient fallback)
+  // 1. Direct Multipart/Form-Data Upload (Fast & Resilient)
   if (contentTypeHeader.includes('multipart/form-data')) {
     try {
       const formData = await req.formData();
@@ -33,10 +34,12 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'حجم الملف غير مسموح به (الحد الأقصى 100MB)' }, { status: 400 });
       }
 
+      const safeFileName = sanitizeName(file.name);
       let storageKey: string;
+      let fileData: string | null = null;
       const buffer = Buffer.from(await file.arrayBuffer());
 
-      // If Vercel Blob token is configured, upload to Vercel Blob
+      // If Vercel Blob token is configured in environment, use Vercel Blob
       if (process.env.BLOB_READ_WRITE_TOKEN) {
         const { put } = await import('@vercel/blob');
         const pathname = buildPathname(s.tenantId, file.name);
@@ -46,9 +49,9 @@ export async function POST(req: Request) {
         });
         storageKey = blob.url;
       } else {
-        // Fallback: Embed as Base64 Data URL (safe in database)
-        const mime = file.type || 'application/octet-stream';
-        storageKey = `data:${mime};base64,${buffer.toString('base64')}`;
+        // High-reliability internal storage in Postgres TOAST
+        storageKey = `internal://tenants/${s.tenantId}/${randomUUID()}/${safeFileName}`;
+        fileData = buffer.toString('base64');
       }
 
       if (courseId) {
@@ -61,13 +64,11 @@ export async function POST(req: Request) {
         if (!g.rows.length) return NextResponse.json({ error: 'المجموعة غير موجودة' }, { status: 400 });
       }
 
-      const safeFileName = sanitizeName(file.name);
       const res = await query(
-        `insert into files (tenant_id, course_id, group_id, name, mime, size_bytes, storage_key, uploaded_by)
-         values ($1, $2, $3, $4, $5, $6, $7, $8)
-         on conflict (storage_key) do update set name = excluded.name
+        `insert into files (tenant_id, course_id, group_id, name, mime, size_bytes, storage_key, file_data, uploaded_by)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          returning id, name, mime, size_bytes, storage_key, created_at`,
-        [s.tenantId, courseId, groupId, safeFileName, file.type || null, file.size, storageKey, s.userId]
+        [s.tenantId, courseId, groupId, safeFileName, file.type || null, file.size, storageKey, fileData, s.userId]
       );
 
       // Audit Log
