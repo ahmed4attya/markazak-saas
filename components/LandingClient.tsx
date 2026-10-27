@@ -5,9 +5,10 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import NumberFlow from "@number-flow/react";
 import {
-  Users, BookOpen, CalendarCheck, Wallet, FileBadge, BarChart3, Brain, ShieldCheck,
+  Users, BookOpen, CalendarCheck, Wallet, FileBadge, Brain, ShieldCheck,
   ArrowLeft, FileCheck, TrendingUp, ChevronDown,
   Star, Send, MonitorSmartphone, Lock, Clock, GraduationCap, CheckCircle2, Video, MessageCircle,
+  Gift, Sparkles, Check, Target, Zap,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import HeroCanvas from "@/components/HeroCanvas";
@@ -48,6 +49,7 @@ const TESTIMONIALS = [
 ];
 
 const FAQS = [
+  { q: "هل الدورات التأسيسية الثلاث (كمي، لفظي، تحصيلي) مجانية بالفعل؟", a: "نعم — الدورات التأسيسية الثلاث مجانية بالكامل 100% بنظام التعلم الذاتي، ومتاحة لجميع الطلاب مع بنك الأسئلة والامتحانات المحاكية ودون أي رسوم خفية أو بطاقات بنكية." },
   { q: "هل يحتاج الطلاب لتطبيق من المتجر؟", a: "لا — المنصة PWA تُثبَّت مباشرة من المتصفح على الجوال واللوحي، وتعمل حتى دون اتصال للصفحات المزارة." },
   { q: "كيف تُحمى فيديوهات الدورات من التسريب؟", a: "الفيديو لا يُفتح برابط مباشر إطلاقاً — يُبَث عبر بروكسي جلسة موثقة بعلامة مائية تحمل اسم الطالب وبريده وتاريخ المشاهدة." },
   { q: "هل يناسب مراكز متعددة الفروع؟", a: "نعم — بنية Multi-tenant تعزل بيانات كل مركز كلياً، مع صلاحيات لكل دور من المدير حتى ولي الأمر." },
@@ -55,6 +57,60 @@ const FAQS = [
   { q: "ماذا عن المتابعة لأولياء الأمور؟", a: "حساب ولي أمر مرتبط بابنه يرى الحضور والدرجات والواجبات والإشعارات لحظياً من نفس التطبيق." },
   { q: "هل الشهادات موثقة وقابلة للتحقق؟", a: "نعم — كل شهادة صادرة من المنصة تحمل رقماً عاماً تستطيع جهة العمل التحقق منه فوراً من صفحة التحقق دون أي حساب." },
   { q: "كيف أحصل على الدعم عند الحاجة؟", a: "عبر نموذج التواصل في هذه الصفحة أو واتساب الدعم المباشر، إضافة إلى أدلة استخدام داخل النظام لكل دور من أدوار المنصة." },
+];
+
+const FREE_COURSES = [
+  {
+    id: "9232aee0-d518-480c-83e2-3ca84903f63f",
+    code: "FREE-QUANT-2026",
+    title: "التأسيس الشامل في القدرات — القسم الكمي",
+    badge: "قدرات عامة (كمي)",
+    hours: "24 ساعة تدريبية",
+    exam: "اختبار محاكاة 20 دقيقة",
+    desc: "تغطية كاملة للحساب الذهني والكسور والنسب المئوية والهندسة والمقارنات وتفسير الرسوم البيانية مع تدريب مكثف على تجنب الفخاخ الحسابية.",
+    topics: [
+      "الحل الذهني السريع بدون ورقة وقلم في أقل من 50 ثانية",
+      "قوانين الهندسة والمثلثات والدوائر والزوايا والأشكال المركبة",
+      "استراتيجيات حسم أسئلة المقارنات والأسس دون حسابات طويلة",
+      "تحليل وتفسير الجداول الإحصائية والاحتمالات",
+      "تصحيح ذكي فوري لكل سؤال مع شرح (لماذا أخطأت؟)",
+    ],
+    href: "/login?redirect=/portal/courses",
+  },
+  {
+    id: "467e8047-c52a-4392-a9e1-34d691cde5b4",
+    code: "FREE-VERBAL-2026",
+    title: "التأسيس الشامل في القدرات — القسم اللفظي",
+    badge: "قدرات عامة (لفظي)",
+    hours: "20 ساعة تدريبية",
+    exam: "اختبار محاكاة 20 دقيقة",
+    desc: "إتقان مهارات القسم اللفظي الخمس: التناظر اللفظي، إكمال الجمل، الخطأ السياقي، استيعاب المقروء، والارتباط والاختلاف وفق أحدث نماذج قياس.",
+    topics: [
+      "تحديد اتجاه ونوع العلاقة وتفادي التناظرات المقلوبة",
+      "قراءة المفاتيح الدلالية والروابط في إكمال الجمل",
+      "استخراج الكلمة الشاذة المفسدة للمعنى في الخطأ السياقي",
+      "استيعاب المقروء السريع وقراءة الأسئلة قبل النص",
+      "بنك نصوص حديث يحاكي تجميعات مركز قياس الفعلية",
+    ],
+    href: "/login?redirect=/portal/courses",
+  },
+  {
+    id: "d62cd5f8-1539-4340-a2b5-d87d2e2b3ba3",
+    code: "FREE-TAHSILI-2026",
+    title: "التأسيس المكثف للاختبار التحصيلي — علمي",
+    badge: "التحصيلي (علمي)",
+    hours: "30 ساعة تدريبية",
+    exam: "اختبار المفاهيم الكبرى 25 دقيقة",
+    desc: "خلاصة القوانين والمفاهيم الكبرى الأكثر تكراراً في تجميعات التحصيلي للمواد الأربع: الرياضيات والفيزياء والكيمياء والأحياء لسنوات الثانوي الثلاث.",
+    topics: [
+      "الرياضيات: الاشتقاق، المصفوفات، المتجهات، وحساب المثلثات",
+      "الفيزياء: قوانين نيوتن، الكهرباء والمغناطيسية، والفيزياء النووية",
+      "الكيمياء: الحسابات الكيميائية، الاتزان، والكيمياء العضوية",
+      "الأحياء: التراكيب الخلوية، الوراثة والحمض النووي (DNA)",
+      "اختبار قياس المعايير الحقيقي مع توزيع نسب السنوات الثلاث",
+    ],
+    href: "/login?redirect=/portal/courses",
+  },
 ];
 
 function useInViewOnce() {
@@ -164,6 +220,10 @@ export default function LandingClient({ stats }: { stats: Record<string, number>
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm text-[color:var(--muted)]">
+            <a href="#free-courses" className="text-[color:var(--gold)] font-bold transition-colors flex items-center gap-1.5">
+              <span>الدورات المجانية</span>
+              <span className="text-[10px] bg-[color:var(--gold)] text-[#0b0f17] px-1.5 py-0.5 rounded-full font-black animate-pulse">هدية</span>
+            </a>
             <a href="#features" className="hover:text-[color:var(--text)] transition-colors">المميزات</a>
             <a href="#how" className="hover:text-[color:var(--text)] transition-colors">كيف تعمل</a>
             <a href="#faq" className="hover:text-[color:var(--text)] transition-colors">الأسئلة</a>
@@ -183,9 +243,14 @@ export default function LandingClient({ stats }: { stats: Record<string, number>
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(900px 480px at 85% -10%, rgba(245,158,11,0.12), transparent 60%), radial-gradient(700px 400px at 10% 110%, rgba(91,155,255,0.07), transparent 55%)" }} />
         <div className="relative max-w-6xl mx-auto px-4 py-24 lg:py-32 text-center">
-          <motion.span
+          <motion.a
+            href="#free-courses"
             initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-            className="badge inline-block"><AnimatedGradientText>v2.0 — منصة تدريب SaaS عربية بالكامل</AnimatedGradientText></motion.span>
+            className="badge inline-flex items-center gap-2 hover:border-[color:var(--gold)] transition-colors cursor-pointer"
+          >
+            <span className="w-2 h-2 rounded-full bg-[color:var(--gold)] animate-ping" />
+            <AnimatedGradientText>هدية 2026: 3 دورات تأسيس مجانية بالكامل (كمي - لفظي - تحصيلي) 🎁</AnimatedGradientText>
+          </motion.a>
           <motion.h1
             initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
             className="mt-6 text-4xl lg:text-6xl font-extrabold leading-[1.25]">
@@ -207,10 +272,12 @@ export default function LandingClient({ stats }: { stats: Record<string, number>
           <motion.div
             initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }}
             className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Link href="/login" className="primary px-8 py-3 text-base" style={{ animation: "goldPulse 2.4s ease-in-out infinite" }}>
-              ابدأ التجربة المجانية <ArrowLeft size={18} className="inline" />
-            </Link>
-            <a href="#features" className="ghost px-8 py-3 text-base">استعرض المنصة</a>
+            <a href="#free-courses" className="primary px-8 py-3 text-base flex items-center gap-2" style={{ animation: "goldPulse 2.4s ease-in-out infinite" }}>
+              <Gift size={18} />
+              ابدأ الدورات المجانية الآن
+              <ArrowLeft size={18} className="inline" />
+            </a>
+            <Link href="/login" className="ghost px-8 py-3 text-base">دخول النظام</Link>
           </motion.div>
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
@@ -220,6 +287,121 @@ export default function LandingClient({ stats }: { stats: Record<string, number>
             <span className="px-3 py-1.5 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-2)] inline-flex items-center gap-1.5"><ShieldCheck size={13} /> رؤوس أمان HSTS</span>
             <span className="px-3 py-1.5 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-2)] inline-flex items-center gap-1.5"><Users size={13} /> متعدد الأدوار</span>
           </motion.div>
+        </div>
+      </section>
+
+      {/* ---------- FREE FOUNDATION COURSES SECTION ---------- */}
+      <section id="free-courses" className="max-w-6xl mx-auto px-4 py-20 scroll-mt-20">
+        <div className="relative rounded-3xl p-8 lg:p-12 border border-[color:var(--gold-border)] bg-gradient-to-b from-[rgba(245,158,11,0.06)] via-[color:var(--surface)] to-[color:var(--surface)] shadow-2xl overflow-hidden">
+          {/* Ambient Glow */}
+          <div className="absolute top-0 right-1/4 w-96 h-96 bg-[color:var(--gold)]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[color:var(--blue)]/10 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Section Header */}
+          <div className="relative text-center max-w-3xl mx-auto mb-14">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[color:var(--gold-soft)] text-[color:var(--gold)] border border-[color:var(--gold-border)] mb-4">
+              <Gift size={14} className="animate-bounce" />
+              <span>مبادرة منصة الخوارزمي التعليمية 2026 — مجاناً 100%</span>
+            </div>
+            <h2 className="text-3xl lg:text-4xl font-black text-[color:var(--text)] leading-tight">
+              3 مسارات تأسيس مجانية بنظام التعلم الذاتي الذكي
+            </h2>
+            <p className="mt-4 text-base text-[color:var(--muted)] leading-relaxed">
+              انطلاقة متكاملة للطلاب والطالبات لتحقيق 90+ في اختبارات قياس. منهج احترافي يشمل بنك أسئلة، امتحانات محاكية بمؤقت حي، وتحليلاً ذكياً للأخطاء (لماذا أخطأت وكيف تتفادى الفخاخ).
+            </p>
+          </div>
+
+          {/* Courses Cards Grid */}
+          <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {FREE_COURSES.map((course, idx) => (
+              <motion.div
+                key={course.code}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ delay: idx * 0.12 }}
+                className="group relative rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-2)] p-6 flex flex-col justify-between hover:border-[color:var(--gold)] hover:shadow-[0_15px_40px_rgba(245,158,11,0.14)] transition-all duration-300"
+              >
+                {/* Top Badge & Pricing */}
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <span className="badge font-bold">{course.badge}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[color:var(--muted)] line-through">299 ر.س</span>
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                        مجاناً 100%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Course Title */}
+                  <h3 className="text-xl font-black text-[color:var(--text)] group-hover:text-[color:var(--gold)] transition-colors leading-snug">
+                    {course.title}
+                  </h3>
+
+                  <p className="mt-2.5 text-xs text-[color:var(--muted)] leading-relaxed">
+                    {course.desc}
+                  </p>
+
+                  {/* Key Stats Ribbon */}
+                  <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center gap-1.5 p-2 rounded-lg bg-[color:var(--surface)] border border-[color:var(--border)]">
+                      <Clock size={13} className="text-[color:var(--gold)] shrink-0" />
+                      <span className="font-semibold text-[color:var(--text-soft)]">{course.hours}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 p-2 rounded-lg bg-[color:var(--surface)] border border-[color:var(--border)]">
+                      <Target size={13} className="text-blue-400 shrink-0" />
+                      <span className="font-semibold text-[color:var(--text-soft)]">{course.exam}</span>
+                    </div>
+                  </div>
+
+                  {/* Topics List */}
+                  <div className="mt-5 space-y-2.5 pt-4 border-t border-[color:var(--border)]">
+                    <div className="text-xs font-bold text-[color:var(--text)] flex items-center gap-1.5">
+                      <Sparkles size={13} className="text-[color:var(--gold)]" />
+                      <span>أبرز محاور المسار:</span>
+                    </div>
+                    {course.topics.map((topic, i) => (
+                      <div key={i} className="flex items-start gap-2 text-xs text-[color:var(--muted)] leading-relaxed">
+                        <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                        <span>{topic}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Card Action */}
+                <div className="mt-6 pt-4 border-t border-[color:var(--border)]">
+                  <Link
+                    href={course.href}
+                    className="primary w-full !min-h-0 py-3 px-4 text-sm font-bold flex items-center justify-center gap-2 group-hover:scale-[1.02] transition-transform"
+                  >
+                    <span>سجّل مجاناً وابدأ الآن</span>
+                    <ArrowLeft size={16} />
+                  </Link>
+                  <p className="mt-2 text-center text-[11px] text-[color:var(--muted)]">
+                    وصول فوري بدون بطاقة ائتمانية · تعلم بالسرعة التي تناسبك
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Bottom Trust Feature Bar */}
+          <div className="relative mt-12 pt-8 border-t border-[color:var(--border)] grid grid-cols-1 md:grid-cols-3 gap-6 text-center text-xs text-[color:var(--muted)]">
+            <div className="flex items-center justify-center gap-2">
+              <CheckCircle2 size={16} className="text-[color:var(--gold)]" />
+              <span>امتحانات محاكية بمؤقت حي ونفس طريقة شاشة قياس</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <Brain size={16} className="text-[color:var(--gold)]" />
+              <span>تحليل ذكي فوري لكل إجابة خاطئة مع استراتيجيات الحل السريع</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <Zap size={16} className="text-[color:var(--gold)]" />
+              <span>متاح على مدار الساعة عبر متصفح الجوال أو الحاسوب (PWA)</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -438,6 +620,7 @@ export default function LandingClient({ stats }: { stats: Record<string, number>
           <div>
             <div className="font-bold text-[color:var(--text)] mb-3">المنصة</div>
             <div className="space-y-2">
+              <a href="#free-courses" className="block text-[color:var(--gold)] font-medium hover:underline transition-colors">الدورات المجانية (هدية المنصة)</a>
               <Link href="/plans" className="block hover:text-[color:var(--text)] transition-colors">الباقات والأسعار</Link>
               <Link href="/login" className="block hover:text-[color:var(--text)] transition-colors">تسجيل الدخول</Link>
               <Link href="/verify" className="block hover:text-[color:var(--text)] transition-colors">التحقق من شهادة</Link>

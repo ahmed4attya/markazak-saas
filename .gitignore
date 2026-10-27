@@ -50,3 +50,4 @@ test-results/
 test-results/
 
 .mimosa/
+client_secret*.json
