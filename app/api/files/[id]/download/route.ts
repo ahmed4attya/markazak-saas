@@ -38,6 +38,41 @@ export async function GET(_req: Request, { params }: Context) {
   const safeName = String(row.name || 'file').replace(/["\\\r\n]/g, '');
   const disposition = 'attachment; filename="' + encodeURIComponent(safeName) + '"';
 
+  // 1. If storage_key is a local public path (e.g. /docs/...)
+  if (typeof row.storage_key === 'string' && row.storage_key.startsWith('/')) {
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      const localPath = path.join(process.cwd(), 'public', row.storage_key);
+      if (fs.existsSync(localPath)) {
+        const buf = fs.readFileSync(localPath);
+        const headers = new Headers();
+        headers.set('content-type', row.mime || 'application/pdf');
+        headers.set('content-length', String(buf.length));
+        headers.set('content-disposition', disposition);
+        headers.set('cache-control', 'public, max-age=86400');
+        return new Response(buf, { status: 200, headers });
+      }
+    } catch (e) {
+      console.error('Error reading local file:', e);
+    }
+    return NextResponse.redirect(new URL(row.storage_key, _req.url));
+  }
+
+  // 2. If storage_key is an embedded Data URI (Base64)
+  if (typeof row.storage_key === 'string' && row.storage_key.startsWith('data:')) {
+    const parts = row.storage_key.split(',');
+    const mimeMatch = parts[0].match(/:(.*?);/);
+    const contentType = mimeMatch ? mimeMatch[1] : (row.mime || 'application/octet-stream');
+    const buffer = Buffer.from(parts[1] || '', 'base64');
+    const headers = new Headers();
+    headers.set('content-type', contentType);
+    headers.set('content-length', String(buffer.length));
+    headers.set('content-disposition', disposition);
+    headers.set('cache-control', 'private, no-store');
+    return new Response(buffer, { status: 200, headers });
+  }
+
   try {
     const direct = await fetch(row.storage_key);
     if (direct.ok) {

@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { upload } from '@vercel/blob/client';
 import { Upload, Trash2, Download, FileText } from 'lucide-react';
 import Shell from '@/components/Shell';
 
@@ -36,24 +35,21 @@ export default function Library() {
     setBusy(true); setError(''); setOk('');
     try {
       if (f.size > 100 * 1024 * 1024) throw new Error('حجم الملف يتجاوز الحد 100MB');
-      const prep = await fetch('/api/files/prepare', {
+
+      const formData = new FormData();
+      formData.append('file', f);
+      if (courseId) formData.append('courseId', courseId);
+
+      const res = await fetch('/api/files/upload', {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ filename: f.name, contentType: f.type, sizeBytes: f.size, courseId: courseId || null }),
+        body: formData,
       });
-      if (!prep.ok) { const j = await prep.json().catch(() => ({})); throw new Error((j as { error?: string }).error || 'الملف غير مسموح'); }
-      const { pathname } = (await prep.json()) as { pathname: string };
-      const res = await upload(pathname, f, {
-        access: 'private',
-        handleUploadUrl: '/api/files/upload',
-        clientPayload: JSON.stringify({ courseId: courseId || null }),
-      });
-      const done = await fetch('/api/files/upload-complete', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ url: res.url, pathname: res.pathname, name: f.name, contentType: res.contentType, sizeBytes: f.size, courseId: courseId || null }),
-      });
-      if (!done.ok) { const j = await done.json().catch(() => ({})); throw new Error((j as { error?: string }).error || 'فشل تسجيل الملف'); }
+
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        throw new Error(data.error || 'فشل رفع الملف');
+      }
+
       setOk('تم رفع الملف بنجاح');
       await load();
     } catch (e) {
