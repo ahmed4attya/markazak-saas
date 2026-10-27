@@ -8,7 +8,7 @@ import {
   Users, BookOpen, CalendarCheck, Wallet, FileBadge, Brain, ShieldCheck,
   ArrowLeft, FileCheck, TrendingUp, ChevronDown,
   Star, Send, MonitorSmartphone, Lock, Clock, GraduationCap, CheckCircle2, Video, MessageCircle,
-  Gift, Sparkles, Check, Target, Zap,
+  Gift, Sparkles, Check, Target, Zap, Download,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import HeroCanvas from "@/components/HeroCanvas";
@@ -67,6 +67,8 @@ const FREE_COURSES = [
     badge: "قدرات عامة (كمي)",
     hours: "24 ساعة تدريبية",
     exam: "اختبار محاكاة 20 دقيقة",
+    pdfUrl: "/docs/qiyas-quant-rules-2026.pdf",
+    pdfLabel: "تحميل مذكرة القوانين الذهبية (PDF)",
     desc: "تغطية كاملة للحساب الذهني والكسور والنسب المئوية والهندسة والمقارنات وتفسير الرسوم البيانية مع تدريب مكثف على تجنب الفخاخ الحسابية.",
     topics: [
       "الحل الذهني السريع بدون ورقة وقلم في أقل من 50 ثانية",
@@ -84,6 +86,8 @@ const FREE_COURSES = [
     badge: "قدرات عامة (لفظي)",
     hours: "20 ساعة تدريبية",
     exam: "اختبار محاكاة 20 دقيقة",
+    pdfUrl: "/docs/qiyas-verbal-guide-2026.pdf",
+    pdfLabel: "تحميل دليل استراتيجيات اللفظي (PDF)",
     desc: "إتقان مهارات القسم اللفظي الخمس: التناظر اللفظي، إكمال الجمل، الخطأ السياقي، استيعاب المقروء، والارتباط والاختلاف وفق أحدث نماذج قياس.",
     topics: [
       "تحديد اتجاه ونوع العلاقة وتفادي التناظرات المقلوبة",
@@ -101,6 +105,8 @@ const FREE_COURSES = [
     badge: "التحصيلي (علمي)",
     hours: "30 ساعة تدريبية",
     exam: "اختبار المفاهيم الكبرى 25 دقيقة",
+    pdfUrl: "/docs/tahsili-core-concepts-2026.pdf",
+    pdfLabel: "تحميل ملخص المفاهيم الكبرى (PDF)",
     desc: "خلاصة القوانين والمفاهيم الكبرى الأكثر تكراراً في تجميعات التحصيلي للمواد الأربع: الرياضيات والفيزياء والكيمياء والأحياء لسنوات الثانوي الثلاث.",
     topics: [
       "الرياضيات: الاشتقاق، المصفوفات، المتجهات، وحساب المثلثات",
@@ -371,15 +377,25 @@ export default function LandingClient({ stats }: { stats: Record<string, number>
                 </div>
 
                 {/* Card Action */}
-                <div className="mt-6 pt-4 border-t border-[color:var(--border)]">
+                <div className="mt-6 pt-4 border-t border-[color:var(--border)] space-y-2.5">
+                  <a
+                    href={course.pdfUrl}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2.5 px-3 rounded-xl border border-[color:var(--gold-border)] bg-[color:var(--surface)] text-xs font-bold text-[color:var(--gold)] hover:bg-[color:var(--gold-soft)] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <Download size={14} className="shrink-0" />
+                    <span>{course.pdfLabel}</span>
+                  </a>
                   <Link
                     href={course.href}
                     className="primary w-full !min-h-0 py-3 px-4 text-sm font-bold flex items-center justify-center gap-2 group-hover:scale-[1.02] transition-transform"
                   >
-                    <span>سجّل مجاناً وابدأ الآن</span>
+                    <span>سجّل مجاناً وابدأ الدورة الآن</span>
                     <ArrowLeft size={16} />
                   </Link>
-                  <p className="mt-2 text-center text-[11px] text-[color:var(--muted)]">
+                  <p className="text-center text-[11px] text-[color:var(--muted)]">
                     وصول فوري بدون بطاقة ائتمانية · تعلم بالسرعة التي تناسبك
                   </p>
                 </div>
