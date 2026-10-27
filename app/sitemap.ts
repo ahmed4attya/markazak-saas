@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://markazak-saas.vercel.app";
   const now = new Date();
   return ["/", "/login", "/plans", "/verify", "/privacy", "/terms"].map((p) => ({
     url: `${base}${p}`,
