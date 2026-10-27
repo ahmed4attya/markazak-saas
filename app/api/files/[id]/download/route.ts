@@ -14,25 +14,40 @@ export async function GET(_req: Request, { params }: Context) {
   if (!rows.length) return NextResponse.json({ error: 'الملف غير موجود' }, { status: 404 });
   const row = rows[0];
 
-  if (s.role === 'student' || s.role === 'guardian') {
-    if (!row.course_id) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
-    const linked = (await query(
-      `select 1 from files f
-       join courses c on c.id = f.course_id
-       join groups g on g.course_id = c.id
-       join enrollments e on e.group_id = g.id
-       join students st on st.id = e.student_id
-       where f.id = $1 and f.tenant_id = $2 and (st.user_id = $3 or st.guardian_user_id = $3)
-       limit 1`,
-      [id, s.tenantId, s.userId]
-    )).rows.length;
-    if (!linked) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
-  }
-  if (s.role === 'teacher') {
-    const teaching = row.course_id
-      ? (await query('select 1 from course_teachers where course_id=$1 and teacher_user_id=$2 limit 1', [row.course_id, s.userId])).rows.length
-      : 0;
-    if (!teaching) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  const isAdminOrStaff = ['owner', 'admin', 'manager', 'staff'].includes(s.role);
+  if (!isAdminOrStaff) {
+    // Free foundation / self-learning courses are open to all users in the tenant
+    let isFreeOrOpen = false;
+    if (row.course_id) {
+      const c = await query(
+        "select 1 from courses where id=$1 and tenant_id=$2 and (code like 'FREE-%' or name like '%تعلم ذاتي%' or is_active=true) limit 1",
+        [row.course_id, s.tenantId]
+      );
+      if (c.rows.length > 0) isFreeOrOpen = true;
+    }
+
+    if (!isFreeOrOpen) {
+      if (s.role === 'student' || s.role === 'guardian') {
+        if (!row.course_id) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+        const linked = (await query(
+          `select 1 from files f
+           join courses c on c.id = f.course_id
+           join groups g on g.course_id = c.id
+           join enrollments e on e.group_id = g.id
+           join students st on st.id = e.student_id
+           where f.id = $1 and f.tenant_id = $2 and (st.user_id = $3 or st.guardian_user_id = $3)
+           limit 1`,
+          [id, s.tenantId, s.userId]
+        )).rows.length;
+        if (!linked) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+      }
+      if (s.role === 'teacher') {
+        const teaching = row.course_id
+          ? (await query('select 1 from course_teachers where course_id=$1 and teacher_user_id=$2 limit 1', [row.course_id, s.userId])).rows.length
+          : 0;
+        if (!teaching) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+      }
+    }
   }
 
   const safeName = String(row.name || 'file').replace(/["\\\r\n]/g, '');
@@ -98,7 +113,7 @@ export async function GET(_req: Request, { params }: Context) {
     }
     if (direct.status === 401 || direct.status === 403) {
       const { get } = await import('@vercel/blob');
-      const result = await get(row.storage_key, { access: 'private' });
+      const result = await get(row.storage_key, { access: 'public' });
       if (!result) return NextResponse.json({ error: 'الملف غير موجود' }, { status: 404 });
       const headers = new Headers();
       const ct = result.headers.get('content-type'); if (ct) headers.set('content-type', ct);
