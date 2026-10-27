@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Home, ClipboardList, Wrench, TrendingUp, UserRound, Bell,
+  Home, ClipboardList, Wrench, TrendingUp, UserRound, Bell, Sparkles, Calculator, Swords,
 } from "lucide-react";
 
 const TABS = [
@@ -95,6 +95,32 @@ export default function PortalLayout({
             </span>
           </Link>
           <div className="flex-1" />
+          <div className="flex items-center gap-0.5">
+            <Link
+              href="/portal/formulas"
+              aria-label="القوانين الذهبية"
+              title="القوانين الذهبية"
+              className="w-9 h-9 grid place-items-center rounded-xl text-[color:var(--muted)] hover:text-[color:var(--gold)] hover:bg-[color:var(--surface-2)] transition-colors"
+            >
+              <Sparkles size={17} />
+            </Link>
+            <Link
+              href="/portal/calculator"
+              aria-label="حاسبة النسبة الموزونة"
+              title="حاسبة النسبة الموزونة"
+              className="w-9 h-9 grid place-items-center rounded-xl text-[color:var(--muted)] hover:text-emerald-400 hover:bg-[color:var(--surface-2)] transition-colors"
+            >
+              <Calculator size={17} />
+            </Link>
+            <Link
+              href="/portal/self-challenge"
+              aria-label="التحدي الذاتي"
+              title="التحدي الذاتي"
+              className="w-9 h-9 grid place-items-center rounded-xl text-[color:var(--muted)] hover:text-red-400 hover:bg-[color:var(--surface-2)] transition-colors"
+            >
+              <Swords size={17} />
+            </Link>
+          </div>
           <button
             onClick={() => setBellOpen((v) => !v)}
             aria-label="الإشعارات"

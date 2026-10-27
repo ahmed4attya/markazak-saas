@@ -5,8 +5,21 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import NumberFlow from "@number-flow/react";
 import {
-  ClipboardList, NotebookPen, BookOpen, FolderOpen,
-  KeyRound, Zap, PlayCircle, ChevronLeft, Flame,
+  ClipboardList,
+  NotebookPen,
+  BookOpen,
+  FolderOpen,
+  KeyRound,
+  Zap,
+  PlayCircle,
+  ChevronLeft,
+  Flame,
+  Calculator,
+  Sparkles,
+  Swords,
+  Award,
+  Target,
+  Wrench,
 } from "lucide-react";
 
 type PRow = {
@@ -18,12 +31,14 @@ type PRow = {
   pct: number;
   lastVideo: { id: string; title: string } | null;
 };
+
 type Me = {
   name: string;
   role?: string;
   points?: number;
   level?: string;
 };
+
 type Streak = { streak: number; lastActive: string | null; todayActive: boolean };
 
 function Ring({ pct, size = 64 }: { pct: number; size?: number }) {
@@ -61,11 +76,14 @@ function Ring({ pct, size = 64 }: { pct: number; size?: number }) {
 
 const QUICK = [
   { href: "/portal/training", label: "تدريب سريع", Icon: Zap, tint: "var(--gold)" },
+  { href: "/portal/self-challenge", label: "تحدي ذاتي", Icon: Swords, tint: "#ef4444" },
+  { href: "/portal/formulas", label: "القوانين الذهبية", Icon: Sparkles, tint: "#f59e0b" },
+  { href: "/portal/calculator", label: "حاسبة النسبة", Icon: Calculator, tint: "#10b981" },
+  { href: "/portal/mistakes", label: "صندوق الأخطاء", Icon: Wrench, tint: "#6366f1" },
+  { href: "/portal/badges", label: "الأوسمة", Icon: Award, tint: "#ec4899" },
+  { href: "/portal/challenge", label: "تحدي 1v1", Icon: Swords, tint: "#06b6d4" },
   { href: "/portal/exams", label: "امتحاناتي", Icon: ClipboardList, tint: "var(--blue)" },
-  { href: "/portal/assignments", label: "واجباتي", Icon: NotebookPen, tint: "var(--violet)" },
   { href: "/portal/courses", label: "دوراتي", Icon: BookOpen, tint: "var(--info)" },
-  { href: "/portal/library", label: "المكتبة", Icon: FolderOpen, tint: "var(--warning)" },
-  { href: "/portal/redeem", label: "تفعيل كود", Icon: KeyRound, tint: "var(--success)" },
 ];
 
 export default function PortalHome() {
@@ -73,17 +91,20 @@ export default function PortalHome() {
   const [rows, setRows] = useState<PRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [stk, setStk] = useState<Streak | null>(null);
+  const [forecastScore, setForecastScore] = useState<number | null>(null);
 
   useEffect(() => {
     Promise.all([
       fetch("/api/learner/me").then((r) => (r.ok ? r.json() : null)),
       fetch("/api/learner/progress").then((r) => (r.ok ? r.json() : [])),
       fetch("/api/learner/streak").then((r) => (r.ok ? r.json() : null)),
+      fetch("/api/learner/forecast").then((r) => (r.ok ? r.json() : null)),
     ])
-      .then(([m, p, sk]) => {
+      .then(([m, p, sk, fc]) => {
         setMe(m);
         setRows(Array.isArray(p) ? p : []);
         setStk(sk as Streak | null);
+        if (fc && fc.forecastScore) setForecastScore(fc.forecastScore);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -96,7 +117,8 @@ export default function PortalHome() {
   const firstName = (me?.name || "طالبنا").split(" ")[0];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 pb-8">
+      {/* Hero Welcome Card */}
       <motion.section
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
@@ -117,9 +139,21 @@ export default function PortalHome() {
             filter: "blur(40px)",
           }}
         />
-        <p className="text-xs text-[color:var(--muted)]">
-          أهلاً بك في بوابة الطالب
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-[color:var(--muted)]">
+            أهلاً بك في بوابة الطالب
+          </p>
+          {forecastScore && (
+            <Link
+              href="/portal/progress"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[color:var(--gold-soft)] border border-[color:var(--gold-border)] text-[10px] font-bold text-[color:var(--gold)]"
+            >
+              <Target size={12} />
+              <span>توقع قياس: {forecastScore} نقطة</span>
+            </Link>
+          )}
+        </div>
+
         <div className="flex items-center gap-2 mt-1">
           <h1 className="text-xl font-black">{firstName}</h1>
           {me?.level && (
@@ -150,13 +184,14 @@ export default function PortalHome() {
             </span>
           )}
         </div>
+
         <div className="mt-4 flex items-center gap-4">
           <Ring pct={pct} size={78} />
           <div>
             <p className="text-[11px] text-[color:var(--muted)]">نقاطك</p>
             <NumberFlow
               value={Number(me?.points || 0)}
-              className="text-2xl font-black text-[color:var(--gold)]"
+              className="text-2xl font-black text-[color:var(--gold)] font-mono"
             />
             <p className="text-[11px] text-[color:var(--muted)] mt-1">
               {done} من {tot} مهمة منجزة
@@ -165,6 +200,7 @@ export default function PortalHome() {
         </div>
       </motion.section>
 
+      {/* Continue Watching Video Banner */}
       {cont?.lastVideo && (
         <motion.section
           initial={{ opacity: 0, y: 12 }}
@@ -181,8 +217,7 @@ export default function PortalHome() {
           >
             <span
               className={[
-                "w-11 h-11 rounded-xl grid place-items-center",
-                "shrink-0",
+                "w-11 h-11 rounded-xl grid place-items-center shrink-0",
               ].join(" ")}
               style={{
                 background: "var(--gold-soft)",
@@ -199,12 +234,109 @@ export default function PortalHome() {
                 {cont.lastVideo.title}
               </small>
             </span>
+            <div className="flex-1" />
             <ChevronLeft size={18} className="text-[color:var(--muted-dim)]" />
           </Link>
         </motion.section>
       )}
 
-      <section>
+      {/* Featured Competitive Hub Bento Row */}
+      <section className="space-y-2">
+        <h2 className="text-xs font-bold text-[color:var(--muted)] flex items-center gap-1.5">
+          <Sparkles size={14} className="text-[color:var(--gold)]" />
+          أدوات التفوق والمنافسة في قياس:
+        </h2>
+
+        <div className="grid grid-cols-2 gap-2.5">
+          {/* Formulas Vault */}
+          <Link
+            href="/portal/formulas"
+            className="bento-card p-4 hover:border-[color:var(--gold-border)] transition-all flex flex-col justify-between min-h-[110px]"
+          >
+            <div className="flex items-center justify-between">
+              <span className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 grid place-items-center">
+                <Sparkles size={18} />
+              </span>
+              <span className="text-[10px] font-bold text-[color:var(--gold)] font-mono">
+                230+ قانون
+              </span>
+            </div>
+            <div>
+              <b className="text-xs block font-bold mt-2">مكتبة القوانين الذهبية</b>
+              <small className="text-[10px] text-[color:var(--muted)] block">
+                بطاقات ذكية للحفظ السريع
+              </small>
+            </div>
+          </Link>
+
+          {/* Calculator */}
+          <Link
+            href="/portal/calculator"
+            className="bento-card p-4 hover:border-[color:var(--gold-border)] transition-all flex flex-col justify-between min-h-[110px]"
+          >
+            <div className="flex items-center justify-between">
+              <span className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 grid place-items-center">
+                <Calculator size={18} />
+              </span>
+              <span className="text-[10px] font-bold text-emerald-400">
+                2026 معتمد
+              </span>
+            </div>
+            <div>
+              <b className="text-xs block font-bold mt-2">حاسبة النسبة الموزونة</b>
+              <small className="text-[10px] text-[color:var(--muted)] block">
+                أوزان الجامعات السعودية
+              </small>
+            </div>
+          </Link>
+
+          {/* Self Challenge */}
+          <Link
+            href="/portal/self-challenge"
+            className="bento-card p-4 hover:border-[color:var(--gold-border)] transition-all flex flex-col justify-between min-h-[110px]"
+          >
+            <div className="flex items-center justify-between">
+              <span className="w-9 h-9 rounded-xl bg-red-500/10 text-red-400 grid place-items-center">
+                <Swords size={18} />
+              </span>
+              <span className="text-[10px] font-bold text-red-400">
+                تحدي البرق ⚡
+              </span>
+            </div>
+            <div>
+              <b className="text-xs block font-bold mt-2">التحدي الذاتي المخصص</b>
+              <small className="text-[10px] text-[color:var(--muted)] block">
+                حدد القسم والمؤقت واختبر
+              </small>
+            </div>
+          </Link>
+
+          {/* 1v1 Challenge */}
+          <Link
+            href="/portal/challenge"
+            className="bento-card p-4 hover:border-[color:var(--gold-border)] transition-all flex flex-col justify-between min-h-[110px]"
+          >
+            <div className="flex items-center justify-between">
+              <span className="w-9 h-9 rounded-xl bg-cyan-500/10 text-cyan-400 grid place-items-center">
+                <Flame size={18} />
+              </span>
+              <span className="text-[10px] font-bold text-cyan-400">
+                غرفة مباشرة
+              </span>
+            </div>
+            <div>
+              <b className="text-xs block font-bold mt-2">تحدي الأصدقاء 1v1</b>
+              <small className="text-[10px] text-[color:var(--muted)] block">
+                شارك الكود ونافس زملاءك
+              </small>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* Grid of Quick Action Buttons */}
+      <section className="space-y-2">
+        <h2 className="text-xs font-bold text-[color:var(--muted)]">الوصول السريع:</h2>
         <div className="grid grid-cols-3 gap-2.5">
           {QUICK.map((q, i) => {
             const Icon = q.Icon;
@@ -213,18 +345,18 @@ export default function PortalHome() {
                 key={q.href}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + i * 0.05, duration: 0.25 }}
+                transition={{ delay: 0.05 + i * 0.03, duration: 0.2 }}
               >
                 <Link
                   href={q.href}
                   className={[
                     "bento-card p-3 flex flex-col items-center",
-                    "justify-center gap-2 min-h-[84px]",
+                    "justify-center gap-1.5 min-h-[76px]",
                     "hover:border-[color:var(--gold-border)]",
                     "transition-colors",
                   ].join(" ")}
                 >
-                  <Icon size={22} style={{ color: q.tint }} />
+                  <Icon size={20} style={{ color: q.tint }} />
                   <span className="text-[11px] font-semibold">{q.label}</span>
                 </Link>
               </motion.div>
@@ -233,6 +365,7 @@ export default function PortalHome() {
         </div>
       </section>
 
+      {/* Course Progress Section */}
       <section>
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-sm font-bold">تقدم دوراتك</h2>
