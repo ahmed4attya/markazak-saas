@@ -171,7 +171,7 @@ export default function Questions() {
       if (filterAttachment === 'passage') sp.set('hasPassage', 'true');
       if (filterAttachment === 'image') sp.set('hasImage', 'true');
       if (searchQuery.trim()) sp.set('q', searchQuery.trim());
-      sp.set('limit', '1000');
+      sp.set('limit', '3000');
 
       const r = await fetch('/api/questions?' + sp.toString());
       if (r.ok) {
@@ -656,7 +656,7 @@ export default function Questions() {
               <Filter size={15} className="text-blue-500" />
               <span>الفلاتر الذكية والبحث المتقدم</span>
               <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[10px] text-slate-500">
-                عرض {filteredRows.length} من أصل {rows.length}
+                عرض {filteredRows.length.toLocaleString('ar-SA')} سؤالاً {dbStats ? `من أصل +${dbStats.total.toLocaleString('ar-SA')} معتمد` : `من أصل ${rows.length}`}
               </span>
             </div>
             {hasActiveFilters && (

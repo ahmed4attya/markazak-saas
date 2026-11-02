@@ -21,6 +21,14 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
+  async rewrites() {
+    return [
+      {
+        source: '/qbank_images/:path*',
+        destination: 'https://qudurati-taupe.vercel.app/qbank_images/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
