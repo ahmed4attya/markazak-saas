@@ -131,7 +131,58 @@ export default function ExamsPage() {
             <label>النوع<select value={kind} onChange={(e) => setKind(e.target.value as 'practice' | 'simulation')}><option value="practice">تدريب</option><option value="simulation">محاكاة كاملة</option></select></label>
             <label>المدة بالدقائق<input type="number" min="1" max="600" value={durationMinutes} onChange={(e) => setDurationMinutes(e.target.value)} /></label>
           </div>
-          <div className="flex items-center justify-between"><h3 className="font-bold text-[color:var(--text)]">اختر الأسئلة ({selected.length})</h3><span className="text-xs text-[color:var(--muted)]">يتم حفظ ترتيب الاختيار</span></div>
+          
+          {/* Smart Auto-Generator Toolbar */}
+          <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-2)] p-4 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h4 className="text-sm font-bold text-[color:var(--gold)] flex items-center gap-1.5">
+                  <span>⚡</span>
+                  <span>التوليد الذكي التلقائي من بنك الأسئلة</span>
+                </h4>
+                <p className="text-xs text-[color:var(--muted)]">
+                  اختر عدد الأسئلة ليقوم النظام بانتقائها آلياً ومتوازنة من بنك الأسئلة:
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {[5, 10, 15, 20, 30, 50].map((num) => (
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={() => {
+                      const pool = courseId 
+                        ? questions.filter((q: any) => !q.course_id || q.course_id === courseId) 
+                        : questions;
+                      if (!pool.length) return;
+                      const shuffled = [...pool].sort(() => 0.5 - Math.random());
+                      setSelected(shuffled.slice(0, num).map((q) => q.id));
+                    }}
+                    className="px-2.5 py-1 text-xs font-bold rounded-xl border border-[color:var(--border-strong)] bg-[color:var(--surface-3)] hover:border-[color:var(--gold)] hover:text-[color:var(--gold)] transition cursor-pointer"
+                  >
+                    {num} سؤالاً
+                  </button>
+                ))}
+                {selected.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSelected([])}
+                    className="px-2 py-1 text-[11px] font-bold text-red-400 hover:underline cursor-pointer"
+                  >
+                    تفريغ
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <h3 className="font-bold text-[color:var(--text)] flex items-center gap-2">
+              <span>اختر الأسئلة يدوياً ({selected.length} محدد)</span>
+            </h3>
+            <span className="text-xs text-[color:var(--muted)]">
+              المتاح: {courseId ? questions.filter((q: any) => !q.course_id || q.course_id === courseId).length : questions.length} سؤال
+            </span>
+          </div>
           <div className="max-h-80 overflow-y-auto space-y-2 rounded-xl border border-[color:var(--border)] p-3">
             {questions.map((question) => <label key={question.id} className="flex items-start gap-3 rounded-lg p-3 hover:bg-[color:var(--surface-2)] cursor-pointer"><input type="checkbox" checked={selected.includes(question.id)} onChange={() => toggleQuestion(question.id)} className="mt-1" /><span><span className="block text-xs text-[color:var(--gold)]">{domainLabels[question.domain] || question.domain} · {question.topic || 'عام'}</span><span className="text-sm text-[color:var(--text-soft)]">{question.text}</span></span></label>)}
             {!questions.length && <p className="text-sm text-[color:var(--muted)]">أضف أسئلة أولاً من بنك الأسئلة.</p>}

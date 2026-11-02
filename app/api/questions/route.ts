@@ -21,6 +21,23 @@ export async function GET(req: Request) {
   const q = (searchParams.get('q') || '').trim();
   const hasPassage = (searchParams.get('hasPassage') || '').trim();
   const hasImage = (searchParams.get('hasImage') || '').trim();
+  const wantsStats = searchParams.get('stats') === 'true';
+
+  if (wantsStats) {
+    const statsSql = `
+      select 
+        count(*)::int as total,
+        count(*) filter (where domain = 'quant')::int as quant_count,
+        count(*) filter (where domain = 'verbal')::int as verbal_count,
+        count(*) filter (where domain = 'achievement')::int as achievement_count,
+        count(*) filter (where passage is not null and length(trim(passage)) > 0)::int as passage_count,
+        count(*) filter (where image_url is not null and length(trim(image_url)) > 0)::int as image_count
+      from questions
+      where tenant_id = $1
+    `;
+    const statsRow = (await query(statsSql, [s.tenantId])).rows[0];
+    return NextResponse.json(statsRow);
+  }
 
   // Also include pending notes count if admin or teacher
   let sql = `

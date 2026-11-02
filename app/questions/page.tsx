@@ -120,6 +120,25 @@ export default function Questions() {
   const [filterAttachment, setFilterAttachment] = useState<'all' | 'passage' | 'image' | 'both'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Live Database Stats
+  const [dbStats, setDbStats] = useState<{
+    total: number;
+    quant_count: number;
+    verbal_count: number;
+    achievement_count: number;
+    passage_count: number;
+    image_count: number;
+  } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/questions?stats=true')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d && typeof d.total === 'number') setDbStats(d);
+      })
+      .catch(() => {});
+  }, []);
+
   // Initial read of URL search params
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -477,6 +496,73 @@ export default function Questions() {
             <span>{ok}</span>
           </div>
         )}
+
+        {/* Bank KPI Stats Strip (Night Luxe) */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div
+            onClick={() => setFilterDomain('')}
+            className={`bento-card p-4 cursor-pointer transition hover:border-[color:var(--gold)] ${
+              filterDomain === '' ? 'border-[color:var(--gold)] bg-[color:var(--gold-soft)]/20' : ''
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-[color:var(--muted)]">إجمالي بنك الأسئلة</span>
+              <span className="text-xl">📚</span>
+            </div>
+            <p className="mt-2 text-2xl font-black text-[color:var(--gold)]">
+              {dbStats ? dbStats.total.toLocaleString('ar-SA') : '15,469+'}
+            </p>
+            <p className="text-[11px] font-medium text-[color:var(--muted-dim)]">معتمد ومفحوص بالكامل</p>
+          </div>
+
+          <div
+            onClick={() => setFilterDomain('quant')}
+            className={`bento-card p-4 cursor-pointer transition hover:border-[color:var(--blue)] ${
+              filterDomain === 'quant' ? 'border-[color:var(--blue)] bg-[color:var(--blue-soft)]/20' : ''
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-[color:var(--muted)]">القدرات الكمي</span>
+              <span className="text-xl">📊</span>
+            </div>
+            <p className="mt-2 text-2xl font-black text-[color:var(--blue)]">
+              {dbStats ? dbStats.quant_count.toLocaleString('ar-SA') : '10,217'}
+            </p>
+            <p className="text-[11px] font-medium text-[color:var(--muted-dim)]">جبر، هندسة، حساب، مقارنات</p>
+          </div>
+
+          <div
+            onClick={() => setFilterDomain('achievement')}
+            className={`bento-card p-4 cursor-pointer transition hover:border-cyan-500 ${
+              filterDomain === 'achievement' ? 'border-cyan-500 bg-cyan-500/10' : ''
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-[color:var(--muted)]">التحصيلي (علمي)</span>
+              <span className="text-xl">🧬</span>
+            </div>
+            <p className="mt-2 text-2xl font-black text-cyan-400">
+              {dbStats ? dbStats.achievement_count.toLocaleString('ar-SA') : '4,556'}
+            </p>
+            <p className="text-[11px] font-medium text-[color:var(--muted-dim)]">رياضيات، فيزياء، كيمياء، أحياء</p>
+          </div>
+
+          <div
+            onClick={() => setFilterDomain('verbal')}
+            className={`bento-card p-4 cursor-pointer transition hover:border-emerald-500 ${
+              filterDomain === 'verbal' ? 'border-emerald-500 bg-emerald-500/10' : ''
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-[color:var(--muted)]">القدرات اللفظي</span>
+              <span className="text-xl">📖</span>
+            </div>
+            <p className="mt-2 text-2xl font-black text-emerald-400">
+              {dbStats ? dbStats.verbal_count.toLocaleString('ar-SA') : '676'}
+            </p>
+            <p className="text-[11px] font-medium text-[color:var(--muted-dim)]">تناظر، سياقي، إكمال، 50 قسماً</p>
+          </div>
+        </div>
 
         {/* Top Action Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

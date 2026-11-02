@@ -526,6 +526,88 @@ export default function LandingClient({ stats }: { stats: Record<string, number>
         </div>
       </section>
 
+      
+      {/* ---------- QUESTION BANK & SIMULATION ECOSYSTEM ---------- */}
+      <section className="max-w-6xl mx-auto px-4 py-16">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[color:var(--gold-soft)] text-[color:var(--gold)] border border-[color:var(--gold-border)] mb-3">
+            <span>⚡ أضخم بنك أسئلة متخصص للمراكز التدريبية</span>
+          </div>
+          <h2 className="text-3xl lg:text-4xl font-black text-[color:var(--text)]">
+            أكثر من +15,400 سؤال معتمد ومفحوص بين يدي معلميك وطلابك
+          </h2>
+          <p className="mt-3 text-sm text-[color:var(--muted)] leading-relaxed">
+            تمت هيكلة بنك الأسئلة وفق معايير المركز الوطني لقياس لتمكين المعلمين من إنشاء اختبارات ومحاكيات وواجبات بضغطة زر واحدة.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="bento-card p-6 flex flex-col justify-between hover:border-[color:var(--gold)] transition-all">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-3xl">📊</span>
+                <span className="badge text-[10px] font-black">10,200+ سؤال</span>
+              </div>
+              <h3 className="text-lg font-black text-[color:var(--text)]">القدرات الكمي</h3>
+              <p className="mt-2 text-xs text-[color:var(--muted)] leading-relaxed">
+                تغطية شاملة للجبر، الهندسة، الحساب الذهني، المقارنات، وتفسير البيانات مع استراتيجيات الحل السريع بأقل من دقيقة.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-[color:var(--border)] text-[11px] font-bold text-[color:var(--gold)]">
+              ✓ بنوك التأسيس والتميز
+            </div>
+          </div>
+
+          <div className="bento-card p-6 flex flex-col justify-between hover:border-emerald-500 transition-all">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-3xl">📖</span>
+                <span className="badge text-[10px] font-black text-emerald-400 border-emerald-500/30">670+ سؤال</span>
+              </div>
+              <h3 className="text-lg font-black text-[color:var(--text)]">القدرات اللفظي</h3>
+              <p className="mt-2 text-xs text-[color:var(--muted)] leading-relaxed">
+                التناظر اللفظي، إكمال الجمل، الخطأ السياقي، استيعاب المقروء بنصوصه الكاملة، والـ 50 قسماً تجميعياً المعتمدة.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-[color:var(--border)] text-[11px] font-bold text-emerald-400">
+              ✓ قطع ونصوص استيعاب حقيقية
+            </div>
+          </div>
+
+          <div className="bento-card p-6 flex flex-col justify-between hover:border-cyan-500 transition-all">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-3xl">🧬</span>
+                <span className="badge text-[10px] font-black text-cyan-400 border-cyan-500/30">4,550+ سؤال</span>
+              </div>
+              <h3 className="text-lg font-black text-[color:var(--text)]">التحصيلي العلمي</h3>
+              <p className="mt-2 text-xs text-[color:var(--muted)] leading-relaxed">
+                بنوك مستقلة لمسارات التحصيلي الأربعة: الرياضيات، الفيزياء، الكيمياء، والأحياء مع الرسوم البيانية والأشكال التوضيحية.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-[color:var(--border)] text-[11px] font-bold text-cyan-400">
+              ✓ 4 مسارات تخصصية مستقلة
+            </div>
+          </div>
+
+          <div className="bento-card p-6 flex flex-col justify-between hover:border-[color:var(--blue)] transition-all">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-3xl">⚡</span>
+                <span className="badge text-[10px] font-black text-[color:var(--blue)] border-[color:var(--blue)]/30">أدوات المعلم</span>
+              </div>
+              <h3 className="text-lg font-black text-[color:var(--text)]">صانع الاختبارات والواجبات</h3>
+              <p className="mt-2 text-xs text-[color:var(--muted)] leading-relaxed">
+                توليد اختبارات ومحاكيات بنقرة واحدة، ومؤقت تنازلي يحاكي قاعات قياس، مع واجبات إلكترونية مصححة آلياً ترصد في سجل الدرجات.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-[color:var(--border)] text-[11px] font-bold text-[color:var(--blue)]">
+              ✓ تصحيح آلي فوري 100%
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ---------- STATS (real server-side DB counters) ---------- */}
       <section className="max-w-5xl mx-auto px-4 py-16">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
