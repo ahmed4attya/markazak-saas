@@ -154,7 +154,16 @@ export default function Questions() {
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch('/api/questions');
+      const sp = new URLSearchParams();
+      if (filterDomain) sp.set('domain', filterDomain);
+      if (filterCourse) sp.set('courseId', filterCourse);
+      if (filterStatus && filterStatus !== 'all') sp.set('status', filterStatus);
+      if (filterAttachment === 'passage') sp.set('hasPassage', 'true');
+      if (filterAttachment === 'image') sp.set('hasImage', 'true');
+      if (searchQuery.trim()) sp.set('q', searchQuery.trim());
+      sp.set('limit', '1000');
+
+      const r = await fetch('/api/questions?' + sp.toString());
       if (r.ok) {
         const data = await r.json();
         setRows(Array.isArray(data) ? data : []);
@@ -164,7 +173,7 @@ export default function Questions() {
     } catch {
       setError('تعذر تحميل بنك الأسئلة');
     }
-  }, []);
+  }, [filterDomain, filterCourse, filterStatus, filterAttachment, searchQuery]);
 
   useEffect(() => {
     load().catch(() => setError('تعذر التحميل'));
@@ -186,7 +195,7 @@ export default function Questions() {
       .catch(() => {});
   }, []);
 
-  // Filtered rows
+  // Filtered rows (supplementary client-side checks)
   const filteredRows = useMemo(() => {
     return rows.filter((r) => {
       // Status filter
@@ -201,22 +210,9 @@ export default function Questions() {
       if (filterAttachment === 'passage' && (!r.passage || !r.passage.trim())) return false;
       if (filterAttachment === 'image' && (!r.image_url || !r.image_url.trim())) return false;
       if (filterAttachment === 'both' && (!r.passage?.trim() || !r.image_url?.trim())) return false;
-      // Search query (search in text, options, topic, skill, subject, explanation)
-      if (searchQuery.trim()) {
-        const q = searchQuery.trim().toLowerCase();
-        const textMatch = (r.text || '').toLowerCase().includes(q);
-        const topicMatch = (r.topic || '').toLowerCase().includes(q);
-        const skillMatch = (r.skill || '').toLowerCase().includes(q);
-        const subjectMatch = (r.subject || '').toLowerCase().includes(q);
-        const expMatch = (r.explanation || '').toLowerCase().includes(q);
-        const optMatch = Array.isArray(r.options) && r.options.some((opt) => String(opt || '').toLowerCase().includes(q));
-        if (!textMatch && !topicMatch && !skillMatch && !subjectMatch && !expMatch && !optMatch) {
-          return false;
-        }
-      }
       return true;
     });
-  }, [rows, filterStatus, filterDomain, filterCourse, filterDifficulty, filterAttachment, searchQuery]);
+  }, [rows, filterStatus, filterDomain, filterCourse, filterDifficulty, filterAttachment]);
 
   // Counts by status for quick segment tabs
   const counts = useMemo(() => {

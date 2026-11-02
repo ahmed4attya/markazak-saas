@@ -119,7 +119,8 @@ export async function GET(req: Request) {
     sql += ` and (q.text ilike $${p} or q.explanation ilike $${p} or q.passage ilike $${p} or q.subject ilike $${p} or q.topic ilike $${p} or q.skill ilike $${p})`;
   }
 
-  sql += ' order by q.created_at desc limit 500';
+  const limit = Math.min(Math.max(Number(searchParams.get('limit')) || 1000, 1), 3000);
+  sql += ` order by q.created_at desc limit ${limit}`;
 
   const rows = (await query(sql, vals)).rows;
   return NextResponse.json(rows);

@@ -37,6 +37,62 @@ export default function Assignments() {
     fetch('/api/groups').then((r) => (r.ok ? r.json() : [])).then((d) => { if (Array.isArray(d)) setGroups(d); }).catch(() => {});
   }, []);
 
+  async function generateAssignmentQuestions(num: number) {
+    if (!f.courseId) {
+      setError('يرجى اختيار الدورة أولاً لسحب الأسئلة من بنك المادة المناسب');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    setOk('');
+    try {
+      const sp = new URLSearchParams();
+      sp.set('courseId', f.courseId);
+      sp.set('limit', '300');
+      const r = await fetch('/api/questions?' + sp.toString());
+      if (!r.ok) throw new Error('تعذر جلب أسئلة من بنك الأسئلة');
+      const data = await r.json();
+      let pool = Array.isArray(data) ? data : [];
+      if (!pool.length) {
+        const r2 = await fetch('/api/questions?limit=300');
+        if (r2.ok) pool = await r2.json();
+      }
+      if (!pool.length) {
+        throw new Error('لا توجد أسئلة متوفرة في بنك الأسئلة حالياً');
+      }
+
+      const shuffled = [...pool].sort(() => 0.5 - Math.random()).slice(0, num);
+      const letters = ['أ', 'ب', 'ج', 'د'];
+      const formatted = shuffled
+        .map((q: any, i: number) => {
+          let optsText = '';
+          if (Array.isArray(q.options) && q.options.length > 0) {
+            optsText = '\n' + q.options.map((opt: any, oi: number) => `   (${letters[oi] || oi + 1}) ${opt}`).join('   ');
+          }
+          const topicLabel = q.topic || q.subject || q.skill || '';
+          const topicBadge = topicLabel ? ` [${topicLabel}]` : '';
+          return `【السؤال ${i + 1}】${topicBadge}:\n${q.text || 'انظر الشكل المرفق للإجابة عن السؤال'}${optsText}`;
+        })
+        .join('\n\n────────────────────\n\n');
+
+      const selectedCourseName = courses.find((c) => c.id === f.courseId)?.name || 'القدرات والتحصيلي';
+      const header = `📌 أسئلة الواجب التدريبي من بنك الأسئلة (${num} أسئلة):\n` +
+        `تعليمات: أجب عن كافة الأسئلة موضحاً خطوات الحل ورمز الإجابة الصحيحة.\n\n`;
+
+      setF((prev) => ({
+        ...prev,
+        title: prev.title.trim() ? prev.title : `واجب تدريبي — ${selectedCourseName} (${num} أسئلة)`,
+        maxScore: num * 2,
+        description: (prev.description ? prev.description + '\n\n' : '') + header + formatted,
+      }));
+      setOk(`تم توليد ${num} أسئلة بنجاح وإدراجها في نص الواجب`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'تعذر توليد الأسئلة');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function onCreate() {
     setBusy(true); setError(''); setOk('');
     try {
