@@ -16,7 +16,7 @@ export async function GET() {
     : '';
   const values = isAdminRole(s.role) ? [s.tenantId] : [s.tenantId, s.userId];
   const rows = (await query(
-    `select a.id, a.title, a.description, a.due_date, a.max_score, a.course_id, a.group_id,
+    `select a.id, a.title, a.description, a.due_date, a.max_score, a.course_id, a.group_id, a.question_ids,
             c.name as course_name, g.name as group_name, a.created_at,
             (select count(*)::int from submissions sub where sub.assignment_id = a.id and sub.submitted_at is not null) as submitted_count,
             (select count(*)::int from submissions sub2 where sub2.assignment_id = a.id and sub2.graded_at is not null) as graded_count
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   if (!isAdminRole(s.role) && s.role !== 'teacher') return NextResponse.json({ error: 'forbidden' }, { status: 403 });
 
   try {
-    const b = (await req.json()) as { title?: string; courseId?: string; groupId?: string; description?: string; dueDate?: string; maxScore?: number };
+    const b = (await req.json()) as { title?: string; courseId?: string; groupId?: string; description?: string; dueDate?: string; maxScore?: number; questionIds?: string[] };
     const title = typeof b.title === 'string' ? b.title.trim() : '';
     const courseId = typeof b.courseId === 'string' ? b.courseId : '';
     if (title.length < 2) return NextResponse.json({ error: 'عنوان الواجب مطلوب' }, { status: 400 });
@@ -49,10 +49,11 @@ export async function POST(req: Request) {
       const g = (await query('select id from groups where id=$1 and tenant_id=$2 and course_id=$3', [groupId, s.tenantId, courseId])).rows;
       if (!g.length) return NextResponse.json({ error: 'المجموعة لا تنتمي لهذه الدورة' }, { status: 400 });
     }
+    const qIds = Array.isArray(b.questionIds) ? b.questionIds.filter(Boolean) : [];
     const ins = (await query(
-      `insert into assignments(tenant_id,course_id,group_id,title,description,due_date,max_score,created_by)
-       values($1,$2,$3,$4,$5,$6,$7,$8) returning *`,
-      [s.tenantId, courseId, groupId, title, b.description || null, dueDate, maxScore, s.userId]
+      `insert into assignments(tenant_id,course_id,group_id,title,description,due_date,max_score,created_by,question_ids)
+       values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning *`,
+      [s.tenantId, courseId, groupId, title, b.description || null, dueDate, maxScore, s.userId, JSON.stringify(qIds)]
     )).rows[0];
     await logAudit({ tenantId: s.tenantId, userId: s.userId, action: 'assignment.create', entity: 'assignment', entityId: String(ins.id) });
     {
