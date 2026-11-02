@@ -1,13 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useState, useMemo } from 'react';
-import { ClipboardCheck, Copy, Plus, Trash2, Search, RotateCcw, Sparkles, CheckCircle2, AlertTriangle, RefreshCw, X, CheckSquare, Square, Layers, Wand2 } from 'lucide-react';
+import { ClipboardCheck, Copy, Plus, Trash2, Search, RotateCcw, Sparkles, CheckCircle2, AlertTriangle, RefreshCw, X, CheckSquare, Square, Layers, Wand2, BookOpen } from 'lucide-react';
 import Shell from '@/components/Shell';
 import { evaluateQuestion, autoSelectQuestions, BaseQuestion } from '@/lib/question-engine';
 
 type Exam = { id: string; title: string; kind: string; duration_minutes: number | null; question_count: number; course_name: string | null };
 type Question = BaseQuestion & { domain: string; topic: string | null };
 type Course = { id: string; name: string };
+type Bank = { id: string; name: string; domain: string; count: number };
 
 const domainLabels: Record<string, string> = { quant: 'قدرات كمي', verbal: 'قدرات لفظي', achievement: 'تحصيلي' };
 
@@ -15,6 +16,8 @@ export default function ExamsPage() {
   const [exams, setExams] = useState<Exam[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [banks, setBanks] = useState<Bank[]>([]);
+  const [selectedBank, setSelectedBank] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
   const [usedIds, setUsedIds] = useState<Set<string>>(new Set());
   
@@ -55,16 +58,18 @@ export default function ExamsPage() {
   const hasActiveFilters = Boolean(searchQuery.trim() || filterKind || filterCourse);
 
   const load = useCallback(async () => {
-    const [examResponse, questionResponse, courseResponse, usedResponse] = await Promise.all([
+    const [examResponse, questionResponse, courseResponse, usedResponse, banksResponse] = await Promise.all([
       fetch('/api/exams'),
-      fetch('/api/questions?limit=1500'),
+      fetch('/api/questions?limit=300'),
       fetch('/api/courses'),
       fetch('/api/questions/used-ids'),
+      fetch('/api/questions/banks'),
     ]);
     if (!examResponse.ok || !questionResponse.ok) throw new Error('تعذر تحميل بيانات الامتحانات');
     setExams(await examResponse.json());
     setQuestions(await questionResponse.json());
     if (courseResponse.ok) setCourses(await courseResponse.json());
+    if (banksResponse.ok) setBanks(await banksResponse.json());
     if (usedResponse.ok) {
       const u = await usedResponse.json();
       if (Array.isArray(u.usedIds)) {
@@ -75,12 +80,37 @@ export default function ExamsPage() {
 
   useEffect(() => { load().catch((e) => setError(e instanceof Error ? e.message : 'تعذر التحميل')); }, [load]);
 
-  // Questions available for selected course
+  // Fast on-demand fetch when specific bank is chosen
+  useEffect(() => {
+    if (!selectedBank) return;
+    const sp = new URLSearchParams();
+    sp.set('bank', selectedBank);
+    sp.set('limit', '500');
+    fetch('/api/questions?' + sp.toString())
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setQuestions((prev) => {
+            const map = new Map(prev.map((q) => [q.id, q]));
+            data.forEach((q: Question) => map.set(q.id, q));
+            return Array.from(map.values());
+          });
+        }
+      })
+      .catch(() => {});
+  }, [selectedBank]);
+
+  // Questions available for selected course and bank
   const currentPool = useMemo(() => {
-    return courseId
-      ? questions.filter((q) => !q.course_id || q.course_id === courseId)
-      : questions;
-  }, [questions, courseId]);
+    let pool = questions;
+    if (courseId) {
+      pool = pool.filter((q) => !q.course_id || q.course_id === courseId);
+    }
+    if (selectedBank) {
+      pool = pool.filter((q) => q.subject === selectedBank || q.skill === selectedBank || q.topic === selectedBank);
+    }
+    return pool;
+  }, [questions, courseId, selectedBank]);
 
   // Questions currently selected
   const selectedQuestions = useMemo(() => {
@@ -119,7 +149,7 @@ export default function ExamsPage() {
   // Auto-generate question selection
   function handleAutoGenerate(num: number) {
     if (!currentPool.length) {
-      setError('لا توجد أسئلة متاحة في بنك هذه الدورة');
+      setError('لا توجد أسئلة كافية في هذا البنك/الدورة حالياً');
       return;
     }
     const chosen = autoSelectQuestions(currentPool, num, usedIds, {
@@ -127,7 +157,8 @@ export default function ExamsPage() {
       prioritizeRecommended: true,
     });
     setSelected(chosen.map((q) => q.id));
-    setSuccess(`تم اختيار ${chosen.length} سؤالاً بنجاح بواسطة الخوارزمية الذكية`);
+    const bankLabel = selectedBank ? ` من ${selectedBank}` : '';
+    setSuccess(`تم اختيار ${chosen.length} سؤالاً بنجاح${bankLabel} بواسطة الخوارزمية الذكية`);
   }
 
   // Replace a single selected question with another unused one
@@ -139,7 +170,7 @@ export default function ExamsPage() {
       return true;
     });
     if (!candidate) {
-      setError('لم يتم العثور على سؤال بديل غير مستخدم');
+      setError('لم يتم العثور على سؤال بديل غير مستخدم في هذا البنك');
       return;
     }
     setSelected((prev) => prev.map((id) => (id === oldId ? candidate.id : id)));
@@ -193,7 +224,7 @@ export default function ExamsPage() {
   }
 
   return (
-    <Shell title="الامتحانات والمحاكاة" subtitle="أنشئ تدريباً يومياً أو محاكاة كاملة لقدرات كمي ولفظي والتحصيلي">
+    <Shell title="الامتحانات والمحاكاة" subtitle="أنشئ تدريباً يومياً أو محاكاة كاملة لقدرات كمي ولفظي والتحصيلي مع تقسيم البنوك">
       <div className="space-y-6">
         <div className="toolbar">
           <div className="flex items-center gap-3 text-sm text-[color:var(--muted)]"><ClipboardCheck size={18} className="text-[color:var(--gold)]" /> {exams.length} امتحاناً</div>
@@ -208,7 +239,7 @@ export default function ExamsPage() {
               <Sparkles size={20} className="text-[color:var(--gold)]" />
               <span>إنشاء امتحان جديد</span>
             </h2>
-            <span className="text-xs text-[color:var(--muted)]">بنك الأسئلة يحتوي على +15.4 ألف سؤال</span>
+            <span className="text-xs text-[color:var(--muted)]">بنك الأسئلة مقسم إلى {banks.length} بنكاً معتمداً (+15.4K سؤال)</span>
           </div>
 
           <div className="formGrid">
@@ -216,6 +247,16 @@ export default function ExamsPage() {
             <label>الدورة
               <select value={courseId} onChange={(e) => { setCourseId(e.target.value); setSelected([]); }}>
                 <option value="">اختر الدورة التدريبية</option>{courses.map((course) => <option key={course.id} value={course.id}>{course.name}</option>)}
+              </select>
+            </label>
+            <label>بنك الأسئلة المحدد (المصدر)
+              <select value={selectedBank} onChange={(e) => { setSelectedBank(e.target.value); setSelected([]); }}>
+                <option value="">📂 جميع بنوك الأسئلة (+15.4K سؤال)</option>
+                {banks.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name} ({b.count} سؤال)
+                  </option>
+                ))}
               </select>
             </label>
             <label>النوع<select value={kind} onChange={(e) => setKind(e.target.value as 'practice' | 'simulation')}><option value="practice">تدريب</option><option value="simulation">محاكاة كاملة</option></select></label>
@@ -279,10 +320,13 @@ export default function ExamsPage() {
                   <div>
                     <h4 className="text-xs font-bold text-[color:var(--gold)] flex items-center gap-1.5">
                       <Sparkles size={14} />
-                      <span>حدد عدد الأسئلة ليتم توليدها وانتقاؤها بدقة متوازنة:</span>
+                      <span>
+                        حدد عدد الأسئلة ليتم توليدها
+                        {selectedBank ? ` من ${selectedBank}:` : ' من البنك:'}
+                      </span>
                     </h4>
                     <p className="text-[11px] text-[color:var(--muted)] mt-0.5">
-                      تعتمد الخوارزمية على التوازن التربوي، وشمولية المهارات، وعدم تكرار أي سؤال تم اختباره سابقاً.
+                      تنتقي الخوارزمية الأسئلة بتوازن تربوي من البنك المختار دون تكرار أي سؤال تم اختباره سابقاً.
                     </p>
                   </div>
                   <div className="flex items-center gap-1.5 flex-wrap">
@@ -327,7 +371,7 @@ export default function ExamsPage() {
                       <Wand2 size={32} className="mx-auto text-[color:var(--gold)] mb-2 opacity-60" />
                       <p className="text-sm font-bold text-[color:var(--text)]">لم يتم توليد أي أسئلة بعد</p>
                       <p className="text-xs text-[color:var(--muted)] mt-1">
-                        اضغط على أحد أزرار عدد الأسئلة أعلاه لتوليدها فوراً وستظهر الأسئلة المختارة فقط هنا.
+                        اختر البنك أو الدورة بالأعلى ثم اضغط على أحد أزرار عدد الأسئلة لتوليدها فوراً وستظهر الأسئلة المختارة فقط هنا.
                       </p>
                     </div>
                   ) : (
@@ -345,7 +389,12 @@ export default function ExamsPage() {
                               <span className="text-xs font-bold text-[color:var(--gold)]">
                                 {domainLabels[q.domain] || q.domain}
                               </span>
-                              {q.topic && (
+                              {q.subject && (
+                                <span className="text-[11px] text-[color:var(--gold)] bg-[color:var(--surface-3)] px-2 py-0.5 rounded-md font-bold">
+                                  {q.subject}
+                                </span>
+                              )}
+                              {q.topic && q.topic !== q.subject && (
                                 <span className="text-[11px] text-[color:var(--muted)] bg-[color:var(--surface-3)] px-2 py-0.5 rounded-md">
                                   {q.topic}
                                 </span>
@@ -462,7 +511,7 @@ export default function ExamsPage() {
                 <div className="max-h-96 overflow-y-auto space-y-2 rounded-xl border border-[color:var(--border)] p-3 bg-[color:var(--surface-1)]">
                   {manualFilteredPool.length === 0 ? (
                     <p className="text-xs text-[color:var(--muted)] text-center py-6">
-                      لا توجد أسئلة تطابق الفلاتر المحددة — جرب إلغاء تفعيل بعض الفلاتر.
+                      لا توجد أسئلة تطابق الفلاتر المحددة — جرب إلغاء تفعيل بعض الفلاتر أو تغيير البنك.
                     </p>
                   ) : (
                     manualFilteredPool.map(({ question: q, isRecommended, isUsed, reasons }) => {
@@ -487,7 +536,12 @@ export default function ExamsPage() {
                                 <span className="text-xs font-bold text-[color:var(--gold)]">
                                   {domainLabels[q.domain] || q.domain}
                                 </span>
-                                {q.topic && (
+                                {q.subject && (
+                                  <span className="text-[11px] text-[color:var(--gold)] bg-[color:var(--surface-3)] px-2 py-0.5 rounded-md font-bold">
+                                    {q.subject}
+                                  </span>
+                                )}
+                                {q.topic && q.topic !== q.subject && (
                                   <span className="text-[11px] text-[color:var(--muted)] bg-[color:var(--surface-3)] px-2 py-0.5 rounded-md">
                                     {q.topic}
                                   </span>

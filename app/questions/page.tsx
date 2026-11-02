@@ -119,6 +119,8 @@ export default function Questions() {
   const [filterDifficulty, setFilterDifficulty] = useState('');
   const [filterAttachment, setFilterAttachment] = useState<'all' | 'passage' | 'image' | 'both'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [banks, setBanks] = useState<Array<{ id: string; name: string; domain: string; count: number }>>([]);
+  const [filterBank, setFilterBank] = useState('');
 
   // Live Database Stats
   const [dbStats, setDbStats] = useState<{
@@ -129,6 +131,13 @@ export default function Questions() {
     passage_count: number;
     image_count: number;
   } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/questions/banks')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => { if (Array.isArray(d)) setBanks(d); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch('/api/questions?stats=true')
@@ -157,6 +166,7 @@ export default function Questions() {
       const sp = new URLSearchParams();
       if (filterDomain) sp.set('domain', filterDomain);
       if (filterCourse) sp.set('courseId', filterCourse);
+      if (filterBank) sp.set('bank', filterBank);
       if (filterStatus && filterStatus !== 'all') sp.set('status', filterStatus);
       if (filterAttachment === 'passage') sp.set('hasPassage', 'true');
       if (filterAttachment === 'image') sp.set('hasImage', 'true');
@@ -173,7 +183,7 @@ export default function Questions() {
     } catch {
       setError('تعذر تحميل بنك الأسئلة');
     }
-  }, [filterDomain, filterCourse, filterStatus, filterAttachment, searchQuery]);
+  }, [filterDomain, filterCourse, filterBank, filterStatus, filterAttachment, searchQuery]);
 
   useEffect(() => {
     load().catch(() => setError('تعذر التحميل'));
@@ -303,6 +313,7 @@ export default function Questions() {
     setFilterDifficulty('');
     setFilterAttachment('all');
     setSearchQuery('');
+    setFilterBank('');
   }
 
   // Create new question
@@ -674,6 +685,22 @@ export default function Questions() {
                 placeholder="بحث في السؤال، الخيارات، المهارة، الشرح..."
                 className="w-full pr-9 pl-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 transition"
               />
+            </div>
+
+            {/* Bank Selector Filter */}
+            <div>
+              <select
+                value={filterBank}
+                onChange={(e) => setFilterBank(e.target.value)}
+                className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-950/30 text-amber-950 dark:text-amber-200 outline-none focus:border-amber-500 cursor-pointer"
+              >
+                <option value="">📂 كل بنوك الأسئلة (+15.4K)</option>
+                {banks.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name} ({b.count} سؤال)
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Domain Filter */}

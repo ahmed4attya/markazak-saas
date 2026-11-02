@@ -157,6 +157,23 @@ export default function TakeExam() {
     return () => document.removeEventListener('visibilitychange', handleVis);
   }, [payload, result]);
 
+  // Zero Lag Preloading: Preload next 2 question images into browser cache
+  useEffect(() => {
+    if (!payload?.questions) return;
+    const preloadImg = (src?: string | null) => {
+      if (!src || typeof window === 'undefined') return;
+      const img = new Image();
+      img.src = src;
+    };
+    if (current + 1 < payload.questions.length) {
+      preloadImg(payload.questions[current + 1]?.imageUrl);
+    }
+    if (current + 2 < payload.questions.length) {
+      preloadImg(payload.questions[current + 2]?.imageUrl);
+    }
+  }, [current, payload]);
+
+
   async function askAi(questionId: string) {
     if (!result || aiBusy) return;
     setAiBusy(questionId);
@@ -454,25 +471,63 @@ export default function TakeExam() {
             </div>
           )}
 
-          <div className="space-y-2 pt-2">
-            {q.options.map((opt, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setChoices((p) => ({ ...p, [q.id]: i }))}
-                className={'w-full text-right p-4 rounded-xl border transition-all cursor-pointer flex items-center gap-3 ' + (choices[q.id] === i
-                  ? 'border-[color:var(--gold)] bg-[color:var(--gold-soft)] shadow-sm'
-                  : 'border-[color:var(--border)] bg-[color:var(--surface-2)] hover:border-[color:var(--border-strong)]')}
-              >
-                <span className={'w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ' + (choices[q.id] === i
-                  ? 'bg-[color:var(--gold)] text-slate-900'
-                  : 'bg-slate-200 dark:bg-slate-800 text-[color:var(--muted)]')}>
-                  {LETTERS[i] ?? i + 1}
+          {/* Options Display: Silent Letter Grid when question has figure/image, or standard list */}
+          {q.imageUrl ? (
+            <div className="pt-2 space-y-2">
+              <div className="flex items-center justify-between text-xs text-[color:var(--muted)] px-1">
+                <span className="font-bold flex items-center gap-1.5 text-[color:var(--gold)]">
+                  <span>⚡</span>
+                  <span>أزرار الإجابة الصامتة (مريحة للإبهام)</span>
                 </span>
-                <span className="flex-1 font-semibold">{opt}</span>
-              </button>
-            ))}
-          </div>
+                <span className="text-[11px] font-mono">اختر رمز الإجابة</span>
+              </div>
+              <div className="letters grid grid-cols-4 gap-2.5 sm:gap-4 mt-2">
+                {q.options.slice(0, 4).map((opt, i) => {
+                  const isSelected = choices[q.id] === i;
+                  const letter = LETTERS[i] || String(i + 1);
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setChoices((p) => ({ ...p, [q.id]: i }))}
+                      className={`py-4 sm:py-5 px-2 rounded-2xl border-2 font-black text-center transition-all duration-100 cursor-pointer flex flex-col items-center justify-center gap-1 active:scale-95 select-none ${
+                        isSelected
+                          ? 'border-[color:var(--gold)] bg-[color:var(--gold)] text-slate-950 shadow-lg shadow-[color:var(--gold)]/25 scale-[1.02]'
+                          : 'border-[color:var(--border)] bg-[color:var(--surface-2)] text-[color:var(--text)] hover:border-[color:var(--gold)]/60 hover:bg-[color:var(--surface-3)]'
+                      }`}
+                    >
+                      <span className="text-2xl sm:text-4xl leading-none font-bold">{letter}</span>
+                      {opt && opt !== letter && opt.length <= 18 && (
+                        <span className={`text-[11px] font-bold truncate max-w-full px-1 ${isSelected ? 'text-slate-900' : 'text-[color:var(--muted)]'}`}>
+                          {opt}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2 pt-2">
+              {q.options.map((opt, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setChoices((p) => ({ ...p, [q.id]: i }))}
+                  className={'w-full text-right p-4 rounded-xl border transition-all cursor-pointer flex items-center gap-3 active:scale-[0.99] ' + (choices[q.id] === i
+                    ? 'border-[color:var(--gold)] bg-[color:var(--gold-soft)] shadow-sm'
+                    : 'border-[color:var(--border)] bg-[color:var(--surface-2)] hover:border-[color:var(--border-strong)]')}
+                >
+                  <span className={'w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ' + (choices[q.id] === i
+                    ? 'bg-[color:var(--gold)] text-slate-900'
+                    : 'bg-slate-200 dark:bg-slate-800 text-[color:var(--muted)]')}>
+                    {LETTERS[i] ?? i + 1}
+                  </span>
+                  <span className="flex-1 font-semibold">{opt}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between mt-4 gap-3">

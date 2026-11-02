@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, useMemo } from 'react';
-import { Plus, Trash2, ChevronDown, ChevronUp, Sparkles, Wand2, Layers, RefreshCw, X, CheckSquare, Square, Search, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp, Sparkles, Wand2, Layers, RefreshCw, X, CheckSquare, Square, Search, AlertTriangle, CheckCircle2, BookOpen } from 'lucide-react';
 import Shell from '@/components/Shell';
 import { evaluateQuestion, autoSelectQuestions, formatAssignmentQuestions, BaseQuestion } from '@/lib/question-engine';
 
@@ -11,6 +11,7 @@ type ARow = {
   submitted_count: number; graded_count: number;
 };
 type SubRow = { id: string; student_id: string; student_name: string; student_no: string; content: string | null; submitted_at: string | null; score: number | string | null; feedback: string | null; graded_at: string | null };
+type Bank = { id: string; name: string; domain: string; count: number };
 
 const EMPTY = { title: '', courseId: '', groupId: '', description: '', dueDate: '', maxScore: 100, questionIds: [] as string[] };
 
@@ -18,6 +19,8 @@ export default function Assignments() {
   const [rows, setRows] = useState<ARow[]>([]);
   const [courses, setCourses] = useState<{ id: string; name: string }[]>([]);
   const [groups, setGroups] = useState<{ id: string; name: string; course_id: string }[]>([]);
+  const [banks, setBanks] = useState<Bank[]>([]);
+  const [selectedBank, setSelectedBank] = useState('');
   const [error, setError] = useState('');
   const [ok, setOk] = useState('');
   const [busy, setBusy] = useState(false);
@@ -37,11 +40,13 @@ export default function Assignments() {
   const [usedIds, setUsedIds] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
-    const [assignRes, usedRes] = await Promise.all([
+    const [assignRes, usedRes, banksRes] = await Promise.all([
       fetch('/api/assignments'),
       fetch('/api/questions/used-ids'),
+      fetch('/api/questions/banks'),
     ]);
     if (assignRes.ok) setRows(await assignRes.json()); else setError('تعذر تحميل الواجبات');
+    if (banksRes.ok) setBanks(await banksRes.json());
     if (usedRes.ok) {
       const u = await usedRes.json();
       if (Array.isArray(u.usedIds)) setUsedIds(new Set(u.usedIds));
@@ -54,31 +59,28 @@ export default function Assignments() {
     fetch('/api/groups').then((r) => (r.ok ? r.json() : [])).then((d) => { if (Array.isArray(d)) setGroups(d); }).catch(() => {});
   }, []);
 
-  // Fetch course questions whenever course selection changes
+  // Fetch questions whenever course or bank changes
   useEffect(() => {
-    if (!f.courseId) {
-      setCourseQuestions([]);
-      setSelectedIds([]);
-      return;
-    }
     const sp = new URLSearchParams();
-    sp.set('courseId', f.courseId);
-    sp.set('limit', '1000');
+    if (f.courseId) sp.set('courseId', f.courseId);
+    if (selectedBank) sp.set('bank', selectedBank);
+    sp.set('limit', '500');
+
     fetch('/api/questions?' + sp.toString())
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setCourseQuestions(data);
         } else {
-          // Fallback to general pool if course has no dedicated questions
-          fetch('/api/questions?limit=500')
+          // Fallback
+          fetch('/api/questions?limit=300')
             .then((r2) => (r2.ok ? r2.json() : []))
             .then((d2) => { if (Array.isArray(d2)) setCourseQuestions(d2); })
             .catch(() => {});
         }
       })
       .catch(() => {});
-  }, [f.courseId]);
+  }, [f.courseId, selectedBank]);
 
   // Scored questions for manual mode and recommendations
   const scoredPool = useMemo(() => {
@@ -95,7 +97,8 @@ export default function Assignments() {
         const match =
           (question.text || '').toLowerCase().includes(s) ||
           (question.topic || '').toLowerCase().includes(s) ||
-          (question.skill || '').toLowerCase().includes(s);
+          (question.skill || '').toLowerCase().includes(s) ||
+          (question.subject || '').toLowerCase().includes(s);
         if (!match) return false;
       }
       return true;
@@ -113,7 +116,8 @@ export default function Assignments() {
     const selectedCourseName = courses.find((c) => c.id === f.courseId)?.name || 'القدرات والتحصيلي';
     const num = questionsToApply.length;
     const formatted = formatAssignmentQuestions(questionsToApply);
-    const header = `📌 أسئلة الواجب التدريبي من بنك الأسئلة (${num} أسئلة):\n` +
+    const bankBadge = selectedBank ? ` [${selectedBank}]` : '';
+    const header = `📌 أسئلة الواجب التدريبي من بنك الأسئلة${bankBadge} (${num} أسئلة):\n` +
       `تعليمات: أجب عن كافة الأسئلة موضحاً خطوات الحل ورمز الإجابة الصحيحة.\n\n`;
 
     setF((prev) => ({
@@ -123,16 +127,12 @@ export default function Assignments() {
       description: header + formatted,
       questionIds: questionsToApply.map((q) => q.id),
     }));
-  }, [courses, f.courseId]);
+  }, [courses, f.courseId, selectedBank]);
 
   // AUTO GENERATE QUESTIONS
   function handleAutoGenerate(num: number) {
-    if (!f.courseId) {
-      setError('يرجى اختيار الدورة أولاً لتحديد بنك الأسئلة المناسب');
-      return;
-    }
     if (!courseQuestions.length) {
-      setError('لا توجد أسئلة متاحة في بنك هذه الدورة حالياً');
+      setError('لا توجد أسئلة متاحة في هذا البنك/الدورة حالياً');
       return;
     }
     setError(''); setOk('');
@@ -143,7 +143,8 @@ export default function Assignments() {
     const chosenIds = chosen.map((q) => q.id);
     setSelectedIds(chosenIds);
     applyQuestionsToAssignment(chosen);
-    setOk(`تم توليد ${chosen.length} أسئلة ذكية غير مكررة وإدراجها في الواجب تلقائياً`);
+    const bankLabel = selectedBank ? ` من ${selectedBank}` : '';
+    setOk(`تم توليد ${chosen.length} أسئلة ذكية غير مكررة${bankLabel} وإدراجها في الواجب تلقائياً`);
   }
 
   // Replace a single question in auto mode
@@ -155,7 +156,7 @@ export default function Assignments() {
       return true;
     });
     if (!candidate) {
-      setError('لم يتم العثور على سؤال بديل غير مستخدم');
+      setError('لم يتم العثور على سؤال بديل غير مستخدم في هذا البنك');
       return;
     }
     const updatedIds = selectedIds.map((id) => (id === oldId ? candidate.id : id));
@@ -258,7 +259,7 @@ export default function Assignments() {
   }
 
   return (
-    <Shell title="الواجبات" subtitle="إنشاء الواجبات ومتابعة التسليمات والتصحيح مع التوليد الذكي من بنك الأسئلة">
+    <Shell title="الواجبات" subtitle="إنشاء الواجبات ومتابعة التسليمات مع تقسيم بنوك الأسئلة والتوليد الذكي">
       <div className="space-y-6">
         <div className="toolbar">
           <span className="text-sm text-[color:var(--muted)]">{rows.length} واجباً</span>
@@ -274,15 +275,25 @@ export default function Assignments() {
                 <Sparkles size={18} className="text-[color:var(--gold)]" />
                 <span>إنشاء واجب تدريبي جديد</span>
               </h3>
-              <span className="text-xs text-[color:var(--muted)]">سحب آلي أو يدوي من بنك الأسئلة (+15.4K)</span>
+              <span className="text-xs text-[color:var(--muted)]">سحب آلي أو يدوي من بنك الأسئلة مقسماً حسب البنوك (+15.4K)</span>
             </div>
 
             <div className="formGrid">
               <label>العنوان<input value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} placeholder="واجب تدريبي — قدرات كمي (النسب المئوية)" /></label>
               <label>الدورة
                 <select value={f.courseId} onChange={(e) => setF({ ...f, courseId: e.target.value, groupId: '' })}>
-                  <option value="">— اختر الدورة أولاً لسحب الأسئلة —</option>
+                  <option value="">— اختر الدورة —</option>
                   {courses.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
+                </select>
+              </label>
+              <label>بنك الأسئلة المحدد (المصدر)
+                <select value={selectedBank} onChange={(e) => { setSelectedBank(e.target.value); setSelectedIds([]); }}>
+                  <option value="">📂 جميع بنوك الأسئلة (+15.4K سؤال)</option>
+                  {banks.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name} ({b.count} سؤال)
+                    </option>
+                  ))}
                 </select>
               </label>
               <label>المجموعة (اختياري)
@@ -352,7 +363,10 @@ export default function Assignments() {
                     <div>
                       <h4 className="text-xs font-bold text-[color:var(--gold)] flex items-center gap-1.5">
                         <Sparkles size={14} />
-                        <span>اختر عدد الأسئلة ليتم توليدها وإدراجها بنقرة واحدة:</span>
+                        <span>
+                          اختر عدد الأسئلة ليتم توليدها
+                          {selectedBank ? ` من ${selectedBank}:` : ' من البنك:'}
+                        </span>
                       </h4>
                       <p className="text-[11px] text-[color:var(--muted)] mt-0.5">
                         تنتقي الخوارزمية الأسئلة الأنسب تربوياً، وتضبط الخيارات، وتحدد الدرجة الكلية للواجب تلقائياً.
@@ -400,7 +414,7 @@ export default function Assignments() {
                         <Wand2 size={26} className="mx-auto text-[color:var(--gold)] mb-1.5 opacity-60" />
                         <p className="text-xs font-bold text-[color:var(--text)]">لم يتم توليد أي أسئلة للواجب بعد</p>
                         <p className="text-[11px] text-[color:var(--muted)] mt-0.5">
-                          اختر الدورة أولاً ثم انقر على عدد الأسئلة أعلاه لتوليدها فوراً وستظهر الأسئلة المختارة فقط هنا.
+                          اختر البنك أو الدورة ثم انقر على عدد الأسئلة أعلاه لتوليدها فوراً وستظهر الأسئلة المختارة فقط هنا.
                         </p>
                       </div>
                     ) : (
@@ -415,7 +429,12 @@ export default function Assignments() {
                                 <span className="w-5 h-5 rounded-md bg-[color:var(--surface-3)] text-[11px] font-bold flex items-center justify-center text-[color:var(--gold)]">
                                   {idx + 1}
                                 </span>
-                                {q.topic && (
+                                {q.subject && (
+                                  <span className="text-[10px] text-[color:var(--gold)] bg-[color:var(--surface-3)] px-1.5 py-0.5 rounded font-bold">
+                                    {q.subject}
+                                  </span>
+                                )}
+                                {q.topic && q.topic !== q.subject && (
                                   <span className="text-[10px] text-[color:var(--muted)] bg-[color:var(--surface-3)] px-1.5 py-0.5 rounded">
                                     {q.topic}
                                   </span>
@@ -468,7 +487,7 @@ export default function Assignments() {
                           type="text"
                           value={manualSearch}
                           onChange={(e) => setManualSearch(e.target.value)}
-                          placeholder="ابحث في أسئلة هذه الدورة..."
+                          placeholder="ابحث في أسئلة هذا البنك..."
                           className="w-full pr-8 pl-2 py-1 text-xs rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-2)] text-[color:var(--text)] outline-none"
                         />
                       </div>
@@ -501,13 +520,9 @@ export default function Assignments() {
 
                   {/* Questions List */}
                   <div className="max-h-80 overflow-y-auto space-y-2 rounded-xl border border-[color:var(--border)] p-3 bg-[color:var(--surface-1)]">
-                    {!f.courseId ? (
+                    {manualFilteredPool.length === 0 ? (
                       <p className="text-xs text-[color:var(--muted)] text-center py-6">
-                        يرجى اختيار الدورة أولاً من حقل الدورة بالأعلى لعرض أسئلتها.
-                      </p>
-                    ) : manualFilteredPool.length === 0 ? (
-                      <p className="text-xs text-[color:var(--muted)] text-center py-6">
-                        لا توجد أسئلة تطابق الفلاتر المحددة لهذه الدورة.
+                        لا توجد أسئلة تطابق الفلاتر المحددة لهذا البنك.
                       </p>
                     ) : (
                       manualFilteredPool.map(({ question: q, isRecommended, isUsed, reasons }) => {
@@ -528,7 +543,12 @@ export default function Assignments() {
 
                             <div className="flex-1 space-y-1">
                               <div className="flex items-center gap-1.5 flex-wrap">
-                                {q.topic && (
+                                {q.subject && (
+                                  <span className="text-[10px] text-[color:var(--gold)] bg-[color:var(--surface-3)] px-1.5 py-0.5 rounded font-bold">
+                                    {q.subject}
+                                  </span>
+                                )}
+                                {q.topic && q.topic !== q.subject && (
                                   <span className="text-[10px] text-[color:var(--muted)] bg-[color:var(--surface-3)] px-1.5 py-0.5 rounded">
                                     {q.topic}
                                   </span>
@@ -570,7 +590,7 @@ export default function Assignments() {
             </label>
 
             <div className="flex gap-2">
-              <button className="primary" disabled={busy || !f.title || !f.courseId} onClick={onCreate}>
+              <button className="primary" disabled={busy || !f.title} onClick={onCreate}>
                 إنشاء الواجب وحفظه
               </button>
               <button className="ghost" onClick={() => setShowForm(false)}>

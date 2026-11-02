@@ -21,6 +21,7 @@ export async function GET(req: Request) {
   const q = (searchParams.get('q') || '').trim();
   const hasPassage = (searchParams.get('hasPassage') || '').trim();
   const hasImage = (searchParams.get('hasImage') || '').trim();
+  const bank = (searchParams.get('bank') || searchParams.get('subject') || '').trim();
   const wantsStats = searchParams.get('stats') === 'true';
 
   if (wantsStats) {
@@ -112,6 +113,11 @@ export async function GET(req: Request) {
   }
   if (hasImage === 'true') {
     sql += ` and q.image_url is not null and length(trim(q.image_url)) > 0`;
+  }
+  if (bank) {
+    vals.push(bank);
+    const bp = vals.length;
+    sql += ` and (q.subject = $${bp} or q.skill = $${bp} or q.topic = $${bp})`;
   }
   if (q) {
     vals.push(`%${q}%`);
