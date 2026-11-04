@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
 
     if (!tokenRes.ok) {
       const err = await tokenRes.text();
-      console.error('Google token exchange error:', err);
+      console.error('Google token exchange failed with HTTP status:', tokenRes.status);
       return NextResponse.redirect(
         new URL('/login?authError=' + encodeURIComponent('تعذر التحقق من حساب Google لدى الخادم'), origin)
       );

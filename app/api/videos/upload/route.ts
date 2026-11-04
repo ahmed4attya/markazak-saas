@@ -26,7 +26,7 @@ export async function POST(req: Request) {
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
-        if (!tokenPayload) { console.error('video upload-completed: missing tokenPayload'); return; }
+        if (!tokenPayload) { console.error('video upload-completed: missing payload'); return; }
         try {
           const tp = JSON.parse(tokenPayload) as TokenPayload;
           const size = Number((blob as { size?: number }).size) || 0;
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
             'insert into videos(tenant_id,title,mime,size_bytes,storage_key,uploaded_by) values($1,$2,$3,$4,$5,$6) on conflict (storage_key) do nothing',
             [tp.tenantId, blob.pathname.split('/').pop() || blob.pathname, blob.contentType || null, size, blob.url, tp.userId]
           );
-        } catch (e) { console.error('video upload-completed insert failed', e); }
+        } catch (e: any) { console.error('video upload-completed insert failed:', e?.message || 'unknown'); }
       },
     });
     return NextResponse.json(json);

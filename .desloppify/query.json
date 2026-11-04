@@ -1,0 +1,596 @@
+{
+  "command": "show",
+  "query": "Security",
+  "status_filter": "open",
+  "total": 10,
+  "summary": {
+    "by_tier": {
+      "T2": 10
+    },
+    "by_detector": {
+      "security": 10
+    },
+    "files": 9
+  },
+  "by_file": {
+    "app/layout.tsx": [
+      {
+        "id": "security::app/layout.tsx::security::dangerously_set_inner_html::app/layout.tsx::106",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "dangerouslySetInnerHTML - XSS risk if data is untrusted",
+        "detail": {
+          "kind": "dangerously_set_inner_html",
+          "severity": "high",
+          "line": 106,
+          "content": "          dangerouslySetInnerHTML={{ __html: JSON.stringify(appJsonLd) }}",
+          "remediation": "Sanitize HTML with DOMPurify before using dangerouslySetInnerHTML"
+        }
+      },
+      {
+        "id": "security::app/layout.tsx::security::dangerously_set_inner_html::app/layout.tsx::111",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "dangerouslySetInnerHTML - XSS risk if data is untrusted",
+        "detail": {
+          "kind": "dangerously_set_inner_html",
+          "severity": "high",
+          "line": 111,
+          "content": "          dangerouslySetInnerHTML={{",
+          "remediation": "Sanitize HTML with DOMPurify before using dangerouslySetInnerHTML"
+        }
+      }
+    ],
+    "app/api/auth/change-password/route.ts": [
+      {
+        "id": "security::app/api/auth/change-password/route.ts::security::log_sensitive::app/api/auth/change-password/route.ts::71",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "Sensitive data may be logged",
+        "detail": {
+          "kind": "log_sensitive",
+          "severity": "medium",
+          "line": 71,
+          "content": "    console.error('[CHANGE_PASSWORD_ERROR]', err);",
+          "remediation": "Remove sensitive data from log statements"
+        }
+      }
+    ],
+    "app/api/auth/google/callback/route.ts": [
+      {
+        "id": "security::app/api/auth/google/callback/route.ts::security::log_sensitive::app/api/auth/google/callback/route.ts::48",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "Sensitive data may be logged",
+        "detail": {
+          "kind": "log_sensitive",
+          "severity": "medium",
+          "line": 48,
+          "content": "      console.error('Google token exchange error:', err);",
+          "remediation": "Remove sensitive data from log statements"
+        }
+      }
+    ],
+    "app/api/auth/verify/route.ts": [
+      {
+        "id": "security::app/api/auth/verify/route.ts::security::hardcoded_secret_name::app/api/auth/verify/route.ts::50",
+        "tier": 2,
+        "confidence": "high",
+        "summary": "Hardcoded secret in variable 'tokenHash'",
+        "detail": {
+          "kind": "hardcoded_secret_name",
+          "severity": "high",
+          "line": 50,
+          "content": "    const tokenHash = `otp:${hashResetToken(`otp:${email}:${code}`)}`;",
+          "remediation": "Move secret to environment variable or secrets manager"
+        }
+      }
+    ],
+    "app/api/files/upload/route.ts": [
+      {
+        "id": "security::app/api/files/upload/route.ts::security::log_sensitive::app/api/files/upload/route.ts::116",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "Sensitive data may be logged",
+        "detail": {
+          "kind": "log_sensitive",
+          "severity": "medium",
+          "line": 116,
+          "content": "        if (!tokenPayload) { console.error('blob upload-completed: missing tokenPayload'); return; }",
+          "remediation": "Remove sensitive data from log statements"
+        }
+      }
+    ],
+    "app/api/videos/upload/route.ts": [
+      {
+        "id": "security::app/api/videos/upload/route.ts::security::log_sensitive::app/api/videos/upload/route.ts::29",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "Sensitive data may be logged",
+        "detail": {
+          "kind": "log_sensitive",
+          "severity": "medium",
+          "line": 29,
+          "content": "        if (!tokenPayload) { console.error('video upload-completed: missing tokenPayload'); return; }",
+          "remediation": "Remove sensitive data from log statements"
+        }
+      }
+    ],
+    "components/LandingClient.tsx": [
+      {
+        "id": "security::components/LandingClient.tsx::security::dangerously_set_inner_html::components/LandingClient.tsx::204",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "dangerouslySetInnerHTML - XSS risk if data is untrusted",
+        "detail": {
+          "kind": "dangerously_set_inner_html",
+          "severity": "high",
+          "line": 204,
+          "content": "        dangerouslySetInnerHTML={{",
+          "remediation": "Sanitize HTML with DOMPurify before using dangerouslySetInnerHTML"
+        }
+      }
+    ],
+    "lib/db.ts": [
+      {
+        "id": "security::lib/db.ts::security::weak_crypto_tls::lib/db.ts::3",
+        "tier": 2,
+        "confidence": "high",
+        "summary": "TLS rejection disabled",
+        "detail": {
+          "kind": "weak_crypto_tls",
+          "severity": "high",
+          "line": 3,
+          "content": "export const pool = globalForPg.pool ?? new Pool({ connectionString: process.env.DATABASE_URL, max: 10, ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : undefined })",
+          "remediation": "Never disable TLS certificate validation"
+        }
+      }
+    ],
+    "scripts/seed-live.ts": [
+      {
+        "id": "security::scripts/seed-live.ts::security::weak_crypto_tls::scripts/seed-live.ts::87",
+        "tier": 2,
+        "confidence": "high",
+        "summary": "TLS rejection disabled",
+        "detail": {
+          "kind": "weak_crypto_tls",
+          "severity": "high",
+          "line": 87,
+          "content": "  const pool = new Pool({ connectionString: url, max: 5, ...(host.endsWith('neon.tech') ? { ssl: { rejectUnauthorized: false } } : {}) });",
+          "remediation": "Never disable TLS certificate validation"
+        }
+      }
+    ]
+  },
+  "total_matching": 15,
+  "hidden": {
+    "by_detector": {
+      "security": 5
+    },
+    "total": 5
+  },
+  "noise_budget": 10,
+  "noise_global_budget": 0,
+  "narrative": {
+    "phase": "first_scan",
+    "headline": "\u26a0 15 security issues \u2014 review before other cleanup. First scan complete. 912 open issues across 3 dimensions.",
+    "dimensions": {
+      "lowest_dimensions": [
+        {
+          "name": "Abstraction fit",
+          "strict": 0.0,
+          "failing": 0,
+          "impact": 0.0,
+          "subjective": true,
+          "impact_description": "re-review to improve"
+        },
+        {
+          "name": "AI generated debt",
+          "strict": 0.0,
+          "failing": 0,
+          "impact": 0.0,
+          "subjective": true,
+          "impact_description": "re-review to improve"
+        },
+        {
+          "name": "API coherence",
+          "strict": 0.0,
+          "failing": 0,
+          "impact": 0.0,
+          "subjective": true,
+          "impact_description": "re-review to improve"
+        }
+      ],
+      "biggest_gap_dimensions": [],
+      "stagnant_dimensions": []
+    },
+    "actions": [
+      {
+        "type": "auto_fix",
+        "detector": "unused",
+        "count": 73,
+        "description": "73 unused issues \u2014 run `desloppify autofix unused-imports --dry-run` to preview, then apply",
+        "command": "desloppify autofix unused-imports --dry-run",
+        "impact": 0.0,
+        "dimension": "Code quality",
+        "priority": 1,
+        "lane": "cleanup"
+      },
+      {
+        "type": "auto_fix",
+        "detector": "logs",
+        "count": 7,
+        "description": "7 logs issues \u2014 run `desloppify autofix debug-logs --dry-run` to preview, then apply",
+        "command": "desloppify autofix debug-logs --dry-run",
+        "impact": 0.0,
+        "dimension": "Code quality",
+        "priority": 2,
+        "lane": "cleanup"
+      },
+      {
+        "type": "reorganize",
+        "detector": "orphaned",
+        "count": 45,
+        "description": "45 orphaned issues \u2014 delete dead files or relocate with `desloppify move`",
+        "command": "desloppify show orphaned --status open",
+        "impact": 0.0,
+        "dimension": "Code quality",
+        "priority": 3,
+        "lane": "restructure"
+      },
+      {
+        "type": "reorganize",
+        "detector": "flat_dirs",
+        "count": 3,
+        "description": "3 flat_dirs issues \u2014 create subdirectories and use `desloppify move`",
+        "command": "desloppify show flat_dirs --status open",
+        "impact": 0.0,
+        "dimension": "Code quality",
+        "priority": 4,
+        "lane": "restructure"
+      },
+      {
+        "type": "reorganize",
+        "detector": "naming",
+        "count": 1,
+        "description": "1 naming issues \u2014 rename files with `desloppify move` to fix conventions",
+        "command": "desloppify show naming --status open",
+        "impact": 0.0,
+        "dimension": "Code quality",
+        "priority": 5,
+        "lane": "restructure"
+      },
+      {
+        "type": "reorganize",
+        "detector": "single_use",
+        "count": 4,
+        "description": "4 single_use issues \u2014 inline or relocate with `desloppify move`",
+        "command": "desloppify show single_use --status open",
+        "impact": 0.0,
+        "dimension": "Code quality",
+        "priority": 6,
+        "lane": "restructure"
+      },
+      {
+        "type": "refactor",
+        "detector": "structural",
+        "count": 51,
+        "description": "51 structural work items \u2014 review large files \u2014 split only when responsibilities are clearly separable",
+        "command": "desloppify show structural --status open",
+        "impact": 0.0,
+        "dimension": "File health",
+        "priority": 7,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "refactor",
+        "detector": "react",
+        "count": 3,
+        "description": "3 react work items \u2014 refactor React antipatterns (state sync, provider nesting, hook bloat)",
+        "command": "desloppify show react --status open",
+        "impact": 0.0,
+        "dimension": "Code quality",
+        "priority": 8,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "refactor",
+        "detector": "nextjs",
+        "count": 10,
+        "description": "10 nextjs work items \u2014 fix Next.js framework smells (RSC/client boundaries, routing, middleware, env leakage)",
+        "command": "desloppify show nextjs --status open",
+        "impact": 0.0,
+        "dimension": "Code quality",
+        "priority": 9,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "refactor",
+        "detector": "dupes",
+        "count": 3,
+        "description": "3 dupes work items \u2014 extract shared utility or consolidate duplicates",
+        "command": "desloppify show dupes --status open",
+        "impact": 0.0,
+        "dimension": "Duplication",
+        "priority": 10,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "refactor",
+        "detector": "test_coverage",
+        "count": 223,
+        "description": "223 test_coverage work items \u2014 review test coverage gaps \u2014 focus on critical modules with many importers first; defer test writing until code quality issues are resolved",
+        "command": "desloppify show test_coverage --status open",
+        "impact": 0.0,
+        "dimension": "Test health",
+        "priority": 11,
+        "lane": "test_coverage"
+      },
+      {
+        "type": "refactor",
+        "detector": "signature",
+        "count": 3,
+        "description": "3 signature work items \u2014 consolidate inconsistent function signatures",
+        "command": "desloppify show signature --status open",
+        "impact": 0.0,
+        "dimension": "Unknown",
+        "priority": 12,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "refactor",
+        "detector": "boilerplate_duplication",
+        "count": 164,
+        "description": "164 boilerplate_duplication work items \u2014 extract shared boilerplate into reusable helpers or base classes",
+        "command": "desloppify show boilerplate_duplication --status open",
+        "impact": 0.0,
+        "dimension": "Duplication",
+        "priority": 13,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "manual_fix",
+        "detector": "smells",
+        "count": 287,
+        "description": "287 smells issues \u2014 inspect with `desloppify next` and fix manually",
+        "command": "desloppify show smells --status open",
+        "impact": 0.0,
+        "dimension": "Code quality",
+        "priority": 14,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "manual_fix",
+        "detector": "security",
+        "count": 15,
+        "description": "15 security work items \u2014 review and fix security issues \u2014 prioritize by severity",
+        "command": "desloppify show security --status open",
+        "impact": 0.0,
+        "dimension": "Security",
+        "priority": 15,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "manual_fix",
+        "detector": "subjective_review",
+        "count": 20,
+        "description": "20 assessment requests need review \u2014 run holistic review to refresh subjective scores",
+        "command": "desloppify review --prepare",
+        "impact": 0.0,
+        "dimension": "Unknown",
+        "priority": 16,
+        "lane": "refactor_1"
+      }
+    ],
+    "strategy": {
+      "fixer_leverage": {
+        "auto_fixable_count": 80,
+        "total_count": 932,
+        "coverage": 0.086,
+        "impact_ratio": 0.0,
+        "recommendation": "none"
+      },
+      "lanes": {
+        "cleanup": {
+          "actions": [
+            2,
+            1
+          ],
+          "file_count": 34,
+          "total_impact": 0.0,
+          "automation": "full",
+          "run_first": true
+        },
+        "restructure": {
+          "actions": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "file_count": 52,
+          "total_impact": 0.0,
+          "automation": "manual",
+          "run_first": false
+        },
+        "refactor_0": {
+          "actions": [
+            7,
+            8,
+            9,
+            10,
+            12,
+            13,
+            14,
+            15
+          ],
+          "file_count": 178,
+          "total_impact": 0.0,
+          "automation": "manual",
+          "run_first": false
+        },
+        "refactor_1": {
+          "actions": [
+            16
+          ],
+          "file_count": 1,
+          "total_impact": 0.0,
+          "automation": "manual",
+          "run_first": false
+        },
+        "test_coverage": {
+          "actions": [
+            11
+          ],
+          "file_count": 223,
+          "total_impact": 0.0,
+          "automation": "manual",
+          "run_first": false
+        }
+      },
+      "can_parallelize": true,
+      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify."
+    },
+    "tools": {
+      "fixers": [
+        {
+          "name": "unused-imports",
+          "detector": "unused",
+          "open_count": 73,
+          "command": "desloppify autofix unused-imports --dry-run"
+        },
+        {
+          "name": "unused-vars",
+          "detector": "unused",
+          "open_count": 73,
+          "command": "desloppify autofix unused-vars --dry-run"
+        },
+        {
+          "name": "unused-params",
+          "detector": "unused",
+          "open_count": 73,
+          "command": "desloppify autofix unused-params --dry-run"
+        },
+        {
+          "name": "debug-logs",
+          "detector": "logs",
+          "open_count": 7,
+          "command": "desloppify autofix debug-logs --dry-run"
+        },
+        {
+          "name": "dead-useeffect",
+          "detector": "smells",
+          "open_count": 287,
+          "command": "desloppify autofix dead-useeffect --dry-run"
+        },
+        {
+          "name": "empty-if-chain",
+          "detector": "smells",
+          "open_count": 287,
+          "command": "desloppify autofix empty-if-chain --dry-run"
+        }
+      ],
+      "move": {
+        "available": true,
+        "relevant": true,
+        "reason": "45 orphaned files + 4 single-use files + 3 flat directories + 1 naming issues",
+        "usage": "desloppify move <source> <dest> [--dry-run]"
+      },
+      "plan": {
+        "command": "desloppify plan",
+        "description": "Generate prioritized markdown cleanup plan"
+      },
+      "badge": {
+        "generated": true,
+        "in_readme": false,
+        "path": "scorecard.png",
+        "recommendation": "Add to README: <img src=\"scorecard.png\" width=\"100%\">"
+      }
+    },
+    "debt": {
+      "overall_gap": 0.0,
+      "wontfix_count": 0,
+      "worst_dimension": null,
+      "worst_gap": 0.0,
+      "trend": "stable"
+    },
+    "milestone": null,
+    "primary_action": {
+      "command": "desloppify autofix unused-imports --dry-run",
+      "description": "73 unused issues \u2014 run `desloppify autofix unused-imports --dry-run` to preview, then apply"
+    },
+    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify.",
+    "verification_step": {
+      "command": "desloppify scan",
+      "reason": "revalidate after changes"
+    },
+    "risk_flags": [],
+    "strict_target": {
+      "target": 85.0,
+      "current": 17.5,
+      "gap": 67.5,
+      "state": "below",
+      "warning": null
+    },
+    "reminders": [
+      {
+        "type": "auto_fixers_available",
+        "message": "80 issues are auto-fixable. Run `desloppify autofix unused-imports --dry-run`.",
+        "command": "desloppify autofix unused-imports --dry-run",
+        "priority": 2,
+        "severity": "medium"
+      },
+      {
+        "type": "zone_classification",
+        "message": "11 of 239 files classified as non-production (2 config, 7 script, 2 test). Override with `desloppify zone set <file> production` if any are misclassified.",
+        "command": "desloppify zone show",
+        "priority": 2,
+        "severity": "medium"
+      },
+      {
+        "type": "dry_run_first",
+        "message": "Always --dry-run first, review changes, then apply.",
+        "command": null,
+        "priority": 3,
+        "severity": "low"
+      }
+    ],
+    "reminder_history": {
+      "auto_fixers_available": 2,
+      "zone_classification": 2,
+      "dry_run_first": 2,
+      "report_scores": 1
+    }
+  },
+  "config": {
+    "target_strict_score": 85,
+    "review_max_age_days": 30,
+    "review_batch_max_files": 80,
+    "holistic_max_age_days": 30,
+    "generate_scorecard": true,
+    "badge_path": "scorecard.png",
+    "exclude": [],
+    "ignore": [],
+    "ignore_metadata": {},
+    "zone_overrides": {},
+    "review_dimensions": [],
+    "large_files_threshold": 0,
+    "props_threshold": 0,
+    "issue_noise_budget": 10,
+    "issue_noise_global_budget": 0,
+    "execution_log_max_entries": 10000,
+    "needs_rescan": false,
+    "languages": {},
+    "commit_tracking_enabled": true,
+    "commit_pr": 0,
+    "commit_default_branch": "",
+    "commit_message_template": "desloppify: {status} {count} issue(s) \u2014 {summary}",
+    "trust_plugins": false,
+    "transition_messages": {},
+    "hermes_enabled": false,
+    "hermes_models": {
+      "execute": "openrouter:x-ai/grok-4.20-beta",
+      "review": "openrouter:google/gemini-3.1-pro-preview"
+    }
+  }
+}

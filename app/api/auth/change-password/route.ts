@@ -68,7 +68,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, message: 'تم تغيير كلمة المرور بنجاح' });
   } catch (err: any) {
-    console.error('[CHANGE_PASSWORD_ERROR]', err);
+    console.error('[CHANGE_PASSWORD_ERROR]', err?.message || 'unknown error');
     return NextResponse.json({ error: 'تعذر تغيير كلمة المرور' }, { status: 500 });
   }
 }

@@ -1,3 +1,9 @@
+
+function resolveSafeImg(url?: string | null): string | null {
+  if (!url) return null;
+  if (url.startsWith('http')) return url;
+  return 'https://qudurati-taupe.vercel.app' + (url.startsWith('/') ? '' : '/') + url;
+}
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -262,10 +268,10 @@ export default function TakeExam() {
                   {pq.imageUrl && (
                     <div className="my-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
                       <img
-                        src={pq.imageUrl}
+                        src={resolveSafeImg(pq.imageUrl) || ""}
                         alt="شكل السؤال"
                         className="mx-auto max-h-48 rounded-lg cursor-pointer"
-                        onClick={() => setZoomedImage(pq.imageUrl || null)}
+                        onClick={() => setZoomedImage(resolveSafeImg(pq.imageUrl))}
                       />
                     </div>
                   )}
@@ -454,14 +460,14 @@ export default function TakeExam() {
             <div className="rounded-2xl border-2 border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3 text-center overflow-hidden">
               <div className="relative inline-block group">
                 <img
-                  src={q.imageUrl}
+                  src={resolveSafeImg(q.imageUrl) || ""}
                   alt="شكل السؤال الهندسي"
                   className="mx-auto max-h-72 w-auto object-contain rounded-xl shadow-sm transition-transform cursor-zoom-in group-hover:scale-[1.02]"
-                  onClick={() => setZoomedImage(q.imageUrl || null)}
+                  onClick={() => setZoomedImage(resolveSafeImg(q.imageUrl))}
                 />
                 <button
                   type="button"
-                  onClick={() => setZoomedImage(q.imageUrl || null)}
+                  onClick={() => setZoomedImage(resolveSafeImg(q.imageUrl))}
                   className="absolute bottom-2 left-2 px-2.5 py-1 rounded-lg bg-black/60 text-white text-[10px] font-bold flex items-center gap-1 backdrop-blur-sm hover:bg-black"
                 >
                   <ZoomIn size={12} />

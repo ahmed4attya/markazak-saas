@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const tokenHash = `otp:${hashResetToken(`otp:${email}:${code}`)}`;
+    const computedTokenHash = `otp:${hashResetToken(`otp:${email}:${code}`)}`;
 
     const resetRes = await query<any>(
       `select id, expires_at, used_at
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
        where user_id=$1 and token_hash=$2
        order by created_at desc
        limit 1`,
-      [user.id, tokenHash]
+      [user.id, computedTokenHash]
     );
     const reset = resetRes.rows[0];
 

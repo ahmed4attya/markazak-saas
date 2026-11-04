@@ -1,0 +1,2654 @@
+{
+  "version": 8,
+  "created": "2026-11-03T16:51:23+00:00",
+  "updated": "2026-11-03T16:51:23+00:00",
+  "queue_order": [
+    "subjective::abstraction_fitness",
+    "subjective::ai_generated_debt",
+    "subjective::api_surface_coherence",
+    "subjective::authorization_consistency",
+    "subjective::contract_coherence",
+    "subjective::convention_outlier",
+    "subjective::cross_module_architecture",
+    "subjective::dependency_health",
+    "subjective::design_coherence",
+    "subjective::error_consistency",
+    "subjective::high_level_elegance",
+    "subjective::incomplete_migration",
+    "subjective::initialization_coupling",
+    "subjective::logic_clarity",
+    "subjective::low_level_elegance",
+    "subjective::mid_level_elegance",
+    "subjective::naming_quality",
+    "subjective::package_organization",
+    "subjective::test_strategy",
+    "subjective::type_safety",
+    "logs::app/api/questions/extract/route.ts::PDF",
+    "logs::scripts/seed-live.ts::guard",
+    "logs::scripts/seed-live.ts::identity",
+    "logs::scripts/seed-live.ts::clean",
+    "logs::scripts/seed-live.ts::seed",
+    "logs::scripts/seed-live.ts::verify",
+    "logs::scripts/seed-live.ts::creds",
+    "unused::app/api/assignments/[id]/route.ts::safeError:2",
+    "unused::app/api/assignments/route.ts::teacherCourseIds:4",
+    "unused::app/api/attendance/[id]/route.ts::req:130",
+    "unused::app/api/courses/[id]/route.ts::req:96",
+    "unused::app/api/enrollments/[id]/route.ts::req:124",
+    "unused::app/api/exams/[id]/route.ts::safeError:2",
+    "unused::app/api/groups/[id]/route.ts::req:140",
+    "unused::app/api/learner/redeem/route.ts::safeError:2",
+    "unused::app/api/teachers/[id]/route.ts::req:95",
+    "unused::app/assignments/page.tsx::BookOpen:4",
+    "unused::app/dashboard/page.tsx::ArrowUpRight:10",
+    "unused::app/dashboard/page.tsx::TrendingUp:13",
+    "unused::app/dashboard/page.tsx::ClipboardList:24",
+    "unused::app/dashboard/page.tsx::BarChart:28",
+    "unused::app/dashboard/page.tsx::Bar:28",
+    "unused::app/dashboard/page.tsx::attData:377",
+    "unused::app/exams/page.tsx::BookOpen:4",
+    "unused::app/login/page.before-arabic-fix-20260922-113118.tsx::ShieldCheck:1",
+    "unused::app/portal/assignments/page.tsx::NotebookPen:5",
+    "unused::app/portal/badges/page.tsx::Lock:13",
+    "unused::app/portal/badges/page.tsx::Sparkles:14",
+    "unused::app/portal/badges/page.tsx::Target:16",
+    "unused::app/portal/calculator/page.tsx::AnimatePresence:5",
+    "unused::app/portal/calculator/page.tsx::Share2:19",
+    "unused::app/portal/challenge/page.tsx::NumberFlow:7",
+    "unused::app/portal/challenge/page.tsx::Timer:17",
+    "unused::app/portal/challenge/page.tsx::Play:18",
+    "unused::app/portal/challenge/page.tsx::RotateCcw:19",
+    "unused::app/portal/challenge/page.tsx::Award:23",
+    "unused::app/portal/courses/[id]/page.tsx::error:23",
+    "unused::app/portal/formulas/page.tsx::Link:4",
+    "unused::app/portal/formulas/page.tsx::AnimatePresence:5",
+    "unused::app/portal/formulas/page.tsx::ChevronLeft:7",
+    "unused::app/portal/formulas/page.tsx::Zap:8",
+    "unused::app/portal/formulas/page.tsx::ArrowRight:8",
+    "unused::app/portal/formulas/page.tsx::Share2:8",
+    "unused::app/portal/formulas/page.tsx::fId:56",
+    "unused::app/portal/library/page.tsx::setError:20",
+    "unused::app/portal/page.tsx::NotebookPen:9",
+    "unused::app/portal/page.tsx::FolderOpen:11",
+    "unused::app/portal/page.tsx::KeyRound:12",
+    "unused::app/portal/progress/page.tsx::Sparkles:11",
+    "unused::app/portal/progress/page.tsx::TrendingUp:15",
+    "unused::app/portal/progress/page.tsx::Award:16",
+    "unused::app/portal/progress/page.tsx::ChevronLeft:17",
+    "unused::app/portal/self-challenge/page.tsx::useCallback:3",
+    "unused::app/portal/self-challenge/page.tsx::Play:16",
+    "unused::app/portal/self-challenge/page.tsx::Check:22",
+    "unused::app/portal/self-challenge/page.tsx::setDifficulty:67",
+    "unused::app/portal/training/page.tsx::RefreshCw:5",
+    "unused::app/tenants/page.tsx::Calendar:11",
+    "unused::app/tenants/page.tsx::ExternalLink:14",
+    "unused::app/tenants/page.tsx::ShieldCheck:15",
+    "unused::app/tenants/page.tsx::KeyRound:19",
+    "unused::app/tenants/page.tsx::UserCheck:22",
+    "unused::app/tenants/page.tsx::Eye:26",
+    "unused::backups/students-crud-fix-20260922-115934/CrudPage.tsx::cn:368",
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::Edit3:4",
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::Trash2:4",
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::MoreVertical:4",
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::(entire import):5",
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::renderCell:22",
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::onEdit:23",
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::filteredRows:29",
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::handleDelete:33",
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::Badge:99",
+    "unused::components/landing/Navbar.tsx::motion:3",
+    "unused::components/landing/Navbar.tsx::X:4",
+    "unused::config/navigation.ts::PAGE_ACCESS:1",
+    "unused::lib/guard.ts::getSession:1",
+    "unused::scripts/m1-final-verify.ts::(entire import):2",
+    "unused::scripts/seed-live.ts::BRAND:27",
+    "unused::tools/session-T/CHECK-BLOB.mts::sh:11"
+  ],
+  "deferred": [],
+  "skipped": {},
+  "active_cluster": null,
+  "overrides": {
+    "logs::app/api/questions/extract/route.ts::PDF": {
+      "issue_id": "logs::app/api/questions/extract/route.ts::PDF",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/logs",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "logs::scripts/seed-live.ts::guard": {
+      "issue_id": "logs::scripts/seed-live.ts::guard",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/logs",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "logs::scripts/seed-live.ts::identity": {
+      "issue_id": "logs::scripts/seed-live.ts::identity",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/logs",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "logs::scripts/seed-live.ts::clean": {
+      "issue_id": "logs::scripts/seed-live.ts::clean",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/logs",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "logs::scripts/seed-live.ts::seed": {
+      "issue_id": "logs::scripts/seed-live.ts::seed",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/logs",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "logs::scripts/seed-live.ts::verify": {
+      "issue_id": "logs::scripts/seed-live.ts::verify",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/logs",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "logs::scripts/seed-live.ts::creds": {
+      "issue_id": "logs::scripts/seed-live.ts::creds",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/logs",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/api/assignments/[id]/route.ts::safeError:2": {
+      "issue_id": "unused::app/api/assignments/[id]/route.ts::safeError:2",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/api/assignments/route.ts::teacherCourseIds:4": {
+      "issue_id": "unused::app/api/assignments/route.ts::teacherCourseIds:4",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/api/attendance/[id]/route.ts::req:130": {
+      "issue_id": "unused::app/api/attendance/[id]/route.ts::req:130",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/api/courses/[id]/route.ts::req:96": {
+      "issue_id": "unused::app/api/courses/[id]/route.ts::req:96",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/api/enrollments/[id]/route.ts::req:124": {
+      "issue_id": "unused::app/api/enrollments/[id]/route.ts::req:124",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/api/exams/[id]/route.ts::safeError:2": {
+      "issue_id": "unused::app/api/exams/[id]/route.ts::safeError:2",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/api/groups/[id]/route.ts::req:140": {
+      "issue_id": "unused::app/api/groups/[id]/route.ts::req:140",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/api/learner/redeem/route.ts::safeError:2": {
+      "issue_id": "unused::app/api/learner/redeem/route.ts::safeError:2",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/api/teachers/[id]/route.ts::req:95": {
+      "issue_id": "unused::app/api/teachers/[id]/route.ts::req:95",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/assignments/page.tsx::BookOpen:4": {
+      "issue_id": "unused::app/assignments/page.tsx::BookOpen:4",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/dashboard/page.tsx::ArrowUpRight:10": {
+      "issue_id": "unused::app/dashboard/page.tsx::ArrowUpRight:10",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/dashboard/page.tsx::TrendingUp:13": {
+      "issue_id": "unused::app/dashboard/page.tsx::TrendingUp:13",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/dashboard/page.tsx::ClipboardList:24": {
+      "issue_id": "unused::app/dashboard/page.tsx::ClipboardList:24",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/dashboard/page.tsx::BarChart:28": {
+      "issue_id": "unused::app/dashboard/page.tsx::BarChart:28",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/dashboard/page.tsx::Bar:28": {
+      "issue_id": "unused::app/dashboard/page.tsx::Bar:28",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/dashboard/page.tsx::attData:377": {
+      "issue_id": "unused::app/dashboard/page.tsx::attData:377",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/exams/page.tsx::BookOpen:4": {
+      "issue_id": "unused::app/exams/page.tsx::BookOpen:4",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/login/page.before-arabic-fix-20260922-113118.tsx::ShieldCheck:1": {
+      "issue_id": "unused::app/login/page.before-arabic-fix-20260922-113118.tsx::ShieldCheck:1",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/assignments/page.tsx::NotebookPen:5": {
+      "issue_id": "unused::app/portal/assignments/page.tsx::NotebookPen:5",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/badges/page.tsx::Lock:13": {
+      "issue_id": "unused::app/portal/badges/page.tsx::Lock:13",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/badges/page.tsx::Sparkles:14": {
+      "issue_id": "unused::app/portal/badges/page.tsx::Sparkles:14",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/badges/page.tsx::Target:16": {
+      "issue_id": "unused::app/portal/badges/page.tsx::Target:16",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/calculator/page.tsx::AnimatePresence:5": {
+      "issue_id": "unused::app/portal/calculator/page.tsx::AnimatePresence:5",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/calculator/page.tsx::Share2:19": {
+      "issue_id": "unused::app/portal/calculator/page.tsx::Share2:19",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/challenge/page.tsx::NumberFlow:7": {
+      "issue_id": "unused::app/portal/challenge/page.tsx::NumberFlow:7",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/challenge/page.tsx::Timer:17": {
+      "issue_id": "unused::app/portal/challenge/page.tsx::Timer:17",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/challenge/page.tsx::Play:18": {
+      "issue_id": "unused::app/portal/challenge/page.tsx::Play:18",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/challenge/page.tsx::RotateCcw:19": {
+      "issue_id": "unused::app/portal/challenge/page.tsx::RotateCcw:19",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/challenge/page.tsx::Award:23": {
+      "issue_id": "unused::app/portal/challenge/page.tsx::Award:23",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/courses/[id]/page.tsx::error:23": {
+      "issue_id": "unused::app/portal/courses/[id]/page.tsx::error:23",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/formulas/page.tsx::Link:4": {
+      "issue_id": "unused::app/portal/formulas/page.tsx::Link:4",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/formulas/page.tsx::AnimatePresence:5": {
+      "issue_id": "unused::app/portal/formulas/page.tsx::AnimatePresence:5",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/formulas/page.tsx::ChevronLeft:7": {
+      "issue_id": "unused::app/portal/formulas/page.tsx::ChevronLeft:7",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/formulas/page.tsx::Zap:8": {
+      "issue_id": "unused::app/portal/formulas/page.tsx::Zap:8",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/formulas/page.tsx::ArrowRight:8": {
+      "issue_id": "unused::app/portal/formulas/page.tsx::ArrowRight:8",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/formulas/page.tsx::Share2:8": {
+      "issue_id": "unused::app/portal/formulas/page.tsx::Share2:8",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/formulas/page.tsx::fId:56": {
+      "issue_id": "unused::app/portal/formulas/page.tsx::fId:56",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/library/page.tsx::setError:20": {
+      "issue_id": "unused::app/portal/library/page.tsx::setError:20",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/page.tsx::NotebookPen:9": {
+      "issue_id": "unused::app/portal/page.tsx::NotebookPen:9",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/page.tsx::FolderOpen:11": {
+      "issue_id": "unused::app/portal/page.tsx::FolderOpen:11",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/page.tsx::KeyRound:12": {
+      "issue_id": "unused::app/portal/page.tsx::KeyRound:12",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/progress/page.tsx::Sparkles:11": {
+      "issue_id": "unused::app/portal/progress/page.tsx::Sparkles:11",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/progress/page.tsx::TrendingUp:15": {
+      "issue_id": "unused::app/portal/progress/page.tsx::TrendingUp:15",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/progress/page.tsx::Award:16": {
+      "issue_id": "unused::app/portal/progress/page.tsx::Award:16",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/progress/page.tsx::ChevronLeft:17": {
+      "issue_id": "unused::app/portal/progress/page.tsx::ChevronLeft:17",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/self-challenge/page.tsx::useCallback:3": {
+      "issue_id": "unused::app/portal/self-challenge/page.tsx::useCallback:3",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/self-challenge/page.tsx::Play:16": {
+      "issue_id": "unused::app/portal/self-challenge/page.tsx::Play:16",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/self-challenge/page.tsx::Check:22": {
+      "issue_id": "unused::app/portal/self-challenge/page.tsx::Check:22",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/self-challenge/page.tsx::setDifficulty:67": {
+      "issue_id": "unused::app/portal/self-challenge/page.tsx::setDifficulty:67",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/portal/training/page.tsx::RefreshCw:5": {
+      "issue_id": "unused::app/portal/training/page.tsx::RefreshCw:5",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/tenants/page.tsx::Calendar:11": {
+      "issue_id": "unused::app/tenants/page.tsx::Calendar:11",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/tenants/page.tsx::ExternalLink:14": {
+      "issue_id": "unused::app/tenants/page.tsx::ExternalLink:14",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/tenants/page.tsx::ShieldCheck:15": {
+      "issue_id": "unused::app/tenants/page.tsx::ShieldCheck:15",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/tenants/page.tsx::KeyRound:19": {
+      "issue_id": "unused::app/tenants/page.tsx::KeyRound:19",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/tenants/page.tsx::UserCheck:22": {
+      "issue_id": "unused::app/tenants/page.tsx::UserCheck:22",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::app/tenants/page.tsx::Eye:26": {
+      "issue_id": "unused::app/tenants/page.tsx::Eye:26",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::backups/students-crud-fix-20260922-115934/CrudPage.tsx::cn:368": {
+      "issue_id": "unused::backups/students-crud-fix-20260922-115934/CrudPage.tsx::cn:368",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::Edit3:4": {
+      "issue_id": "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::Edit3:4",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::Trash2:4": {
+      "issue_id": "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::Trash2:4",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::MoreVertical:4": {
+      "issue_id": "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::MoreVertical:4",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::(entire import):5": {
+      "issue_id": "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::(entire import):5",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::renderCell:22": {
+      "issue_id": "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::renderCell:22",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::onEdit:23": {
+      "issue_id": "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::onEdit:23",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::filteredRows:29": {
+      "issue_id": "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::filteredRows:29",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::handleDelete:33": {
+      "issue_id": "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::handleDelete:33",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::Badge:99": {
+      "issue_id": "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::Badge:99",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::components/landing/Navbar.tsx::motion:3": {
+      "issue_id": "unused::components/landing/Navbar.tsx::motion:3",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::components/landing/Navbar.tsx::X:4": {
+      "issue_id": "unused::components/landing/Navbar.tsx::X:4",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::config/navigation.ts::PAGE_ACCESS:1": {
+      "issue_id": "unused::config/navigation.ts::PAGE_ACCESS:1",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::lib/guard.ts::getSession:1": {
+      "issue_id": "unused::lib/guard.ts::getSession:1",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::scripts/m1-final-verify.ts::(entire import):2": {
+      "issue_id": "unused::scripts/m1-final-verify.ts::(entire import):2",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::scripts/seed-live.ts::BRAND:27": {
+      "issue_id": "unused::scripts/seed-live.ts::BRAND:27",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "unused::tools/session-T/CHECK-BLOB.mts::sh:11": {
+      "issue_id": "unused::tools/session-T/CHECK-BLOB.mts::sh:11",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/unused",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/Shell.tsx::untested_module": {
+      "issue_id": "test_coverage::components/Shell.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/courses/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/courses/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/attendance-encoding/page-20260922-140101.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/attendance-encoding/page-20260922-140101.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/questions/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/questions/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/exams/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/exams/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/questions/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/questions/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::scripts/migrate.ts::untested_module": {
+      "issue_id": "test_coverage::scripts/migrate.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/offline/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/offline/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/videos/[id]/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/videos/[id]/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/magicui/marquee.tsx::untested_module": {
+      "issue_id": "test_coverage::components/magicui/marquee.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/students/[id]/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/students/[id]/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/questions/banks/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/questions/banks/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/manifest.ts::untested_module": {
+      "issue_id": "test_coverage::app/manifest.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/notifications/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/notifications/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/registrations/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/registrations/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/students/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/students/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/exams/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/exams/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/layout.tsx::untested_module": {
+      "issue_id": "test_coverage::app/layout.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/page-stats-patch/page-0de85097.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/page-stats-patch/page-0de85097.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/self-challenge/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/self-challenge/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/courses/[id]/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/courses/[id]/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/magicui/shimmer-button.tsx::untested_module": {
+      "issue_id": "test_coverage::components/magicui/shimmer-button.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/PortalConfetti.tsx::untested_module": {
+      "issue_id": "test_coverage::components/PortalConfetti.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/videos/upload-complete/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/videos/upload-complete/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/mistakes/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/mistakes/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/challenge/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/challenge/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/exams/[id]/copy/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/exams/[id]/copy/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/notifications/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/notifications/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/attempts/submit/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/attempts/submit/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/ThemeToggle.tsx::untested_module": {
+      "issue_id": "test_coverage::components/ThemeToggle.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/students-crud-fix-20260922-115934/CrudPage.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/students-crud-fix-20260922-115934/CrudPage.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/activation-codes/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/activation-codes/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/courses/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/courses/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::scripts/m1-final-verify.ts::untested_module": {
+      "issue_id": "test_coverage::scripts/m1-final-verify.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/exams/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/exams/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/auth/register/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/auth/register/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/rateLimit.ts::untested_module": {
+      "issue_id": "test_coverage::lib/rateLimit.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/files/[id]/download/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/files/[id]/download/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/auth/reset-password/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/auth/reset-password/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/me/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/me/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/storage.ts::untested_module": {
+      "issue_id": "test_coverage::lib/storage.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/questions/import/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/questions/import/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/dashboard/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/dashboard/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/privacy/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/privacy/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/layout.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/layout.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/MistakeTutor.tsx::untested_module": {
+      "issue_id": "test_coverage::components/MistakeTutor.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/teachers/[id]/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/teachers/[id]/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/ai/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/ai/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/access.ts::untested_module": {
+      "issue_id": "test_coverage::lib/access.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/mailer.ts::untested_module": {
+      "issue_id": "test_coverage::lib/mailer.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/plans/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/plans/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/videos/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/videos/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/PortalVideoPlayer.tsx::untested_module": {
+      "issue_id": "test_coverage::components/PortalVideoPlayer.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/files/upload-complete/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/files/upload-complete/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/modules/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/modules/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/users/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/users/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/leads/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/leads/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/tenants/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/tenants/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/auth/login/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/auth/login/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/register/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/register/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/students/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/students/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/telegram-notify.ts::untested_module": {
+      "issue_id": "test_coverage::lib/telegram-notify.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/redeem/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/redeem/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/auth/google/status/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/auth/google/status/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/LandingClient.tsx::untested_module": {
+      "issue_id": "test_coverage::components/LandingClient.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/msform.ts::untested_module": {
+      "issue_id": "test_coverage::lib/msform.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/stripe/checkout/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/stripe/checkout/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/courses/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/courses/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/page-stats-patch/page-a8f76f99.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/page-stats-patch/page-a8f76f99.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/questions/extract/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/questions/extract/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/settings/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/settings/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/videos/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/videos/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/magicui/animated-gradient-text.tsx::untested_module": {
+      "issue_id": "test_coverage::components/magicui/animated-gradient-text.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/files/prepare/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/files/prepare/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::scripts/seed.ts::untested_module": {
+      "issue_id": "test_coverage::scripts/seed.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/auth.ts::untested_module": {
+      "issue_id": "test_coverage::lib/auth.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/courses/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/courses/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/enrollments/[id]/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/enrollments/[id]/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/videos/prepare/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/videos/prepare/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/landing/Navbar.tsx::untested_module": {
+      "issue_id": "test_coverage::components/landing/Navbar.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/stats/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/stats/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/page-stats-patch/page-7040e2fe.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/page-stats-patch/page-7040e2fe.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/InstallPWA.tsx::untested_module": {
+      "issue_id": "test_coverage::components/InstallPWA.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/finance/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/finance/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/attempts/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/attempts/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/attendance-encoding/page-20260922-140246.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/attendance-encoding/page-20260922-140246.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/streak/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/streak/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/users/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/users/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/teachers/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/teachers/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/attendance/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/attendance/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/groups/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/groups/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/videos/[id]/stream/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/videos/[id]/stream/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/questions/save/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/questions/save/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/account/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/account/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/attendance/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/attendance/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/audit/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/audit/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/question-engine.ts::untested_module": {
+      "issue_id": "test_coverage::lib/question-engine.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/ai/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/ai/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/activation-codes/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/activation-codes/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/exams/[id]/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/exams/[id]/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/self-challenge/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/self-challenge/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/NotificationBell.tsx::untested_module": {
+      "issue_id": "test_coverage::components/NotificationBell.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/session.ts::untested_module": {
+      "issue_id": "test_coverage::lib/session.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/videos/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/videos/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/classrooms/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/classrooms/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/settings/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/settings/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/page-stats-patch/page-7882201a.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/page-stats-patch/page-7882201a.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/attendance-encoding/page-20260922-135828.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/attendance-encoding/page-20260922-135828.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/attendance-summary-cards/page-20260922-140018.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/attendance-summary-cards/page-20260922-140018.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/forecast/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/forecast/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/files/upload/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/files/upload/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::config/navigation.ts::untested_module": {
+      "issue_id": "test_coverage::config/navigation.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/questions/used-ids/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/questions/used-ids/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/redeem/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/redeem/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/AttendanceSummaryCards.tsx::untested_module": {
+      "issue_id": "test_coverage::components/AttendanceSummaryCards.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/assignments/[id]/grade/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/assignments/[id]/grade/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/audit.ts::untested_module": {
+      "issue_id": "test_coverage::lib/audit.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/courses/[id]/curriculum/pdf/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/courses/[id]/curriculum/pdf/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/PageStatsCards.tsx::untested_module": {
+      "issue_id": "test_coverage::components/PageStatsCards.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/library/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/library/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/gform.ts::untested_module": {
+      "issue_id": "test_coverage::lib/gform.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/magicui/spotlight.tsx::untested_module": {
+      "issue_id": "test_coverage::components/magicui/spotlight.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/reports/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/reports/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/assignments/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/assignments/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::scripts/clean-demo-data.ts::untested_module": {
+      "issue_id": "test_coverage::scripts/clean-demo-data.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/progress/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/progress/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/assignments/[id]/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/assignments/[id]/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/training/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/training/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/verify/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/verify/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/formulas-data.ts::untested_module": {
+      "issue_id": "test_coverage::lib/formulas-data.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/page-stats-patch/page.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/page-stats-patch/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/course-teachers/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/course-teachers/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/courses/[id]/curriculum/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/courses/[id]/curriculum/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/progress/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/progress/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/notify.ts::untested_module": {
+      "issue_id": "test_coverage::lib/notify.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/tenants/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/tenants/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/gradebook/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/gradebook/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/videos/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/videos/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/formulas/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/formulas/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/QuestionCard.tsx::untested_module": {
+      "issue_id": "test_coverage::components/QuestionCard.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/pdf-questions.ts::untested_module": {
+      "issue_id": "test_coverage::lib/pdf-questions.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/assignments/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/assignments/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/questions/notes/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/questions/notes/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/plans/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/plans/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/me/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/me/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/library/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/library/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/badges/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/badges/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/reports/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/reports/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/groups/[id]/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/groups/[id]/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/attendance-summary-cards/page-20260922-135645.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/attendance-summary-cards/page-20260922-135645.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/CrudPage.tsx::untested_module": {
+      "issue_id": "test_coverage::components/CrudPage.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/video-storage.ts::untested_module": {
+      "issue_id": "test_coverage::lib/video-storage.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/assignments/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/assignments/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::middleware.ts::untested_module": {
+      "issue_id": "test_coverage::middleware.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/auth/forgot-password/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/auth/forgot-password/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/quick-contact/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/quick-contact/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/questions/import/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/questions/import/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/Layout.tsx::untested_module": {
+      "issue_id": "test_coverage::components/Layout.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::scripts/seed-live.ts::untested_module": {
+      "issue_id": "test_coverage::scripts/seed-live.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/auth/google/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/auth/google/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/login/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/login/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/ai-explain/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/ai-explain/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/gradebook/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/gradebook/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/attendance/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/attendance/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/mistakes/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/mistakes/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/QuickContact.tsx::untested_module": {
+      "issue_id": "test_coverage::components/QuickContact.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/page-stats-patch/page-950f0fbd.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/page-stats-patch/page-950f0fbd.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::config/access.ts::untested_module": {
+      "issue_id": "test_coverage::config/access.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/dashboard/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/dashboard/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/csv.ts::untested_module": {
+      "issue_id": "test_coverage::lib/csv.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/teachers/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/teachers/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/lessons/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/lessons/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/files/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/files/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/files/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/files/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/lessons/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/lessons/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/students-crud-fix-20260922-115934/DataTable.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/students-crud-fix-20260922-115934/DataTable.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/subscription.ts::untested_module": {
+      "issue_id": "test_coverage::lib/subscription.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/sitemap.ts::untested_module": {
+      "issue_id": "test_coverage::app/sitemap.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/assignments/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/assignments/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/error.tsx::untested_module": {
+      "issue_id": "test_coverage::app/error.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::scripts/seed-demo-english.ts::untested_module": {
+      "issue_id": "test_coverage::scripts/seed-demo-english.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/HeroCanvas.tsx::untested_module": {
+      "issue_id": "test_coverage::components/HeroCanvas.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/audit/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/audit/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/videos/upload/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/videos/upload/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/results/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/results/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/terms/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/terms/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/auth/google/callback/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/auth/google/callback/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/quota.ts::untested_module": {
+      "issue_id": "test_coverage::lib/quota.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/certificates/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/certificates/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/global-error.tsx::untested_module": {
+      "issue_id": "test_coverage::app/global-error.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/DataTable.tsx::untested_module": {
+      "issue_id": "test_coverage::components/DataTable.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/attendance-summary-cards/page-20260922-135946.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/attendance-summary-cards/page-20260922-135946.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/notifications/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/notifications/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/notifications/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/notifications/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/auth/request-otp/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/auth/request-otp/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/attendance-summary-cards/page-20260922-140038.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/attendance-summary-cards/page-20260922-140038.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/challenge/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/challenge/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/badges/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/badges/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/auth/change-password/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/auth/change-password/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/attendance/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/attendance/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/training/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/training/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/calculator/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/calculator/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::scripts/env.ts::untested_module": {
+      "issue_id": "test_coverage::scripts/env.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/portal/exams/[id]/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/portal/exams/[id]/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/attendance-summary-cards/page-20260922-135555.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/attendance-summary-cards/page-20260922-135555.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/files/[id]/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/files/[id]/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/courses/[id]/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/courses/[id]/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/enrollments/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/enrollments/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/auth/verify/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/auth/verify/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::backups/attendance-before-arabic-repair-20260922-145458.tsx::untested_module": {
+      "issue_id": "test_coverage::backups/attendance-before-arabic-repair-20260922-145458.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/attendance/[id]/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/attendance/[id]/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/groups/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/groups/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/certificates/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/certificates/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/rate-limit.ts::untested_module": {
+      "issue_id": "test_coverage::lib/rate-limit.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/page.tsx::untested_module": {
+      "issue_id": "test_coverage::app/page.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/guard.ts::untested_module": {
+      "issue_id": "test_coverage::lib/guard.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::components/PWARegister.tsx::untested_module": {
+      "issue_id": "test_coverage::components/PWARegister.tsx::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/roles.ts::untested_module": {
+      "issue_id": "test_coverage::lib/roles.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/activation-codes/[id]/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/activation-codes/[id]/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/learner/exams/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/learner/exams/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::lib/auth-security.ts::untested_module": {
+      "issue_id": "test_coverage::lib/auth-security.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "test_coverage::app/api/certificates/verify/route.ts::untested_module": {
+      "issue_id": "test_coverage::app/api/certificates/verify/route.ts::untested_module",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/test_coverage-untested_module",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "security::app/api/auth/change-password/route.ts::security::log_sensitive::app/api/auth/change-password/route.ts::71": {
+      "issue_id": "security::app/api/auth/change-password/route.ts::security::log_sensitive::app/api/auth/change-password/route.ts::71",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/security-log_sensitive",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "security::app/api/auth/google/callback/route.ts::security::log_sensitive::app/api/auth/google/callback/route.ts::48": {
+      "issue_id": "security::app/api/auth/google/callback/route.ts::security::log_sensitive::app/api/auth/google/callback/route.ts::48",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/security-log_sensitive",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "security::app/api/files/upload/route.ts::security::log_sensitive::app/api/files/upload/route.ts::116": {
+      "issue_id": "security::app/api/files/upload/route.ts::security::log_sensitive::app/api/files/upload/route.ts::116",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/security-log_sensitive",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "security::app/api/videos/upload/route.ts::security::log_sensitive::app/api/videos/upload/route.ts::29": {
+      "issue_id": "security::app/api/videos/upload/route.ts::security::log_sensitive::app/api/videos/upload/route.ts::29",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/security-log_sensitive",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "security::scripts/clean-demo-data.ts::security::log_sensitive::scripts/clean-demo-data.ts::244": {
+      "issue_id": "security::scripts/clean-demo-data.ts::security::log_sensitive::scripts/clean-demo-data.ts::244",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/security-log_sensitive",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "security::scripts/seed-demo-english.ts::security::log_sensitive::scripts/seed-demo-english.ts::1028": {
+      "issue_id": "security::scripts/seed-demo-english.ts::security::log_sensitive::scripts/seed-demo-english.ts::1028",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/security-log_sensitive",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "security::scripts/seed-live.ts::security::log_sensitive::scripts/seed-live.ts::309": {
+      "issue_id": "security::scripts/seed-live.ts::security::log_sensitive::scripts/seed-live.ts::309",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/security-log_sensitive",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "security::lib/db.ts::security::weak_crypto_tls::lib/db.ts::3": {
+      "issue_id": "security::lib/db.ts::security::weak_crypto_tls::lib/db.ts::3",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/security-weak_crypto_tls",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "security::scripts/seed-live.ts::security::weak_crypto_tls::scripts/seed-live.ts::87": {
+      "issue_id": "security::scripts/seed-live.ts::security::weak_crypto_tls::scripts/seed-live.ts::87",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/security-weak_crypto_tls",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "security::app/layout.tsx::security::dangerously_set_inner_html::app/layout.tsx::106": {
+      "issue_id": "security::app/layout.tsx::security::dangerously_set_inner_html::app/layout.tsx::106",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/security-dangerously_set_inner_html",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "security::app/layout.tsx::security::dangerously_set_inner_html::app/layout.tsx::111": {
+      "issue_id": "security::app/layout.tsx::security::dangerously_set_inner_html::app/layout.tsx::111",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/security-dangerously_set_inner_html",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "security::components/LandingClient.tsx::security::dangerously_set_inner_html::components/LandingClient.tsx::204": {
+      "issue_id": "security::components/LandingClient.tsx::security::dangerously_set_inner_html::components/LandingClient.tsx::204",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/security-dangerously_set_inner_html",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "security::lib/gform.ts::security::json_parse_unguarded::lib/gform.ts::6": {
+      "issue_id": "security::lib/gform.ts::security::json_parse_unguarded::lib/gform.ts::6",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/security-json_parse_unguarded",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "security::lib/msform.ts::security::json_parse_unguarded::lib/msform.ts::41": {
+      "issue_id": "security::lib/msform.ts::security::json_parse_unguarded::lib/msform.ts::41",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/security-json_parse_unguarded",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::abstraction_fitness": {
+      "issue_id": "subjective::abstraction_fitness",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::ai_generated_debt": {
+      "issue_id": "subjective::ai_generated_debt",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::api_surface_coherence": {
+      "issue_id": "subjective::api_surface_coherence",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::authorization_consistency": {
+      "issue_id": "subjective::authorization_consistency",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::contract_coherence": {
+      "issue_id": "subjective::contract_coherence",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::convention_outlier": {
+      "issue_id": "subjective::convention_outlier",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::cross_module_architecture": {
+      "issue_id": "subjective::cross_module_architecture",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::dependency_health": {
+      "issue_id": "subjective::dependency_health",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::design_coherence": {
+      "issue_id": "subjective::design_coherence",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::error_consistency": {
+      "issue_id": "subjective::error_consistency",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::high_level_elegance": {
+      "issue_id": "subjective::high_level_elegance",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::incomplete_migration": {
+      "issue_id": "subjective::incomplete_migration",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::initialization_coupling": {
+      "issue_id": "subjective::initialization_coupling",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::logic_clarity": {
+      "issue_id": "subjective::logic_clarity",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::low_level_elegance": {
+      "issue_id": "subjective::low_level_elegance",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::mid_level_elegance": {
+      "issue_id": "subjective::mid_level_elegance",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::naming_quality": {
+      "issue_id": "subjective::naming_quality",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::package_organization": {
+      "issue_id": "subjective::package_organization",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::test_strategy": {
+      "issue_id": "subjective::test_strategy",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    },
+    "subjective::type_safety": {
+      "issue_id": "subjective::type_safety",
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-11-03T16:51:23+00:00"
+    }
+  },
+  "clusters": {
+    "auto/logs": {
+      "name": "auto/logs",
+      "description": "Remove 7 logs issues",
+      "issue_ids": [
+        "logs::app/api/questions/extract/route.ts::PDF",
+        "logs::scripts/seed-live.ts::guard",
+        "logs::scripts/seed-live.ts::identity",
+        "logs::scripts/seed-live.ts::clean",
+        "logs::scripts/seed-live.ts::seed",
+        "logs::scripts/seed-live.ts::verify",
+        "logs::scripts/seed-live.ts::creds"
+      ],
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "updated_at": "2026-11-03T16:51:23+00:00",
+      "auto": true,
+      "cluster_key": "auto::logs",
+      "action": "desloppify autofix debug-logs --dry-run",
+      "execution_status": "active",
+      "user_modified": false,
+      "action_type": "auto_fix",
+      "execution_policy": "ephemeral_autopromote"
+    },
+    "auto/unused": {
+      "name": "auto/unused",
+      "description": "Remove 73 unused issues",
+      "issue_ids": [
+        "unused::app/api/assignments/[id]/route.ts::safeError:2",
+        "unused::app/api/assignments/route.ts::teacherCourseIds:4",
+        "unused::app/api/attendance/[id]/route.ts::req:130",
+        "unused::app/api/courses/[id]/route.ts::req:96",
+        "unused::app/api/enrollments/[id]/route.ts::req:124",
+        "unused::app/api/exams/[id]/route.ts::safeError:2",
+        "unused::app/api/groups/[id]/route.ts::req:140",
+        "unused::app/api/learner/redeem/route.ts::safeError:2",
+        "unused::app/api/teachers/[id]/route.ts::req:95",
+        "unused::app/assignments/page.tsx::BookOpen:4",
+        "unused::app/dashboard/page.tsx::ArrowUpRight:10",
+        "unused::app/dashboard/page.tsx::TrendingUp:13",
+        "unused::app/dashboard/page.tsx::ClipboardList:24",
+        "unused::app/dashboard/page.tsx::BarChart:28",
+        "unused::app/dashboard/page.tsx::Bar:28",
+        "unused::app/dashboard/page.tsx::attData:377",
+        "unused::app/exams/page.tsx::BookOpen:4",
+        "unused::app/login/page.before-arabic-fix-20260922-113118.tsx::ShieldCheck:1",
+        "unused::app/portal/assignments/page.tsx::NotebookPen:5",
+        "unused::app/portal/badges/page.tsx::Lock:13",
+        "unused::app/portal/badges/page.tsx::Sparkles:14",
+        "unused::app/portal/badges/page.tsx::Target:16",
+        "unused::app/portal/calculator/page.tsx::AnimatePresence:5",
+        "unused::app/portal/calculator/page.tsx::Share2:19",
+        "unused::app/portal/challenge/page.tsx::NumberFlow:7",
+        "unused::app/portal/challenge/page.tsx::Timer:17",
+        "unused::app/portal/challenge/page.tsx::Play:18",
+        "unused::app/portal/challenge/page.tsx::RotateCcw:19",
+        "unused::app/portal/challenge/page.tsx::Award:23",
+        "unused::app/portal/courses/[id]/page.tsx::error:23",
+        "unused::app/portal/formulas/page.tsx::Link:4",
+        "unused::app/portal/formulas/page.tsx::AnimatePresence:5",
+        "unused::app/portal/formulas/page.tsx::ChevronLeft:7",
+        "unused::app/portal/formulas/page.tsx::Zap:8",
+        "unused::app/portal/formulas/page.tsx::ArrowRight:8",
+        "unused::app/portal/formulas/page.tsx::Share2:8",
+        "unused::app/portal/formulas/page.tsx::fId:56",
+        "unused::app/portal/library/page.tsx::setError:20",
+        "unused::app/portal/page.tsx::NotebookPen:9",
+        "unused::app/portal/page.tsx::FolderOpen:11",
+        "unused::app/portal/page.tsx::KeyRound:12",
+        "unused::app/portal/progress/page.tsx::Sparkles:11",
+        "unused::app/portal/progress/page.tsx::TrendingUp:15",
+        "unused::app/portal/progress/page.tsx::Award:16",
+        "unused::app/portal/progress/page.tsx::ChevronLeft:17",
+        "unused::app/portal/self-challenge/page.tsx::useCallback:3",
+        "unused::app/portal/self-challenge/page.tsx::Play:16",
+        "unused::app/portal/self-challenge/page.tsx::Check:22",
+        "unused::app/portal/self-challenge/page.tsx::setDifficulty:67",
+        "unused::app/portal/training/page.tsx::RefreshCw:5",
+        "unused::app/tenants/page.tsx::Calendar:11",
+        "unused::app/tenants/page.tsx::ExternalLink:14",
+        "unused::app/tenants/page.tsx::ShieldCheck:15",
+        "unused::app/tenants/page.tsx::KeyRound:19",
+        "unused::app/tenants/page.tsx::UserCheck:22",
+        "unused::app/tenants/page.tsx::Eye:26",
+        "unused::backups/students-crud-fix-20260922-115934/CrudPage.tsx::cn:368",
+        "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::Edit3:4",
+        "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::Trash2:4",
+        "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::MoreVertical:4",
+        "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::(entire import):5",
+        "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::renderCell:22",
+        "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::onEdit:23",
+        "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::filteredRows:29",
+        "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::handleDelete:33",
+        "unused::backups/students-crud-fix-20260922-115934/DataTable.tsx::Badge:99",
+        "unused::components/landing/Navbar.tsx::motion:3",
+        "unused::components/landing/Navbar.tsx::X:4",
+        "unused::config/navigation.ts::PAGE_ACCESS:1",
+        "unused::lib/guard.ts::getSession:1",
+        "unused::scripts/m1-final-verify.ts::(entire import):2",
+        "unused::scripts/seed-live.ts::BRAND:27",
+        "unused::tools/session-T/CHECK-BLOB.mts::sh:11"
+      ],
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "updated_at": "2026-11-03T16:51:23+00:00",
+      "auto": true,
+      "cluster_key": "auto::unused",
+      "action": "desloppify autofix unused-imports --dry-run",
+      "execution_status": "active",
+      "user_modified": false,
+      "action_type": "auto_fix",
+      "execution_policy": "ephemeral_autopromote"
+    },
+    "auto/test_coverage-untested_module": {
+      "name": "auto/test_coverage-untested_module",
+      "description": "Fix 223 test coverage issues",
+      "issue_ids": [
+        "test_coverage::components/Shell.tsx::untested_module",
+        "test_coverage::app/courses/page.tsx::untested_module",
+        "test_coverage::backups/attendance-encoding/page-20260922-140101.tsx::untested_module",
+        "test_coverage::app/api/questions/route.ts::untested_module",
+        "test_coverage::app/exams/page.tsx::untested_module",
+        "test_coverage::app/questions/page.tsx::untested_module",
+        "test_coverage::scripts/migrate.ts::untested_module",
+        "test_coverage::app/offline/page.tsx::untested_module",
+        "test_coverage::app/api/videos/[id]/route.ts::untested_module",
+        "test_coverage::components/magicui/marquee.tsx::untested_module",
+        "test_coverage::app/api/students/[id]/route.ts::untested_module",
+        "test_coverage::app/api/questions/banks/route.ts::untested_module",
+        "test_coverage::app/manifest.ts::untested_module",
+        "test_coverage::app/portal/notifications/page.tsx::untested_module",
+        "test_coverage::app/api/registrations/route.ts::untested_module",
+        "test_coverage::app/students/page.tsx::untested_module",
+        "test_coverage::app/api/exams/route.ts::untested_module",
+        "test_coverage::app/layout.tsx::untested_module",
+        "test_coverage::backups/page-stats-patch/page-0de85097.tsx::untested_module",
+        "test_coverage::app/portal/self-challenge/page.tsx::untested_module",
+        "test_coverage::app/portal/courses/[id]/page.tsx::untested_module",
+        "test_coverage::components/magicui/shimmer-button.tsx::untested_module",
+        "test_coverage::components/PortalConfetti.tsx::untested_module",
+        "test_coverage::app/api/videos/upload-complete/route.ts::untested_module",
+        "test_coverage::app/api/learner/mistakes/route.ts::untested_module",
+        "test_coverage::app/portal/challenge/page.tsx::untested_module",
+        "test_coverage::app/api/exams/[id]/copy/route.ts::untested_module",
+        "test_coverage::app/api/notifications/route.ts::untested_module",
+        "test_coverage::app/api/learner/attempts/submit/route.ts::untested_module",
+        "test_coverage::components/ThemeToggle.tsx::untested_module",
+        "test_coverage::backups/students-crud-fix-20260922-115934/CrudPage.tsx::untested_module",
+        "test_coverage::app/activation-codes/page.tsx::untested_module",
+        "test_coverage::app/portal/courses/page.tsx::untested_module",
+        "test_coverage::scripts/m1-final-verify.ts::untested_module",
+        "test_coverage::app/portal/exams/page.tsx::untested_module",
+        "test_coverage::app/api/auth/register/route.ts::untested_module",
+        "test_coverage::lib/rateLimit.ts::untested_module",
+        "test_coverage::app/api/files/[id]/download/route.ts::untested_module",
+        "test_coverage::app/api/auth/reset-password/route.ts::untested_module",
+        "test_coverage::app/api/me/route.ts::untested_module",
+        "test_coverage::lib/storage.ts::untested_module",
+        "test_coverage::app/questions/import/page.tsx::untested_module",
+        "test_coverage::app/api/dashboard/route.ts::untested_module",
+        "test_coverage::app/privacy/page.tsx::untested_module",
+        "test_coverage::app/portal/layout.tsx::untested_module",
+        "test_coverage::components/MistakeTutor.tsx::untested_module",
+        "test_coverage::app/api/teachers/[id]/route.ts::untested_module",
+        "test_coverage::app/ai/page.tsx::untested_module",
+        "test_coverage::lib/access.ts::untested_module",
+        "test_coverage::lib/mailer.ts::untested_module",
+        "test_coverage::app/api/plans/route.ts::untested_module",
+        "test_coverage::app/portal/videos/page.tsx::untested_module",
+        "test_coverage::components/PortalVideoPlayer.tsx::untested_module",
+        "test_coverage::app/api/files/upload-complete/route.ts::untested_module",
+        "test_coverage::app/api/modules/route.ts::untested_module",
+        "test_coverage::app/users/page.tsx::untested_module",
+        "test_coverage::app/api/leads/route.ts::untested_module",
+        "test_coverage::app/tenants/page.tsx::untested_module",
+        "test_coverage::app/api/auth/login/route.ts::untested_module",
+        "test_coverage::app/register/page.tsx::untested_module",
+        "test_coverage::app/api/students/route.ts::untested_module",
+        "test_coverage::lib/telegram-notify.ts::untested_module",
+        "test_coverage::app/portal/redeem/page.tsx::untested_module",
+        "test_coverage::app/api/auth/google/status/route.ts::untested_module",
+        "test_coverage::components/LandingClient.tsx::untested_module",
+        "test_coverage::lib/msform.ts::untested_module",
+        "test_coverage::app/api/stripe/checkout/route.ts::untested_module",
+        "test_coverage::app/api/courses/route.ts::untested_module",
+        "test_coverage::backups/page-stats-patch/page-a8f76f99.tsx::untested_module",
+        "test_coverage::app/api/questions/extract/route.ts::untested_module",
+        "test_coverage::app/settings/page.tsx::untested_module",
+        "test_coverage::app/api/videos/route.ts::untested_module",
+        "test_coverage::components/magicui/animated-gradient-text.tsx::untested_module",
+        "test_coverage::app/api/files/prepare/route.ts::untested_module",
+        "test_coverage::scripts/seed.ts::untested_module",
+        "test_coverage::lib/auth.ts::untested_module",
+        "test_coverage::app/api/learner/courses/route.ts::untested_module",
+        "test_coverage::app/api/enrollments/[id]/route.ts::untested_module",
+        "test_coverage::app/api/videos/prepare/route.ts::untested_module",
+        "test_coverage::components/landing/Navbar.tsx::untested_module",
+        "test_coverage::app/api/stats/route.ts::untested_module",
+        "test_coverage::backups/page-stats-patch/page-7040e2fe.tsx::untested_module",
+        "test_coverage::components/InstallPWA.tsx::untested_module",
+        "test_coverage::app/finance/page.tsx::untested_module",
+        "test_coverage::app/api/learner/attempts/route.ts::untested_module",
+        "test_coverage::backups/attendance-encoding/page-20260922-140246.tsx::untested_module",
+        "test_coverage::app/api/learner/streak/route.ts::untested_module",
+        "test_coverage::app/api/users/route.ts::untested_module",
+        "test_coverage::app/teachers/page.tsx::untested_module",
+        "test_coverage::app/api/learner/attendance/route.ts::untested_module",
+        "test_coverage::app/groups/page.tsx::untested_module",
+        "test_coverage::app/api/videos/[id]/stream/route.ts::untested_module",
+        "test_coverage::app/api/questions/save/route.ts::untested_module",
+        "test_coverage::app/portal/account/page.tsx::untested_module",
+        "test_coverage::app/portal/attendance/page.tsx::untested_module",
+        "test_coverage::app/api/audit/route.ts::untested_module",
+        "test_coverage::lib/question-engine.ts::untested_module",
+        "test_coverage::app/api/ai/route.ts::untested_module",
+        "test_coverage::app/api/activation-codes/route.ts::untested_module",
+        "test_coverage::app/api/exams/[id]/route.ts::untested_module",
+        "test_coverage::app/api/learner/self-challenge/route.ts::untested_module",
+        "test_coverage::components/NotificationBell.tsx::untested_module",
+        "test_coverage::lib/session.ts::untested_module",
+        "test_coverage::app/videos/page.tsx::untested_module",
+        "test_coverage::app/api/classrooms/route.ts::untested_module",
+        "test_coverage::app/api/settings/route.ts::untested_module",
+        "test_coverage::backups/page-stats-patch/page-7882201a.tsx::untested_module",
+        "test_coverage::backups/attendance-encoding/page-20260922-135828.tsx::untested_module",
+        "test_coverage::backups/attendance-summary-cards/page-20260922-140018.tsx::untested_module",
+        "test_coverage::app/api/learner/forecast/route.ts::untested_module",
+        "test_coverage::app/api/files/upload/route.ts::untested_module",
+        "test_coverage::config/navigation.ts::untested_module",
+        "test_coverage::app/api/questions/used-ids/route.ts::untested_module",
+        "test_coverage::app/api/learner/redeem/route.ts::untested_module",
+        "test_coverage::components/AttendanceSummaryCards.tsx::untested_module",
+        "test_coverage::app/api/assignments/[id]/grade/route.ts::untested_module",
+        "test_coverage::lib/audit.ts::untested_module",
+        "test_coverage::app/api/courses/[id]/curriculum/pdf/route.ts::untested_module",
+        "test_coverage::components/PageStatsCards.tsx::untested_module",
+        "test_coverage::app/library/page.tsx::untested_module",
+        "test_coverage::lib/gform.ts::untested_module",
+        "test_coverage::components/magicui/spotlight.tsx::untested_module",
+        "test_coverage::app/reports/page.tsx::untested_module",
+        "test_coverage::app/api/learner/assignments/route.ts::untested_module",
+        "test_coverage::scripts/clean-demo-data.ts::untested_module",
+        "test_coverage::app/api/learner/progress/route.ts::untested_module",
+        "test_coverage::app/api/assignments/[id]/route.ts::untested_module",
+        "test_coverage::app/portal/training/page.tsx::untested_module",
+        "test_coverage::app/verify/page.tsx::untested_module",
+        "test_coverage::lib/formulas-data.ts::untested_module",
+        "test_coverage::backups/page-stats-patch/page.tsx::untested_module",
+        "test_coverage::app/api/course-teachers/route.ts::untested_module",
+        "test_coverage::app/api/courses/[id]/curriculum/route.ts::untested_module",
+        "test_coverage::app/portal/progress/page.tsx::untested_module",
+        "test_coverage::lib/notify.ts::untested_module",
+        "test_coverage::app/api/tenants/route.ts::untested_module",
+        "test_coverage::app/gradebook/page.tsx::untested_module",
+        "test_coverage::app/api/learner/videos/route.ts::untested_module",
+        "test_coverage::app/portal/formulas/page.tsx::untested_module",
+        "test_coverage::components/QuestionCard.tsx::untested_module",
+        "test_coverage::lib/pdf-questions.ts::untested_module",
+        "test_coverage::app/assignments/page.tsx::untested_module",
+        "test_coverage::app/api/questions/notes/route.ts::untested_module",
+        "test_coverage::app/plans/page.tsx::untested_module",
+        "test_coverage::app/api/learner/me/route.ts::untested_module",
+        "test_coverage::app/portal/library/page.tsx::untested_module",
+        "test_coverage::app/api/learner/badges/route.ts::untested_module",
+        "test_coverage::app/api/reports/route.ts::untested_module",
+        "test_coverage::app/api/groups/[id]/route.ts::untested_module",
+        "test_coverage::backups/attendance-summary-cards/page-20260922-135645.tsx::untested_module",
+        "test_coverage::components/CrudPage.tsx::untested_module",
+        "test_coverage::lib/video-storage.ts::untested_module",
+        "test_coverage::app/portal/assignments/page.tsx::untested_module",
+        "test_coverage::middleware.ts::untested_module",
+        "test_coverage::app/api/auth/forgot-password/route.ts::untested_module",
+        "test_coverage::app/api/quick-contact/route.ts::untested_module",
+        "test_coverage::app/api/questions/import/route.ts::untested_module",
+        "test_coverage::components/Layout.tsx::untested_module",
+        "test_coverage::scripts/seed-live.ts::untested_module",
+        "test_coverage::app/api/auth/google/route.ts::untested_module",
+        "test_coverage::app/login/page.tsx::untested_module",
+        "test_coverage::app/api/learner/ai-explain/route.ts::untested_module",
+        "test_coverage::app/api/gradebook/route.ts::untested_module",
+        "test_coverage::app/attendance/page.tsx::untested_module",
+        "test_coverage::app/portal/mistakes/page.tsx::untested_module",
+        "test_coverage::components/QuickContact.tsx::untested_module",
+        "test_coverage::backups/page-stats-patch/page-950f0fbd.tsx::untested_module",
+        "test_coverage::config/access.ts::untested_module",
+        "test_coverage::app/dashboard/page.tsx::untested_module",
+        "test_coverage::app/portal/page.tsx::untested_module",
+        "test_coverage::lib/csv.ts::untested_module",
+        "test_coverage::app/api/teachers/route.ts::untested_module",
+        "test_coverage::app/api/lessons/route.ts::untested_module",
+        "test_coverage::app/api/learner/files/route.ts::untested_module",
+        "test_coverage::app/api/files/route.ts::untested_module",
+        "test_coverage::app/lessons/page.tsx::untested_module",
+        "test_coverage::backups/students-crud-fix-20260922-115934/DataTable.tsx::untested_module",
+        "test_coverage::lib/subscription.ts::untested_module",
+        "test_coverage::app/sitemap.ts::untested_module",
+        "test_coverage::app/api/assignments/route.ts::untested_module",
+        "test_coverage::app/error.tsx::untested_module",
+        "test_coverage::scripts/seed-demo-english.ts::untested_module",
+        "test_coverage::components/HeroCanvas.tsx::untested_module",
+        "test_coverage::app/audit/page.tsx::untested_module",
+        "test_coverage::app/api/videos/upload/route.ts::untested_module",
+        "test_coverage::app/portal/results/page.tsx::untested_module",
+        "test_coverage::app/terms/page.tsx::untested_module",
+        "test_coverage::app/api/auth/google/callback/route.ts::untested_module",
+        "test_coverage::lib/quota.ts::untested_module",
+        "test_coverage::app/certificates/page.tsx::untested_module",
+        "test_coverage::app/global-error.tsx::untested_module",
+        "test_coverage::components/DataTable.tsx::untested_module",
+        "test_coverage::backups/attendance-summary-cards/page-20260922-135946.tsx::untested_module",
+        "test_coverage::app/api/learner/notifications/route.ts::untested_module",
+        "test_coverage::app/notifications/page.tsx::untested_module",
+        "test_coverage::app/api/auth/request-otp/route.ts::untested_module",
+        "test_coverage::backups/attendance-summary-cards/page-20260922-140038.tsx::untested_module",
+        "test_coverage::app/api/learner/challenge/route.ts::untested_module",
+        "test_coverage::app/portal/badges/page.tsx::untested_module",
+        "test_coverage::app/api/auth/change-password/route.ts::untested_module",
+        "test_coverage::app/api/attendance/route.ts::untested_module",
+        "test_coverage::app/api/learner/training/route.ts::untested_module",
+        "test_coverage::app/portal/calculator/page.tsx::untested_module",
+        "test_coverage::scripts/env.ts::untested_module",
+        "test_coverage::app/portal/exams/[id]/page.tsx::untested_module",
+        "test_coverage::backups/attendance-summary-cards/page-20260922-135555.tsx::untested_module",
+        "test_coverage::app/api/files/[id]/route.ts::untested_module",
+        "test_coverage::app/api/courses/[id]/route.ts::untested_module",
+        "test_coverage::app/api/enrollments/route.ts::untested_module",
+        "test_coverage::app/api/auth/verify/route.ts::untested_module",
+        "test_coverage::backups/attendance-before-arabic-repair-20260922-145458.tsx::untested_module",
+        "test_coverage::app/api/attendance/[id]/route.ts::untested_module",
+        "test_coverage::app/api/groups/route.ts::untested_module",
+        "test_coverage::app/api/certificates/route.ts::untested_module",
+        "test_coverage::lib/rate-limit.ts::untested_module",
+        "test_coverage::app/page.tsx::untested_module",
+        "test_coverage::lib/guard.ts::untested_module",
+        "test_coverage::components/PWARegister.tsx::untested_module",
+        "test_coverage::lib/roles.ts::untested_module",
+        "test_coverage::app/api/activation-codes/[id]/route.ts::untested_module",
+        "test_coverage::app/api/learner/exams/route.ts::untested_module",
+        "test_coverage::lib/auth-security.ts::untested_module",
+        "test_coverage::app/api/certificates/verify/route.ts::untested_module"
+      ],
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "updated_at": "2026-11-03T16:51:23+00:00",
+      "auto": true,
+      "cluster_key": "detector::test_coverage::untested_module",
+      "action": "review test coverage gaps",
+      "execution_status": "review",
+      "user_modified": false,
+      "action_type": "refactor",
+      "execution_policy": "planned_only"
+    },
+    "auto/security-log_sensitive": {
+      "name": "auto/security-log_sensitive",
+      "description": "Fix 7 security issues",
+      "issue_ids": [
+        "security::app/api/auth/change-password/route.ts::security::log_sensitive::app/api/auth/change-password/route.ts::71",
+        "security::app/api/auth/google/callback/route.ts::security::log_sensitive::app/api/auth/google/callback/route.ts::48",
+        "security::app/api/files/upload/route.ts::security::log_sensitive::app/api/files/upload/route.ts::116",
+        "security::app/api/videos/upload/route.ts::security::log_sensitive::app/api/videos/upload/route.ts::29",
+        "security::scripts/clean-demo-data.ts::security::log_sensitive::scripts/clean-demo-data.ts::244",
+        "security::scripts/seed-demo-english.ts::security::log_sensitive::scripts/seed-demo-english.ts::1028",
+        "security::scripts/seed-live.ts::security::log_sensitive::scripts/seed-live.ts::309"
+      ],
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "updated_at": "2026-11-03T16:51:23+00:00",
+      "auto": true,
+      "cluster_key": "detector::security::log_sensitive",
+      "action": "review and fix security issues",
+      "execution_status": "review",
+      "user_modified": false,
+      "action_type": "manual_fix",
+      "execution_policy": "planned_only"
+    },
+    "auto/security-weak_crypto_tls": {
+      "name": "auto/security-weak_crypto_tls",
+      "description": "Fix 2 security issues",
+      "issue_ids": [
+        "security::lib/db.ts::security::weak_crypto_tls::lib/db.ts::3",
+        "security::scripts/seed-live.ts::security::weak_crypto_tls::scripts/seed-live.ts::87"
+      ],
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "updated_at": "2026-11-03T16:51:23+00:00",
+      "auto": true,
+      "cluster_key": "detector::security::weak_crypto_tls",
+      "action": "review and fix security issues",
+      "execution_status": "review",
+      "user_modified": false,
+      "action_type": "manual_fix",
+      "execution_policy": "planned_only"
+    },
+    "auto/security-dangerously_set_inner_html": {
+      "name": "auto/security-dangerously_set_inner_html",
+      "description": "Fix 3 security issues",
+      "issue_ids": [
+        "security::app/layout.tsx::security::dangerously_set_inner_html::app/layout.tsx::106",
+        "security::app/layout.tsx::security::dangerously_set_inner_html::app/layout.tsx::111",
+        "security::components/LandingClient.tsx::security::dangerously_set_inner_html::components/LandingClient.tsx::204"
+      ],
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "updated_at": "2026-11-03T16:51:23+00:00",
+      "auto": true,
+      "cluster_key": "detector::security::dangerously_set_inner_html",
+      "action": "review and fix security issues",
+      "execution_status": "review",
+      "user_modified": false,
+      "action_type": "manual_fix",
+      "execution_policy": "planned_only"
+    },
+    "auto/security-json_parse_unguarded": {
+      "name": "auto/security-json_parse_unguarded",
+      "description": "Fix 2 security issues",
+      "issue_ids": [
+        "security::lib/gform.ts::security::json_parse_unguarded::lib/gform.ts::6",
+        "security::lib/msform.ts::security::json_parse_unguarded::lib/msform.ts::41"
+      ],
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "updated_at": "2026-11-03T16:51:23+00:00",
+      "auto": true,
+      "cluster_key": "detector::security::json_parse_unguarded",
+      "action": "review and fix security issues",
+      "execution_status": "review",
+      "user_modified": false,
+      "action_type": "manual_fix",
+      "execution_policy": "planned_only"
+    },
+    "auto/initial-review": {
+      "name": "auto/initial-review",
+      "description": "Initial review of 20 unscored subjective dimensions",
+      "issue_ids": [
+        "subjective::abstraction_fitness",
+        "subjective::ai_generated_debt",
+        "subjective::api_surface_coherence",
+        "subjective::authorization_consistency",
+        "subjective::contract_coherence",
+        "subjective::convention_outlier",
+        "subjective::cross_module_architecture",
+        "subjective::dependency_health",
+        "subjective::design_coherence",
+        "subjective::error_consistency",
+        "subjective::high_level_elegance",
+        "subjective::incomplete_migration",
+        "subjective::initialization_coupling",
+        "subjective::logic_clarity",
+        "subjective::low_level_elegance",
+        "subjective::mid_level_elegance",
+        "subjective::naming_quality",
+        "subjective::package_organization",
+        "subjective::test_strategy",
+        "subjective::type_safety"
+      ],
+      "created_at": "2026-11-03T16:51:23+00:00",
+      "updated_at": "2026-11-03T16:51:23+00:00",
+      "auto": true,
+      "cluster_key": "subjective::unscored",
+      "action": "desloppify review --prepare --dimensions abstraction_fitness,ai_generated_debt,api_surface_coherence,authorization_consistency,contract_coherence,convention_outlier,cross_module_architecture,dependency_health,design_coherence,error_consistency,high_level_elegance,incomplete_migration,initialization_coupling,logic_clarity,low_level_elegance,mid_level_elegance,naming_quality,package_organization,test_strategy,type_safety",
+      "execution_status": "review",
+      "user_modified": false,
+      "action_type": "manual_fix",
+      "execution_policy": "planned_only"
+    }
+  },
+  "superseded": {},
+  "promoted_ids": [],
+  "plan_start_scores": {
+    "strict": 17.5,
+    "overall": 17.5,
+    "objective": 70.2,
+    "verified": 70.2
+  },
+  "refresh_state": {
+    "_subjective_migration_pruned": true,
+    "lifecycle_phase": "plan"
+  },
+  "execution_log": [
+    {
+      "timestamp": "2026-11-03T16:51:23+00:00",
+      "action": "sync_subjective",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "changes": true
+      }
+    },
+    {
+      "timestamp": "2026-11-03T16:51:23+00:00",
+      "action": "auto_cluster",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "changes": true
+      }
+    },
+    {
+      "timestamp": "2026-11-03T16:51:23+00:00",
+      "action": "sync_lifecycle_phase",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "phase": "review_initial"
+      }
+    },
+    {
+      "timestamp": "2026-11-03T16:51:23+00:00",
+      "action": "seed_start_scores",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {}
+    }
+  ],
+  "epic_triage_meta": {},
+  "commit_log": [],
+  "uncommitted_issues": [],
+  "commit_tracking_branch": null,
+  "scan_count_at_plan_start": 1
+}

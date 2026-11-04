@@ -275,6 +275,9 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: 'لم يتم إرسال ملف صالح' }, { status: 400 });
         }
         const file = f as File;
+        if (file.size > 20 * 1024 * 1024) {
+          return NextResponse.json({ error: 'حجم الملف يتجاوز الحد المسموح به (20 ميجابايت)' }, { status: 413 });
+        }
         fileName = file.name;
         const buf = Buffer.from(await file.arrayBuffer());
 

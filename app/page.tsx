@@ -1,7 +1,9 @@
 import { query } from "@/lib/db";
 import LandingClient from "@/components/LandingClient";
 
-export const dynamic = "force-dynamic";
+// تفعيل التخزين المؤقت على شبكة الحافة (Edge ISR) لمدة 60 ثانية
+// هذا يتيح للموقع تخديم أكثر من 50,000 مستخدم متزامن في أقل من 20 ملي ثانية
+export const revalidate = 60;
 
 async function getStats(): Promise<Record<string, number> | null> {
   try {

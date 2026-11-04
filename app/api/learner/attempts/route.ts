@@ -105,7 +105,7 @@ export async function POST(req: Request) {
       text: q.text,
       options: Array.isArray(q.options) ? q.options : [],
       passage: q.passage || null,
-      imageUrl: q.image_url || null,
+      imageUrl: q.image_url ? (q.image_url.startsWith('http') ? q.image_url : 'https://qudurati-taupe.vercel.app' + (q.image_url.startsWith('/') ? '' : '/') + q.image_url) : null,
     })),
     saved,
     startedAt,

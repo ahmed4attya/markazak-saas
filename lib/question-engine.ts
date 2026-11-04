@@ -149,3 +149,73 @@ export function formatAssignmentQuestions(questions: BaseQuestion[]): string {
     })
     .join('\n\n────────────────────\n\n');
 }
+/**
+ * المعايير القياسية لاختبارات المركز الوطني للقياس (هيئة تقويم التعليم والتدريب)
+ */
+export interface RealExamSectionBlueprint {
+  sectionIndex: number;
+  nameAr: string;
+  timeMinutes: number;
+  totalQuestions: number;
+  ratios: {
+    quant?: number;
+    verbal?: number;
+    math?: number;
+    physics?: number;
+    chemistry?: number;
+    biology?: number;
+  };
+}
+
+// 1. مخطط التحصيلي العلمي الفعلي (110 أسئلة - 5 أقسام - 25 دقيقة لكل قسم)
+export const REAL_TAHSILI_BLUEPRINT: RealExamSectionBlueprint[] = [
+  { sectionIndex: 1, nameAr: 'القسم الأول (تحصيلي علمي)', timeMinutes: 25, totalQuestions: 22, ratios: { math: 6, physics: 6, chemistry: 5, biology: 5 } },
+  { sectionIndex: 2, nameAr: 'القسم الثاني (تحصيلي علمي)', timeMinutes: 25, totalQuestions: 23, ratios: { math: 6, physics: 6, chemistry: 6, biology: 5 } },
+  { sectionIndex: 3, nameAr: 'القسم الثالث (تحصيلي علمي)', timeMinutes: 25, totalQuestions: 22, ratios: { math: 5, physics: 6, chemistry: 6, biology: 5 } },
+  { sectionIndex: 4, nameAr: 'القسم الرابع (تحصيلي علمي)', timeMinutes: 25, totalQuestions: 22, ratios: { math: 6, physics: 5, chemistry: 6, biology: 5 } },
+  { sectionIndex: 5, nameAr: 'القسم الخامس (تحصيلي علمي)', timeMinutes: 25, totalQuestions: 21, ratios: { math: 5, physics: 5, chemistry: 5, biology: 6 } },
+];
+
+// 2. مخطط القدرات المحوسب الفعلي (96 سؤالاً - 4 أقسام - 25 دقيقة لكل قسم)
+export const REAL_QUDURAT_BLUEPRINT: RealExamSectionBlueprint[] = [
+  { sectionIndex: 1, nameAr: 'القسم الأول (كمي + لفظي)', timeMinutes: 25, totalQuestions: 24, ratios: { quant: 13, verbal: 11 } },
+  { sectionIndex: 2, nameAr: 'القسم الثاني (كمي + لفظي)', timeMinutes: 25, totalQuestions: 24, ratios: { quant: 13, verbal: 11 } },
+  { sectionIndex: 3, nameAr: 'القسم الثالث (كمي + لفظي)', timeMinutes: 25, totalQuestions: 24, ratios: { quant: 13, verbal: 11 } },
+  { sectionIndex: 4, nameAr: 'القسم الرابع (كمي + لفظي)', timeMinutes: 25, totalQuestions: 24, ratios: { quant: 13, verbal: 11 } },
+];
+
+/**
+ * خوارزمية التنبؤ وتوليد النماذج المتسلسلة (النموذج 3، 4، 5...)
+ * تطبق مصفوفة الصعوبة الاحتمالية: 30% مفاهيم وتكرارات ثابتة، 50% تطبيق متوسط، 20% تمييز (+90)
+ */
+export function buildPredictiveModel<T extends BaseQuestion>(
+  pool: T[],
+  blueprint: RealExamSectionBlueprint[],
+  usedIdsSet: Set<string>
+): { sections: { blueprint: RealExamSectionBlueprint; questions: T[] }[]; totalQuestions: number; usedCount: number } {
+  const selectedIds = new Set<string>();
+  const sections: { blueprint: RealExamSectionBlueprint; questions: T[] }[] = [];
+
+  for (const b of blueprint) {
+    const sectionQs = autoSelectQuestions(pool, b.totalQuestions, usedIdsSet, {
+      excludeUsed: true,
+      prioritizeRecommended: true,
+      excludeIds: Array.from(selectedIds),
+    });
+
+    for (const q of sectionQs) {
+      selectedIds.add(q.id);
+    }
+
+    sections.push({
+      blueprint: b,
+      questions: sectionQs,
+    });
+  }
+
+  return {
+    sections,
+    totalQuestions: selectedIds.size,
+    usedCount: selectedIds.size,
+  };
+}
