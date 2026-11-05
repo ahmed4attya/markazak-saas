@@ -1,10 +1,10 @@
+'use client';
 
 function resolveSafeImg(url?: string | null): string | null {
   if (!url) return null;
   if (url.startsWith('http')) return url;
   return 'https://qudurati-taupe.vercel.app' + (url.startsWith('/') ? '' : '/') + url;
 }
-'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
