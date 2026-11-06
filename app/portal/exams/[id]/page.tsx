@@ -1,11 +1,5 @@
 'use client';
 
-function resolveSafeImg(url?: string | null): string | null {
-  if (!url) return null;
-  if (url.startsWith('http')) return url;
-  return 'https://qudurati-taupe.vercel.app' + (url.startsWith('/') ? '' : '/') + url;
-}
-
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -23,6 +17,12 @@ import {
   Maximize2,
 } from 'lucide-react';
 import PortalConfetti from '@/components/PortalConfetti';
+
+function resolveSafeImg(url?: string | null): string | null {
+  if (!url) return null;
+  if (url.startsWith('http')) return url;
+  return 'https://qudurati-taupe.vercel.app' + (url.startsWith('/') ? '' : '/') + url;
+}
 
 type Q = {
   id: string;
