@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import ThemeToggle from '@/components/ThemeToggle';
 import {
   Home,
   ClipboardList,
@@ -74,11 +75,11 @@ export default function PortalLayout({
   return (
     <div
       dir="rtl"
-      className="min-h-screen bg-slate-950 text-slate-100 font-['IBM_Plex_Sans_Arabic',sans-serif] selection:bg-amber-500/30 selection:text-amber-200"
+      className="min-h-screen bg-[color:var(--bg)] text-[color:var(--text)] font-['IBM_Plex_Sans_Arabic',sans-serif] selection:bg-amber-500/30 selection:text-amber-300 transition-colors duration-200"
     >
       {/* 1. Universal Top Navigation Bar */}
       {!immersive && (
-        <header className="fixed top-0 inset-x-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-white/10 transition-all">
+        <header className="fixed top-0 inset-x-0 z-40 bg-[rgba(var(--glass-rgb),0.85)] backdrop-blur-xl border-b border-[color:var(--border)] transition-all">
           <div className="max-w-6xl mx-auto h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
             {/* Logo & Tenant Identity */}
             <Link href="/portal" className="flex items-center gap-3 min-w-0 group">
@@ -86,17 +87,17 @@ export default function PortalLayout({
                 خ
               </span>
               <div className="leading-tight min-w-0">
-                <span className="block text-sm font-black text-white group-hover:text-amber-300 transition-colors truncate">
+                <span className="block text-sm font-black text-[color:var(--text)] group-hover:text-amber-500 transition-colors truncate">
                   بوابة الطالب الذكية
                 </span>
-                <span className="block text-[11px] text-slate-400 font-medium truncate">
+                <span className="block text-[11px] text-[color:var(--muted)] font-medium truncate">
                   {tenantName}
                 </span>
               </div>
             </Link>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden md:flex items-center gap-1 bg-slate-900/60 p-1.5 rounded-2xl border border-white/5">
+            <nav className="hidden md:flex items-center gap-1 bg-[color:var(--surface-2)]/80 p-1.5 rounded-2xl border border-[color:var(--border)]">
               {TABS.map((t) => {
                 const active = pathname === t.href || (t.href !== '/portal' && pathname.startsWith(t.href));
                 const Icon = t.Icon;
@@ -106,8 +107,8 @@ export default function PortalLayout({
                     href={t.href}
                     className={`relative px-3.5 py-1.5 rounded-xl flex items-center gap-2 text-xs font-bold transition-all ${
                       active
-                        ? 'text-amber-400 bg-white/5 shadow-sm'
-                        : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                        ? 'text-amber-500 bg-[color:var(--surface-3)] shadow-sm'
+                        : 'text-[color:var(--muted)] hover:text-[color:var(--text)] hover:bg-[color:var(--surface-3)]/60'
                     }`}
                   >
                     <Icon size={16} strokeWidth={active ? 2.5 : 2} />
@@ -131,7 +132,7 @@ export default function PortalLayout({
                   href="/portal/formulas"
                   aria-label="القوانين الذهبية"
                   title="القوانين الذهبية"
-                  className="w-9 h-9 grid place-items-center rounded-xl text-slate-400 hover:text-amber-400 hover:bg-white/5 transition-colors"
+                  className="w-9 h-9 grid place-items-center rounded-xl text-[color:var(--muted)] hover:text-amber-500 hover:bg-[color:var(--surface-2)] transition-colors"
                 >
                   <Sparkles size={18} />
                 </Link>
@@ -139,7 +140,7 @@ export default function PortalLayout({
                   href="/portal/calculator"
                   aria-label="حاسبة النسبة الموزونة"
                   title="حاسبة النسبة الموزونة"
-                  className="w-9 h-9 grid place-items-center rounded-xl text-slate-400 hover:text-emerald-400 hover:bg-white/5 transition-colors"
+                  className="w-9 h-9 grid place-items-center rounded-xl text-[color:var(--muted)] hover:text-emerald-500 hover:bg-[color:var(--surface-2)] transition-colors"
                 >
                   <Calculator size={18} />
                 </Link>
@@ -147,19 +148,22 @@ export default function PortalLayout({
                   href="/portal/self-challenge"
                   aria-label="التحدي الذاتي"
                   title="التحدي الذاتي"
-                  className="w-9 h-9 grid place-items-center rounded-xl text-slate-400 hover:text-red-400 hover:bg-white/5 transition-colors"
+                  className="w-9 h-9 grid place-items-center rounded-xl text-[color:var(--muted)] hover:text-red-500 hover:bg-[color:var(--surface-2)] transition-colors"
                 >
                   <Swords size={18} />
                 </Link>
               </div>
 
+              {/* Theme Toggle (Dark / Light) */}
+              <ThemeToggle />
+
               {/* Notifications Toggle */}
               <button
                 onClick={() => setBellOpen((v) => !v)}
                 aria-label="الإشعارات"
-                className="relative w-10 h-10 grid place-items-center rounded-xl text-slate-400 hover:text-amber-400 hover:bg-white/5 transition-colors"
+                className="relative w-9 h-9 sm:w-10 sm:h-10 grid place-items-center rounded-xl text-[color:var(--muted)] hover:text-amber-500 hover:bg-[color:var(--surface-2)] transition-colors"
               >
-                <Bell size={20} />
+                <Bell size={19} />
                 {unread > 0 && (
                   <span className="absolute top-1.5 left-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black grid place-items-center bg-amber-500 text-slate-950 shadow-sm animate-pulse">
                     {unread > 9 ? '9+' : unread}
@@ -171,7 +175,7 @@ export default function PortalLayout({
               <Link
                 href="/portal/account"
                 aria-label="حسابي"
-                className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/30 text-amber-400 font-black text-sm grid place-items-center shrink-0 hover:scale-105 transition-all shadow-sm"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/30 text-amber-500 font-black text-sm grid place-items-center shrink-0 hover:scale-105 transition-all shadow-sm"
               >
                 {initial}
               </Link>
@@ -186,33 +190,33 @@ export default function PortalLayout({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="absolute top-16 inset-x-0 bg-slate-900/95 backdrop-blur-2xl border-b border-white/10 shadow-2xl py-3"
+                className="absolute top-16 inset-x-0 bg-[rgba(var(--glass-rgb),0.96)] backdrop-blur-2xl border-b border-[color:var(--border)] shadow-2xl py-3"
               >
                 <div className="max-w-md mx-auto px-4">
-                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/10">
-                    <span className="text-sm font-bold text-white flex items-center gap-1.5">
-                      <Bell size={16} className="text-amber-400" />
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-[color:var(--border)]">
+                    <span className="text-sm font-bold text-[color:var(--text)] flex items-center gap-1.5">
+                      <Bell size={16} className="text-amber-500" />
                       <span>تنبيهات المنصة</span>
                     </span>
                     <Link
                       href="/portal/notifications"
-                      className="text-xs font-semibold text-amber-400 hover:text-amber-300"
+                      className="text-xs font-semibold text-amber-500 hover:text-amber-600"
                       onClick={() => setBellOpen(false)}
                     >
                       عرض جميع الإشعارات
                     </Link>
                   </div>
                   {notes.length === 0 && (
-                    <p className="text-xs text-slate-400 py-4 text-center">لا توجد إشعارات جديدة حالياً</p>
+                    <p className="text-xs text-[color:var(--muted)] py-4 text-center">لا توجد إشعارات جديدة حالياً</p>
                   )}
                   <div className="space-y-1.5 max-h-60 overflow-y-auto">
                     {notes.map((n) => (
                       <div
                         key={n.id}
-                        className="rounded-xl p-2.5 bg-white/5 border border-white/5 hover:border-amber-500/30 transition-colors"
+                        className="rounded-xl p-2.5 bg-[color:var(--surface-2)] border border-[color:var(--border)] hover:border-amber-500/30 transition-colors"
                       >
-                        <p className="text-xs font-medium text-slate-200 line-clamp-2">{n.title}</p>
-                        <span className="text-[10px] text-slate-400 mt-1 block">
+                        <p className="text-xs font-medium text-[color:var(--text)] line-clamp-2">{n.title}</p>
+                        <span className="text-[10px] text-[color:var(--muted)] mt-1 block">
                           {new Date(n.created_at).toLocaleDateString('ar-EG')}
                         </span>
                       </div>
@@ -245,7 +249,7 @@ export default function PortalLayout({
       {/* 3. Floating Mobile Bottom Dock Navigation (md:hidden) */}
       {!immersive && (
         <nav
-          className="md:hidden fixed bottom-3 inset-x-4 z-40 bg-slate-900/85 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl shadow-black/60 px-2 py-1.5"
+          className="md:hidden fixed bottom-3 inset-x-4 z-40 bg-[rgba(var(--glass-rgb),0.92)] backdrop-blur-2xl border border-[color:var(--border)] rounded-3xl shadow-2xl shadow-black/10 px-2 py-1.5"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6px)' }}
         >
           <div className="grid grid-cols-6 items-center">
@@ -257,13 +261,13 @@ export default function PortalLayout({
                   key={t.href}
                   href={t.href}
                   className={`relative min-h-[50px] flex flex-col items-center justify-center gap-1 rounded-2xl transition-all ${
-                    active ? 'text-amber-400' : 'text-slate-400 hover:text-slate-200'
+                    active ? 'text-amber-500' : 'text-[color:var(--muted)] hover:text-[color:var(--text)]'
                   }`}
                 >
                   {active && (
                     <motion.span
                       layoutId="mobile-active-pill"
-                      className="absolute inset-0 rounded-2xl bg-white/10 border border-amber-500/30"
+                      className="absolute inset-0 rounded-2xl bg-amber-500/10 border border-amber-500/30"
                       transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
                   )}

@@ -57,7 +57,7 @@ export default function SpotlightCard({
       onBlur={handleBlur}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`relative rounded-3xl border border-white/10 dark:border-white/10 bg-slate-900/60 dark:bg-slate-950/70 backdrop-blur-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/5 ${className}`}
+      className={`relative rounded-3xl border border-[color:var(--border)] bg-[color:var(--surface)]/90 backdrop-blur-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/5 ${className}`}
       style={style}
       {...props}
     >
