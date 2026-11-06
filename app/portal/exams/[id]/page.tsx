@@ -17,6 +17,7 @@ import {
   Maximize2,
 } from 'lucide-react';
 import PortalConfetti from '@/components/PortalConfetti';
+import SpotlightCard from '@/components/ui/SpotlightCard';
 
 function resolveSafeImg(url?: string | null): string | null {
   if (!url) return null;
@@ -443,7 +444,7 @@ export default function TakeExam() {
           </div>
         )}
 
-        <div className="bento-card p-6 space-y-4">
+        <SpotlightCard className="p-6 md:p-8 space-y-5 border-amber-500/20 bg-slate-900/70" spotlightColor="rgba(245, 158, 11, 0.08)">
           <div className="flex items-center justify-between text-xs text-[color:var(--muted)]">
             <span>سؤال {current + 1} من {payload.questions.length}</span>
             {q.imageUrl && (
@@ -534,7 +535,7 @@ export default function TakeExam() {
               ))}
             </div>
           )}
-        </div>
+        </SpotlightCard>
 
         <div className="flex items-center justify-between mt-4 gap-3">
           <button

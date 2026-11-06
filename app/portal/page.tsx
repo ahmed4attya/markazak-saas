@@ -1,15 +1,12 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import NumberFlow from "@number-flow/react";
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import NumberFlow from '@number-flow/react';
 import {
   ClipboardList,
-  NotebookPen,
   BookOpen,
-  FolderOpen,
-  KeyRound,
   Zap,
   PlayCircle,
   ChevronLeft,
@@ -20,7 +17,13 @@ import {
   Award,
   Target,
   Wrench,
-} from "lucide-react";
+  TrendingUp,
+  GraduationCap,
+  Sparkle,
+} from 'lucide-react';
+import SpotlightCard from '@/components/ui/SpotlightCard';
+import ShinyText from '@/components/ui/ShinyText';
+import AnimatedProgressRing from '@/components/ui/AnimatedProgressRing';
 
 type PRow = {
   courseId: string;
@@ -41,49 +44,16 @@ type Me = {
 
 type Streak = { streak: number; lastActive: string | null; todayActive: boolean };
 
-function Ring({ pct, size = 64 }: { pct: number; size?: number }) {
-  const r = size / 2 - 5;
-  const c = 2 * Math.PI * r;
-  const off = c - (c * pct) / 100;
-  const col =
-    pct >= 80 ? "var(--success)"
-    : pct >= 40 ? "var(--gold)"
-    : "var(--blue)";
-  return (
-    <div className="relative shrink-0" style={{ width: size, height: size }}>
-      <svg
-        className="w-full h-full -rotate-90"
-        viewBox={"0 0 " + size + " " + size}
-      >
-        <circle
-          cx={size / 2} cy={size / 2} r={r}
-          stroke="var(--surface-3)" strokeWidth="5" fill="transparent"
-        />
-        <circle
-          cx={size / 2} cy={size / 2} r={r}
-          stroke={col} strokeWidth="5" fill="transparent"
-          strokeLinecap="round"
-          strokeDasharray={c} strokeDashoffset={off}
-          style={{ transition: "stroke-dashoffset 1s ease" }}
-        />
-      </svg>
-      <span className="absolute inset-0 grid place-items-center text-xs font-black">
-        {pct}%
-      </span>
-    </div>
-  );
-}
-
-const QUICK = [
-  { href: "/portal/training", label: "تدريب سريع", Icon: Zap, tint: "var(--gold)" },
-  { href: "/portal/self-challenge", label: "تحدي ذاتي", Icon: Swords, tint: "#ef4444" },
-  { href: "/portal/formulas", label: "القوانين الذهبية", Icon: Sparkles, tint: "#f59e0b" },
-  { href: "/portal/calculator", label: "حاسبة النسبة", Icon: Calculator, tint: "#10b981" },
-  { href: "/portal/mistakes", label: "صندوق الأخطاء", Icon: Wrench, tint: "#6366f1" },
-  { href: "/portal/badges", label: "الأوسمة", Icon: Award, tint: "#ec4899" },
-  { href: "/portal/challenge", label: "تحدي 1v1", Icon: Swords, tint: "#06b6d4" },
-  { href: "/portal/exams", label: "امتحاناتي", Icon: ClipboardList, tint: "var(--blue)" },
-  { href: "/portal/courses", label: "دوراتي", Icon: BookOpen, tint: "var(--info)" },
+const QUICK_ACTIONS = [
+  { href: '/portal/training', label: 'تدريب سريع', Icon: Zap, color: '#f59e0b', desc: 'أسئلة عشوائية مخصصة' },
+  { href: '/portal/self-challenge', label: 'تحدي ذاتي', Icon: Swords, color: '#ef4444', desc: 'مؤقت وأقسام مخصصة' },
+  { href: '/portal/formulas', label: 'القوانين الذهبية', Icon: Sparkles, color: '#eab308', desc: '230+ قانون رياضي' },
+  { href: '/portal/calculator', label: 'حاسبة النسبة', Icon: Calculator, color: '#10b981', desc: 'معايير قبول 2026' },
+  { href: '/portal/mistakes', label: 'صندوق الأخطاء', Icon: Wrench, color: '#6366f1', desc: 'معالجة الذكاء الاصطناعي' },
+  { href: '/portal/badges', label: 'الأوسمة', Icon: Award, color: '#ec4899', desc: 'إنجازاتك وميدالياتك' },
+  { href: '/portal/challenge', label: 'حلبة 1v1', Icon: Swords, color: '#06b6d4', desc: 'نافس زملاءك فوراً' },
+  { href: '/portal/exams', label: 'امتحاناتي', Icon: ClipboardList, color: '#3b82f6', desc: 'محاكي قياس الكامل' },
+  { href: '/portal/courses', label: 'دوراتي', Icon: BookOpen, color: '#14b8a6', desc: 'الحقائب والدروس' },
 ];
 
 export default function PortalHome() {
@@ -95,10 +65,10 @@ export default function PortalHome() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/learner/me").then((r) => (r.ok ? r.json() : null)),
-      fetch("/api/learner/progress").then((r) => (r.ok ? r.json() : [])),
-      fetch("/api/learner/streak").then((r) => (r.ok ? r.json() : null)),
-      fetch("/api/learner/forecast").then((r) => (r.ok ? r.json() : null)),
+      fetch('/api/learner/me').then((r) => (r.ok ? r.json() : null)),
+      fetch('/api/learner/progress').then((r) => (r.ok ? r.json() : [])),
+      fetch('/api/learner/streak').then((r) => (r.ok ? r.json() : null)),
+      fetch('/api/learner/forecast').then((r) => (r.ok ? r.json() : null)),
     ])
       .then(([m, p, sk, fc]) => {
         setMe(m);
@@ -112,252 +82,332 @@ export default function PortalHome() {
 
   const tot = rows.reduce((a, r) => a + Number(r.total || 0), 0);
   const done = rows.reduce((a, r) => a + Number(r.done || 0), 0);
-  const pct = tot ? Math.min(100, Math.round((done / tot) * 100)) : 0;
+  const overallPct = tot ? Math.min(100, Math.round((done / tot) * 100)) : 0;
   const cont = rows.find((r) => r.lastVideo) || null;
-  const firstName = (me?.name || "طالبنا").split(" ")[0];
+  const firstName = (me?.name || 'طالبنا المتميز').split(' ')[0];
 
   return (
-    <div className="space-y-5 pb-8">
-      {/* Hero Welcome Card */}
-      <motion.section
-        initial={{ opacity: 0, y: 14 }}
+    <div className="space-y-6 pb-12">
+      {/* 1. Hero Welcome Spotlight Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
-        className={[
-          "rounded-3xl p-5 relative overflow-hidden",
-          "border border-[color:var(--gold-border)]",
-        ].join(" ")}
-        style={{
-          background:
-            "linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%)",
-        }}
+        transition={{ duration: 0.4 }}
       >
-        <div
-          className="absolute -top-16 -left-16 w-44 h-44 rounded-full"
-          style={{
-            background: "var(--gold-soft)",
-            filter: "blur(40px)",
-          }}
-        />
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-[color:var(--muted)]">
-            أهلاً بك في بوابة الطالب
-          </p>
-          {forecastScore && (
-            <Link
-              href="/portal/progress"
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[color:var(--gold-soft)] border border-[color:var(--gold-border)] text-[10px] font-bold text-[color:var(--gold)]"
-            >
-              <Target size={12} />
-              <span>توقع قياس: {forecastScore} نقطة</span>
-            </Link>
-          )}
-        </div>
+        <SpotlightCard
+          className="p-6 md:p-8 bg-gradient-to-br from-slate-900/90 via-slate-900/80 to-slate-950/90 border-amber-500/20"
+          spotlightColor="rgba(245, 158, 11, 0.15)"
+          borderColor="rgba(245, 158, 11, 0.35)"
+        >
+          {/* Ambient Lighting Orbs */}
+          <div className="pointer-events-none absolute -top-12 -left-12 w-48 h-48 rounded-full bg-amber-500/15 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-12 -right-12 w-48 h-48 rounded-full bg-blue-500/10 blur-3xl" />
 
-        <div className="flex items-center gap-2 mt-1">
-          <h1 className="text-xl font-black">{firstName}</h1>
-          {me?.level && (
-            <span
-              className={[
-                "text-[10px] font-bold px-2 py-0.5 rounded-full",
-                "border border-[color:var(--gold-border)]",
-              ].join(" ")}
-              style={{
-                background: "var(--gold-soft)",
-                color: "var(--gold)",
-              }}
-            >
-              {me.level}
-            </span>
-          )}
-          {stk && stk.streak > 0 && (
-            <span
-              className={[
-                "text-[10px] font-bold px-2 py-0.5 rounded-full",
-                "border border-[color:var(--gold-border)]",
-                "inline-flex items-center gap-1",
-              ].join(" ")}
-              style={{ background: "var(--gold-soft)", color: "var(--gold)" }}
-            >
-              <Flame size={11} />
-              سلسلة {stk.streak} يوم
-            </span>
-          )}
-        </div>
+          {/* Top Row: Meta Status and Qiyas Forecast */}
+          <div className="flex flex-wrap items-center justify-between gap-3 relative z-10">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-slate-300 backdrop-blur-md">
+                <GraduationCap size={14} className="text-amber-400" />
+                <span>بوابة الطالب الذكية</span>
+              </span>
+              {me?.level && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-[11px] font-bold text-amber-400">
+                  <Sparkle size={10} />
+                  {me.level}
+                </span>
+              )}
+            </div>
 
-        <div className="mt-4 flex items-center gap-4">
-          <Ring pct={pct} size={78} />
-          <div>
-            <p className="text-[11px] text-[color:var(--muted)]">نقاطك</p>
-            <NumberFlow
-              value={Number(me?.points || 0)}
-              className="text-2xl font-black text-[color:var(--gold)] font-mono"
-            />
-            <p className="text-[11px] text-[color:var(--muted)] mt-1">
-              {done} من {tot} مهمة منجزة
-            </p>
+            {forecastScore && (
+              <Link
+                href="/portal/progress"
+                className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 to-emerald-500/15 border border-amber-500/30 text-xs font-bold text-amber-300 hover:border-amber-400/60 transition-all shadow-sm"
+              >
+                <Target size={14} className="text-amber-400 group-hover:scale-110 transition-transform" />
+                <span>توقع قياس المباشر:</span>
+                <ShinyText
+                  text={`${forecastScore} نقطة`}
+                  className="font-black text-amber-400"
+                  shimmerColor="rgba(255, 255, 255, 0.9)"
+                />
+                <ChevronLeft size={14} className="text-amber-400/70 group-hover:-translate-x-0.5 transition-transform" />
+              </Link>
+            )}
           </div>
-        </div>
-      </motion.section>
 
-      {/* Continue Watching Video Banner */}
+          {/* Middle Row: Personalized Welcome & Streak Counter */}
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-4 relative z-10">
+            <div>
+              <p className="text-xs font-medium text-slate-400">مرحباً بعودتك،</p>
+              <h1 className="text-2xl md:text-3xl font-black text-white mt-1 tracking-tight flex items-center gap-2">
+                <span>{firstName}</span>
+                <span className="text-base font-normal text-slate-400">👋</span>
+              </h1>
+            </div>
+
+            {stk && stk.streak > 0 && (
+              <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/30 shadow-inner">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 grid place-items-center">
+                  <Flame size={18} className="animate-pulse text-amber-400 fill-amber-400" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs font-bold text-amber-400">سلسلة الستريك</span>
+                  </div>
+                  <p className="text-sm font-black text-white">
+                    {stk.streak} {stk.streak === 1 ? 'يوم' : stk.streak === 2 ? 'يومان' : 'أيام متتالية'}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Bottom Row: Stats & Progress Ring */}
+          <div className="mt-6 pt-5 border-t border-white/10 grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
+            <div className="flex items-center gap-3">
+              <AnimatedProgressRing pct={overallPct} size={64} strokeWidth={5} />
+              <div>
+                <p className="text-[11px] font-medium text-slate-400">الإنجاز الكلي</p>
+                <p className="text-sm font-black text-white mt-0.5">
+                  {done} <span className="text-xs font-normal text-slate-400">من {tot} مهمة</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 grid place-items-center shrink-0">
+                <Sparkles size={20} />
+              </div>
+              <div>
+                <p className="text-[11px] font-medium text-slate-400">رصيد النقاط</p>
+                <div className="text-xl font-black text-amber-400 font-mono">
+                  <NumberFlow value={Number(me?.points || 0)} />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 grid place-items-center shrink-0">
+                <TrendingUp size={20} />
+              </div>
+              <div>
+                <p className="text-[11px] font-medium text-slate-400">الدورات الفعالة</p>
+                <p className="text-xl font-black text-white font-mono">{rows.length}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 grid place-items-center shrink-0">
+                <Target size={20} />
+              </div>
+              <div>
+                <p className="text-[11px] font-medium text-slate-400">المحاكي الموصى به</p>
+                <Link
+                  href="/portal/exams"
+                  className="text-xs font-bold text-blue-400 hover:text-blue-300 flex items-center gap-1 mt-0.5"
+                >
+                  بدء الاختبار
+                  <ChevronLeft size={14} />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </SpotlightCard>
+      </motion.div>
+
+      {/* 2. Continue Watching / Learning Spotlight Banner */}
       {cont?.lastVideo && (
-        <motion.section
+        <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.08, duration: 0.3 }}
+          transition={{ delay: 0.1, duration: 0.3 }}
         >
-          <Link
-            href={"/portal/courses/" + cont.courseId}
-            className={[
-              "bento-card p-4 flex items-center gap-3",
-              "hover:border-[color:var(--gold-border)]",
-              "transition-colors",
-            ].join(" ")}
-          >
-            <span
-              className={[
-                "w-11 h-11 rounded-xl grid place-items-center shrink-0",
-              ].join(" ")}
-              style={{
-                background: "var(--gold-soft)",
-                color: "var(--gold)",
-              }}
+          <Link href={'/portal/courses/' + cont.courseId}>
+            <SpotlightCard
+              className="p-4 md:p-5 flex items-center gap-4 bg-slate-900/60 border-amber-500/30 hover:border-amber-500/50"
+              spotlightColor="rgba(245, 158, 11, 0.12)"
             >
-              <PlayCircle size={22} />
-            </span>
-            <span className="min-w-0">
-              <b className="block text-sm truncate">
-                أكمل المشاهدة: {cont.courseName}
-              </b>
-              <small className="block text-xs text-[color:var(--muted)] truncate">
-                {cont.lastVideo.title}
-              </small>
-            </span>
-            <div className="flex-1" />
-            <ChevronLeft size={18} className="text-[color:var(--muted-dim)]" />
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 text-slate-950 grid place-items-center shrink-0 shadow-lg shadow-amber-500/20">
+                <PlayCircle size={26} className="fill-slate-950 text-amber-500" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300">
+                    متابعة التعلم
+                  </span>
+                  <span className="text-xs text-slate-400 truncate">{cont.courseName}</span>
+                </div>
+                <h3 className="text-sm md:text-base font-bold text-white mt-1 truncate">
+                  {cont.lastVideo.title}
+                </h3>
+              </div>
+              <div className="hidden sm:flex items-center gap-1 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition-colors shrink-0">
+                <span>استكمال الدرس</span>
+                <ChevronLeft size={14} />
+              </div>
+            </SpotlightCard>
           </Link>
-        </motion.section>
+        </motion.div>
       )}
 
-      {/* Featured Competitive Hub Bento Row */}
-      <section className="space-y-2">
-        <h2 className="text-xs font-bold text-[color:var(--muted)] flex items-center gap-1.5">
-          <Sparkles size={14} className="text-[color:var(--gold)]" />
-          أدوات التفوق والمنافسة في قياس:
-        </h2>
+      {/* 3. Competitive Hub Bento Grid (Neo-Bento Layout) */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <Sparkles size={16} className="text-amber-400" />
+            <span>حزمة التفوق والمنافسة في قياس:</span>
+          </h2>
+          <span className="text-xs text-slate-400">أدوات حصرية 2026</span>
+        </div>
 
-        <div className="grid grid-cols-2 gap-2.5">
-          {/* Formulas Vault */}
-          <Link
-            href="/portal/formulas"
-            className="bento-card p-4 hover:border-[color:var(--gold-border)] transition-all flex flex-col justify-between min-h-[110px]"
-          >
-            <div className="flex items-center justify-between">
-              <span className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 grid place-items-center">
-                <Sparkles size={18} />
-              </span>
-              <span className="text-[10px] font-bold text-[color:var(--gold)] font-mono">
-                230+ قانون
-              </span>
-            </div>
-            <div>
-              <b className="text-xs block font-bold mt-2">مكتبة القوانين الذهبية</b>
-              <small className="text-[10px] text-[color:var(--muted)] block">
-                بطاقات ذكية للحفظ السريع
-              </small>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* Formulas Vault Card */}
+          <Link href="/portal/formulas" className="group">
+            <SpotlightCard
+              className="p-5 h-full flex flex-col justify-between border-amber-500/20 hover:border-amber-500/40"
+              spotlightColor="rgba(245, 158, 11, 0.15)"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-400 grid place-items-center group-hover:scale-105 transition-transform">
+                  <Sparkles size={20} />
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 font-mono">
+                  230+ قانون
+                </span>
+              </div>
+              <div className="mt-4">
+                <h3 className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors">
+                  مكتبة القوانين الذهبية
+                </h3>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  بطاقات ذكية تفاعلية لحفظ وتطبيق قوانين الكمي والتحصيلي.
+                </p>
+              </div>
+              <div className="mt-4 flex items-center text-xs font-semibold text-amber-400/80 group-hover:text-amber-300">
+                <span>استعراض البطاقات</span>
+                <ChevronLeft size={14} className="mr-0.5 group-hover:-translate-x-1 transition-transform" />
+              </div>
+            </SpotlightCard>
           </Link>
 
-          {/* Calculator */}
-          <Link
-            href="/portal/calculator"
-            className="bento-card p-4 hover:border-[color:var(--gold-border)] transition-all flex flex-col justify-between min-h-[110px]"
-          >
-            <div className="flex items-center justify-between">
-              <span className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 grid place-items-center">
-                <Calculator size={18} />
-              </span>
-              <span className="text-[10px] font-bold text-emerald-400">
-                2026 معتمد
-              </span>
-            </div>
-            <div>
-              <b className="text-xs block font-bold mt-2">حاسبة النسبة الموزونة</b>
-              <small className="text-[10px] text-[color:var(--muted)] block">
-                أوزان الجامعات السعودية
-              </small>
-            </div>
+          {/* Self-Challenge Card */}
+          <Link href="/portal/self-challenge" className="group">
+            <SpotlightCard
+              className="p-5 h-full flex flex-col justify-between border-red-500/20 hover:border-red-500/40"
+              spotlightColor="rgba(239, 68, 68, 0.15)"
+              borderColor="rgba(239, 68, 68, 0.3)"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-2xl bg-red-500/10 text-red-400 grid place-items-center group-hover:scale-105 transition-transform">
+                  <Swords size={20} />
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/10 text-red-400">
+                  تحدي البرق ⚡
+                </span>
+              </div>
+              <div className="mt-4">
+                <h3 className="text-sm font-bold text-white group-hover:text-red-400 transition-colors">
+                  التحدي الذاتي المخصص
+                </h3>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  صمم تدريبك الخاص بضبط الأقسام، عدد الأسئلة والمؤقت الزمني.
+                </p>
+              </div>
+              <div className="mt-4 flex items-center text-xs font-semibold text-red-400/80 group-hover:text-red-300">
+                <span>تخصيص التحدي</span>
+                <ChevronLeft size={14} className="mr-0.5 group-hover:-translate-x-1 transition-transform" />
+              </div>
+            </SpotlightCard>
           </Link>
 
-          {/* Self Challenge */}
-          <Link
-            href="/portal/self-challenge"
-            className="bento-card p-4 hover:border-[color:var(--gold-border)] transition-all flex flex-col justify-between min-h-[110px]"
-          >
-            <div className="flex items-center justify-between">
-              <span className="w-9 h-9 rounded-xl bg-red-500/10 text-red-400 grid place-items-center">
-                <Swords size={18} />
-              </span>
-              <span className="text-[10px] font-bold text-red-400">
-                تحدي البرق ⚡
-              </span>
-            </div>
-            <div>
-              <b className="text-xs block font-bold mt-2">التحدي الذاتي المخصص</b>
-              <small className="text-[10px] text-[color:var(--muted)] block">
-                حدد القسم والمؤقت واختبر
-              </small>
-            </div>
+          {/* 1v1 Arena Challenge Card */}
+          <Link href="/portal/challenge" className="group">
+            <SpotlightCard
+              className="p-5 h-full flex flex-col justify-between border-cyan-500/20 hover:border-cyan-500/40"
+              spotlightColor="rgba(6, 182, 212, 0.15)"
+              borderColor="rgba(6, 182, 212, 0.3)"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 text-cyan-400 grid place-items-center group-hover:scale-105 transition-transform">
+                  <Flame size={20} />
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400">
+                  غرفة مباشرة
+                </span>
+              </div>
+              <div className="mt-4">
+                <h3 className="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors">
+                  حلبة التحدي 1v1
+                </h3>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  أنشئ غرفة تحدٍ مباشرة وشارك الرمز لتنافس زملاءك في نفس اللحظة.
+                </p>
+              </div>
+              <div className="mt-4 flex items-center text-xs font-semibold text-cyan-400/80 group-hover:text-cyan-300">
+                <span>دخول الحلبة</span>
+                <ChevronLeft size={14} className="mr-0.5 group-hover:-translate-x-1 transition-transform" />
+              </div>
+            </SpotlightCard>
           </Link>
 
-          {/* 1v1 Challenge */}
-          <Link
-            href="/portal/challenge"
-            className="bento-card p-4 hover:border-[color:var(--gold-border)] transition-all flex flex-col justify-between min-h-[110px]"
-          >
-            <div className="flex items-center justify-between">
-              <span className="w-9 h-9 rounded-xl bg-cyan-500/10 text-cyan-400 grid place-items-center">
-                <Flame size={18} />
-              </span>
-              <span className="text-[10px] font-bold text-cyan-400">
-                غرفة مباشرة
-              </span>
-            </div>
-            <div>
-              <b className="text-xs block font-bold mt-2">تحدي الأصدقاء 1v1</b>
-              <small className="text-[10px] text-[color:var(--muted)] block">
-                شارك الكود ونافس زملاءك
-              </small>
-            </div>
+          {/* Weighted Calculator Card */}
+          <Link href="/portal/calculator" className="group">
+            <SpotlightCard
+              className="p-5 h-full flex flex-col justify-between border-emerald-500/20 hover:border-emerald-500/40"
+              spotlightColor="rgba(16, 185, 129, 0.15)"
+              borderColor="rgba(16, 185, 129, 0.3)"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-400 grid place-items-center group-hover:scale-105 transition-transform">
+                  <Calculator size={20} />
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">
+                  معايير 2026
+                </span>
+              </div>
+              <div className="mt-4">
+                <h3 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">
+                  حاسبة النسبة الموزونة
+                </h3>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  احسب فرص قبولك في مختلف الجامعات السعودية بدقة متناهية.
+                </p>
+              </div>
+              <div className="mt-4 flex items-center text-xs font-semibold text-emerald-400/80 group-hover:text-emerald-300">
+                <span>حساب النسبة</span>
+                <ChevronLeft size={14} className="mr-0.5 group-hover:-translate-x-1 transition-transform" />
+              </div>
+            </SpotlightCard>
           </Link>
         </div>
       </section>
 
-      {/* Grid of Quick Action Buttons */}
-      <section className="space-y-2">
-        <h2 className="text-xs font-bold text-[color:var(--muted)]">الوصول السريع:</h2>
-        <div className="grid grid-cols-3 gap-2.5">
-          {QUICK.map((q, i) => {
-            const Icon = q.Icon;
+      {/* 4. Quick Actions Grid with Micro-Interactions */}
+      <section className="space-y-3">
+        <h2 className="text-sm font-bold text-slate-200">الوصول السريع:</h2>
+        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-9 gap-2.5">
+          {QUICK_ACTIONS.map((action, idx) => {
+            const Icon = action.Icon;
             return (
               <motion.div
-                key={q.href}
+                key={action.href}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 + i * 0.03, duration: 0.2 }}
+                transition={{ delay: 0.04 * idx, duration: 0.25 }}
               >
                 <Link
-                  href={q.href}
-                  className={[
-                    "bento-card p-3 flex flex-col items-center",
-                    "justify-center gap-1.5 min-h-[76px]",
-                    "hover:border-[color:var(--gold-border)]",
-                    "transition-colors",
-                  ].join(" ")}
+                  href={action.href}
+                  className="group flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-white/20 hover:bg-slate-800/60 transition-all duration-200 min-h-[82px] text-center"
                 >
-                  <Icon size={20} style={{ color: q.tint }} />
-                  <span className="text-[11px] font-semibold">{q.label}</span>
+                  <div
+                    className="w-9 h-9 rounded-xl grid place-items-center transition-transform group-hover:scale-110"
+                    style={{ backgroundColor: `${action.color}15`, color: action.color }}
+                  >
+                    <Icon size={18} />
+                  </div>
+                  <span className="text-[11px] font-bold text-slate-300 group-hover:text-white mt-1.5 line-clamp-1">
+                    {action.label}
+                  </span>
                 </Link>
               </motion.div>
             );
@@ -365,62 +415,62 @@ export default function PortalHome() {
         </div>
       </section>
 
-      {/* Course Progress Section */}
-      <section>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-bold">تقدم دوراتك</h2>
+      {/* 5. Active Courses & Curriculum Progress Section */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <BookOpen size={16} className="text-teal-400" />
+            <span>دوراتك المشترك بها</span>
+          </h2>
           <Link
             href="/portal/progress"
-            className="text-xs text-[color:var(--gold)] flex items-center gap-0.5"
+            className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1"
           >
-            عرض التفاصيل
+            <span>تقرير التقدم الكامل</span>
             <ChevronLeft size={14} />
           </Link>
         </div>
+
         {loading && (
-          <p className="text-xs text-[color:var(--muted)] py-4 text-center">
-            جارٍ التحميل...
-          </p>
+          <div className="p-8 rounded-3xl bg-slate-900/40 border border-white/5 text-center text-xs text-slate-400 animate-pulse">
+            جارٍ تحميل بيانات دوراتك...
+          </div>
         )}
+
         {!loading && rows.length === 0 && (
-          <div className="bento-card p-5 text-center">
-            <p className="text-sm font-semibold mb-1">
-              لا توجد دورات مسجل بها بعد
-            </p>
-            <p className="text-xs text-[color:var(--muted)] mb-3">
-              فعّل كود اشتراك للانضمام إلى دوراتك
+          <SpotlightCard className="p-8 text-center border-amber-500/20 bg-slate-900/40">
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 grid place-items-center mx-auto mb-3">
+              <BookOpen size={28} />
+            </div>
+            <h3 className="text-base font-bold text-white mb-1">لا توجد دورات مسجل بها حالياً</h3>
+            <p className="text-xs text-slate-400 max-w-sm mx-auto mb-4 leading-relaxed">
+              قم بتفعيل كود الاشتراك الخاص بك للوصول الفوري إلى بنوك الأسئلة والشروحات المرئية.
             </p>
             <Link
               href="/portal/redeem"
-              className={[
-                "inline-block text-xs font-bold px-4 py-2.5",
-                "rounded-xl text-[#3a2b06] min-h-[44px]",
-                "leading-[44px]",
-              ].join(" ")}
-              style={{ background: "var(--gold-cta)" }}
+              className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition-all"
             >
-              تفعيل كود
+              <span>تفعيل كود دورة</span>
+              <ChevronLeft size={14} />
             </Link>
-          </div>
+          </SpotlightCard>
         )}
-        <div className="space-y-2">
-          {rows.slice(0, 3).map((r) => (
-            <Link
-              key={r.courseId}
-              href={"/portal/courses/" + r.courseId}
-              className={[
-                "bento-card p-3 flex items-center gap-3",
-                "hover:border-[color:var(--gold-border)]",
-                "transition-colors",
-              ].join(" ")}
-            >
-              <Ring pct={r.pct} size={54} />
-              <span className="min-w-0">
-                <b className="block text-sm truncate">{r.courseName}</b>
-                <small className="block text-xs text-[color:var(--muted)]">
-                  {r.done} من {r.total} مهمة
-                </small>
-              </span>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          {rows.map((course) => (
+            <Link key={course.courseId} href={'/portal/courses/' + course.courseId} className="group">
+              <SpotlightCard className="p-4 flex items-center gap-3.5 border-white/10 hover:border-amber-500/40 transition-colors">
+                <AnimatedProgressRing pct={course.pct} size={54} strokeWidth={4.5} />
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors truncate">
+                    {course.courseName}
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {course.done} من {course.total} مهمة مكتملة
+                  </p>
+                </div>
+                <ChevronLeft size={18} className="text-slate-500 group-hover:text-amber-400 group-hover:-translate-x-1 transition-all" />
+              </SpotlightCard>
             </Link>
           ))}
         </div>

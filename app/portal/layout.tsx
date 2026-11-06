@@ -1,19 +1,29 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Home, ClipboardList, Wrench, TrendingUp, UserRound, Bell, Sparkles, Calculator, Swords,
-} from "lucide-react";
+  Home,
+  ClipboardList,
+  Wrench,
+  TrendingUp,
+  UserRound,
+  Bell,
+  Sparkles,
+  Calculator,
+  Swords,
+  BookOpen,
+} from 'lucide-react';
 
 const TABS = [
-  { href: "/portal", label: "الرئيسية", Icon: Home },
-  { href: "/portal/exams", label: "اختبارات", Icon: ClipboardList },
-  { href: "/portal/mistakes", label: "أخطائي", Icon: Wrench },
-  { href: "/portal/progress", label: "تقدمي", Icon: TrendingUp },
-  { href: "/portal/account", label: "حسابي", Icon: UserRound },
+  { href: '/portal', label: 'الرئيسية', Icon: Home },
+  { href: '/portal/exams', label: 'اختباراتي', Icon: ClipboardList },
+  { href: '/portal/courses', label: 'دوراتي', Icon: BookOpen },
+  { href: '/portal/mistakes', label: 'أخطائي', Icon: Wrench },
+  { href: '/portal/progress', label: 'تقدمي', Icon: TrendingUp },
+  { href: '/portal/account', label: 'حسابي', Icon: UserRound },
 ];
 
 type Note = {
@@ -29,25 +39,27 @@ export default function PortalLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const immersive = pathname.startsWith("/portal/exams/");
+  const immersive = pathname.startsWith('/portal/exams/');
   const [me, setMe] = useState<{ name: string } | null>(null);
-  const [tenantName, setTenantName] = useState("منصة الخوارزمي");
+  const [tenantName, setTenantName] = useState('منصة الخوارزمي');
   const [notes, setNotes] = useState<Note[]>([]);
   const [bellOpen, setBellOpen] = useState(false);
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {
-    fetch("/api/learner/me")
+    fetch('/api/learner/me')
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { if (d && d.name) setMe(d); })
+      .then((d) => {
+        if (d && d.name) setMe(d);
+      })
       .catch(() => {});
-    fetch("/api/me")
+    fetch('/api/me')
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d && d.tenantName) setTenantName(String(d.tenantName));
       })
       .catch(() => {});
-    fetch("/api/learner/notifications")
+    fetch('/api/learner/notifications')
       .then((r) => (r.ok ? r.json() : []))
       .then((d) => {
         const rows: Note[] = Array.isArray(d) ? d : [];
@@ -57,169 +69,172 @@ export default function PortalLayout({
       .catch(() => {});
   }, []);
 
-  const initial = (me?.name || "ط").trim().charAt(0);
+  const initial = (me?.name || 'ط').trim().charAt(0);
 
   return (
     <div
       dir="rtl"
-      className={[
-        "min-h-[100dvh] bg-[color:var(--bg)]",
-        "text-[color:var(--text)]",
-        "font-['IBM_Plex_Sans_Arabic']",
-      ].join(" ")}
+      className="min-h-screen bg-slate-950 text-slate-100 font-['IBM_Plex_Sans_Arabic',sans-serif] selection:bg-amber-500/30 selection:text-amber-200"
     >
+      {/* 1. Universal Top Navigation Bar */}
       {!immersive && (
-      <header
-        className={[
-          "fixed top-0 inset-x-0 z-40",
-          "bg-[rgba(var(--glass-rgb),0.82)] backdrop-blur-xl",
-          "border-b border-[color:var(--border)]",
-        ].join(" ")}
-      >
-        <div className="max-w-[560px] mx-auto h-[58px] px-4 flex items-center gap-2">
-          <Link href="/portal" className="flex items-center gap-2 min-w-0">
-            <span
-              className={[
-                "w-9 h-9 rounded-xl grid place-items-center shrink-0",
-                "text-[#3a2b06] font-black text-lg",
-              ].join(" ")}
-              style={{ background: "var(--gold-cta)" }}
-            >
-              خ
-            </span>
-            <span className="leading-tight min-w-0">
-              <b className="block text-sm font-bold truncate">بوابة الطالب</b>
-              <small className="block text-[10px] text-[color:var(--muted)] truncate">
-                {tenantName}
-              </small>
-            </span>
-          </Link>
-          <div className="flex-1" />
-          <div className="flex items-center gap-0.5">
-            <Link
-              href="/portal/formulas"
-              aria-label="القوانين الذهبية"
-              title="القوانين الذهبية"
-              className="w-9 h-9 grid place-items-center rounded-xl text-[color:var(--muted)] hover:text-[color:var(--gold)] hover:bg-[color:var(--surface-2)] transition-colors"
-            >
-              <Sparkles size={17} />
-            </Link>
-            <Link
-              href="/portal/calculator"
-              aria-label="حاسبة النسبة الموزونة"
-              title="حاسبة النسبة الموزونة"
-              className="w-9 h-9 grid place-items-center rounded-xl text-[color:var(--muted)] hover:text-emerald-400 hover:bg-[color:var(--surface-2)] transition-colors"
-            >
-              <Calculator size={17} />
-            </Link>
-            <Link
-              href="/portal/self-challenge"
-              aria-label="التحدي الذاتي"
-              title="التحدي الذاتي"
-              className="w-9 h-9 grid place-items-center rounded-xl text-[color:var(--muted)] hover:text-red-400 hover:bg-[color:var(--surface-2)] transition-colors"
-            >
-              <Swords size={17} />
-            </Link>
-          </div>
-          <button
-            onClick={() => setBellOpen((v) => !v)}
-            aria-label="الإشعارات"
-            className={[
-              "relative w-11 h-11 grid place-items-center rounded-xl",
-              "text-[color:var(--muted)] hover:text-[color:var(--gold)]",
-              "transition-colors",
-            ].join(" ")}
-          >
-            <Bell size={21} />
-            {unread > 0 && (
-              <span
-                className={[
-                  "absolute top-1 left-1 min-w-[18px] h-[18px] px-1",
-                  "rounded-full text-[10px] font-bold grid",
-                  "place-items-center text-[#3a2b06]",
-                ].join(" ")}
-                style={{ background: "var(--gold)" }}
-              >
-                {unread > 9 ? "9+" : unread}
+        <header className="fixed top-0 inset-x-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-white/10 transition-all">
+          <div className="max-w-6xl mx-auto h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
+            {/* Logo & Tenant Identity */}
+            <Link href="/portal" className="flex items-center gap-3 min-w-0 group">
+              <span className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black text-xl grid place-items-center shrink-0 shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform">
+                خ
               </span>
-            )}
-          </button>
-          <Link
-            href="/portal/account"
-            aria-label="حسابي"
-            className={[
-              "w-10 h-10 rounded-full grid place-items-center",
-              "font-black text-sm shrink-0",
-            ].join(" ")}
-            style={{
-              background: "var(--gold-soft)",
-              color: "var(--gold)",
-            }}
-          >
-            {initial}
-          </Link>
-        </div>
-        <AnimatePresence>
-          {bellOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18 }}
-              className="absolute top-[58px] inset-x-0"
-            >
-              <div className="max-w-[560px] mx-auto px-4 pb-2">
-                <div className="bento-card p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <b className="text-sm">الإشعارات</b>
+              <div className="leading-tight min-w-0">
+                <span className="block text-sm font-black text-white group-hover:text-amber-300 transition-colors truncate">
+                  بوابة الطالب الذكية
+                </span>
+                <span className="block text-[11px] text-slate-400 font-medium truncate">
+                  {tenantName}
+                </span>
+              </div>
+            </Link>
+
+            {/* Desktop Navigation Links */}
+            <nav className="hidden md:flex items-center gap-1 bg-slate-900/60 p-1.5 rounded-2xl border border-white/5">
+              {TABS.map((t) => {
+                const active = pathname === t.href || (t.href !== '/portal' && pathname.startsWith(t.href));
+                const Icon = t.Icon;
+                return (
+                  <Link
+                    key={t.href}
+                    href={t.href}
+                    className={`relative px-3.5 py-1.5 rounded-xl flex items-center gap-2 text-xs font-bold transition-all ${
+                      active
+                        ? 'text-amber-400 bg-white/5 shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                    }`}
+                  >
+                    <Icon size={16} strokeWidth={active ? 2.5 : 2} />
+                    <span>{t.label}</span>
+                    {active && (
+                      <motion.span
+                        layoutId="desktop-active-pill"
+                        className="absolute inset-0 rounded-xl border border-amber-500/40 pointer-events-none"
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* Right Tools & Profile */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="hidden sm:flex items-center gap-1">
+                <Link
+                  href="/portal/formulas"
+                  aria-label="القوانين الذهبية"
+                  title="القوانين الذهبية"
+                  className="w-9 h-9 grid place-items-center rounded-xl text-slate-400 hover:text-amber-400 hover:bg-white/5 transition-colors"
+                >
+                  <Sparkles size={18} />
+                </Link>
+                <Link
+                  href="/portal/calculator"
+                  aria-label="حاسبة النسبة الموزونة"
+                  title="حاسبة النسبة الموزونة"
+                  className="w-9 h-9 grid place-items-center rounded-xl text-slate-400 hover:text-emerald-400 hover:bg-white/5 transition-colors"
+                >
+                  <Calculator size={18} />
+                </Link>
+                <Link
+                  href="/portal/self-challenge"
+                  aria-label="التحدي الذاتي"
+                  title="التحدي الذاتي"
+                  className="w-9 h-9 grid place-items-center rounded-xl text-slate-400 hover:text-red-400 hover:bg-white/5 transition-colors"
+                >
+                  <Swords size={18} />
+                </Link>
+              </div>
+
+              {/* Notifications Toggle */}
+              <button
+                onClick={() => setBellOpen((v) => !v)}
+                aria-label="الإشعارات"
+                className="relative w-10 h-10 grid place-items-center rounded-xl text-slate-400 hover:text-amber-400 hover:bg-white/5 transition-colors"
+              >
+                <Bell size={20} />
+                {unread > 0 && (
+                  <span className="absolute top-1.5 left-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black grid place-items-center bg-amber-500 text-slate-950 shadow-sm animate-pulse">
+                    {unread > 9 ? '9+' : unread}
+                  </span>
+                )}
+              </button>
+
+              {/* Student Avatar */}
+              <Link
+                href="/portal/account"
+                aria-label="حسابي"
+                className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/30 text-amber-400 font-black text-sm grid place-items-center shrink-0 hover:scale-105 transition-all shadow-sm"
+              >
+                {initial}
+              </Link>
+            </div>
+          </div>
+
+          {/* Notifications Dropdown Drawer */}
+          <AnimatePresence>
+            {bellOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="absolute top-16 inset-x-0 bg-slate-900/95 backdrop-blur-2xl border-b border-white/10 shadow-2xl py-3"
+              >
+                <div className="max-w-md mx-auto px-4">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/10">
+                    <span className="text-sm font-bold text-white flex items-center gap-1.5">
+                      <Bell size={16} className="text-amber-400" />
+                      <span>تنبيهات المنصة</span>
+                    </span>
                     <Link
                       href="/portal/notifications"
-                      className="text-xs text-[color:var(--gold)]"
+                      className="text-xs font-semibold text-amber-400 hover:text-amber-300"
                       onClick={() => setBellOpen(false)}
                     >
-                      عرض الكل
+                      عرض جميع الإشعارات
                     </Link>
                   </div>
                   {notes.length === 0 && (
-                    <p className="text-xs text-[color:var(--muted)] py-3 text-center">
-                      لا إشعارات بعد
-                    </p>
+                    <p className="text-xs text-slate-400 py-4 text-center">لا توجد إشعارات جديدة حالياً</p>
                   )}
-                  <div className="space-y-1">
+                  <div className="space-y-1.5 max-h-60 overflow-y-auto">
                     {notes.map((n) => (
                       <div
                         key={n.id}
-                        className={[
-                          "rounded-lg px-3 py-2",
-                          "bg-[color:var(--surface-2)]",
-                        ].join(" ")}
+                        className="rounded-xl p-2.5 bg-white/5 border border-white/5 hover:border-amber-500/30 transition-colors"
                       >
-                        <p className="text-xs font-medium leading-5 line-clamp-2">
-                          {n.title}
-                        </p>
-                        <small className="text-[10px] text-[color:var(--muted-dim)]">
-                          {new Date(n.created_at).toLocaleDateString("ar-EG")}
-                        </small>
+                        <p className="text-xs font-medium text-slate-200 line-clamp-2">{n.title}</p>
+                        <span className="text-[10px] text-slate-400 mt-1 block">
+                          {new Date(n.created_at).toLocaleDateString('ar-EG')}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </header>
       )}
 
-      <main className={immersive ? "" : "pt-[78px] pb-[110px]"}>
-        <div className={immersive ? "" : "max-w-[560px] mx-auto px-4"}>
+      {/* 2. Main Content Container */}
+      <main className={immersive ? '' : 'pt-20 pb-28 md:pb-16'}>
+        <div className={immersive ? '' : 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'}>
           <AnimatePresence mode="wait">
             <motion.div
               key={pathname}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25 }}
             >
               {children}
             </motion.div>
@@ -227,46 +242,38 @@ export default function PortalLayout({
         </div>
       </main>
 
+      {/* 3. Floating Mobile Bottom Dock Navigation (md:hidden) */}
       {!immersive && (
-      <nav
-        className={[
-          "fixed bottom-0 inset-x-0 z-40",
-          "bg-[rgba(var(--glass-rgb),0.94)] backdrop-blur-xl",
-          "border-t border-[color:var(--border)]",
-        ].join(" ")}
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-      >
-        <div className="max-w-[560px] mx-auto grid grid-cols-5">
-          {TABS.map((t) => {
-            const active = pathname === t.href;
-            const Icon = t.Icon;
-            return (
-              <Link
-                key={t.href}
-                href={t.href}
-                className={[
-                  "relative min-h-[56px] flex flex-col",
-                  "items-center justify-center gap-0.5 pt-1.5",
-                  "transition-colors",
-                  active
-                    ? "text-[color:var(--gold)]"
-                    : "text-[color:var(--muted)]",
-                ].join(" ")}
-              >
-                {active && (
-                  <motion.span
-                    layoutId="mkz-tab"
-                    className="absolute top-0.5 w-10 h-1 rounded-full"
-                    style={{ background: "var(--gold)" }}
-                  />
-                )}
-                <Icon size={21} strokeWidth={active ? 2.4 : 2} />
-                <span className="text-[10px] font-semibold">{t.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
+        <nav
+          className="md:hidden fixed bottom-3 inset-x-4 z-40 bg-slate-900/85 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl shadow-black/60 px-2 py-1.5"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6px)' }}
+        >
+          <div className="grid grid-cols-6 items-center">
+            {TABS.map((t) => {
+              const active = pathname === t.href || (t.href !== '/portal' && pathname.startsWith(t.href));
+              const Icon = t.Icon;
+              return (
+                <Link
+                  key={t.href}
+                  href={t.href}
+                  className={`relative min-h-[50px] flex flex-col items-center justify-center gap-1 rounded-2xl transition-all ${
+                    active ? 'text-amber-400' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {active && (
+                    <motion.span
+                      layoutId="mobile-active-pill"
+                      className="absolute inset-0 rounded-2xl bg-white/10 border border-amber-500/30"
+                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    />
+                  )}
+                  <Icon size={19} strokeWidth={active ? 2.5 : 2} className="relative z-10" />
+                  <span className="text-[10px] font-bold tracking-tight relative z-10">{t.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
       )}
     </div>
   );
